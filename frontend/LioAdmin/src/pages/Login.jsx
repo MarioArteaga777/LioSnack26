@@ -2,6 +2,7 @@
 // Para este ejemplo se usa un usuario fijo en memoria y se crea un token falso.
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
 import MultiLevelSidebar from "../components/SideBar";
 import img_Background from "../../img/background_image_2026.png";
 import img_Logo from "../../img/Logo.png";
@@ -30,12 +31,55 @@ const users = [
 ];
 
 const login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const emailRegister = register("email");
+  const passwordRegister = register("password");
+
+  const attemptLogin = async (data) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const user = users.find(
+        (u) =>
+          u.email === data.email &&
+          u.password === data.password
+      );
+
+      if (!user) {
+        throw new Error("Correo o contraseña incorrectos");
+      }
+
+      // Token falso
+      const fakeToken = crypto.randomUUID();
+
+      localStorage.setItem("token", fakeToken);
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+        })
+      );
+
+      navigate("/home");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     // Si ya existe un token, el usuario ya está autenticado.
@@ -47,49 +91,6 @@ const login = () => {
       navigate("/home");
     }
   }, [navigate]);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError("");
-
-    // Validación simple de los campos antes de continuar.
-    if (!email.trim() || !password) {
-      setError("Por favor completa email y contraseña.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // Busca en la lista local de usuarios el email y contraseña ingresados.
-      const user = users.find(
-        (item) =>
-          item.email.toLowerCase() === email.trim().toLowerCase() &&
-          item.password === password,
-      );
-
-      if (!user) {
-        // Si no existe, se lanza un error y se muestra al usuario.
-        throw new Error("Email o contraseña incorrectos.");
-      }
-
-      // Se genera un token falso para simular autenticación.
-      const token = `token-${user.id}-${Date.now()}`;
-      const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem("fakestore_token", token);
-      storage.setItem("fakestore_user", user.username);
-      storage.setItem("fakestore_email", user.email);
-
-      // Redirige a la página de inicio luego de iniciar sesión.
-      navigate("/home");
-    } catch (error_) {
-      setError(
-        error_.message || "Error al iniciar sesión. Intenta nuevamente.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div
@@ -116,19 +117,28 @@ const login = () => {
           </div>
           */}
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit(attemptLogin)} noValidate>
             <div className="space-y-4">
               <label className="block text-sm font-medium text-slate-700">
                 Email
               </label>
               <input
                 type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
                 placeholder="usuario@dominio.com"
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition duration-200 focus:border-indigo-500 focus:bg-white"
                 required
+                {...emailRegister}
+                aria-invalid={!!errors.email}
               />
+              {errors.email && (
+                <p
+                  className="mt-1 text-xs text-red-600"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  {errors.email.message || "El email es requerido."}
+                </p>
+              )}
               <button
                 type="button"
                 onClick={() => navigate("/forgot-username")}
@@ -144,12 +154,21 @@ const login = () => {
               </label>
               <input
                 type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
                 placeholder="********"
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition duration-200 focus:border-indigo-500 focus:bg-white"
                 required
+                {...passwordRegister}
+                aria-invalid={!!errors.password}
               />
+              {errors.password && (
+                <p
+                  className="mt-1 text-xs text-red-600"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  {errors.password.message || "La contraseña es requerida."}
+                </p>
+              )}
               <button
                 type="button"
                 onClick={() => navigate("/forgot-password")}
