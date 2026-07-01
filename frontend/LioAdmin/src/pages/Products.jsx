@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import ProductCard from "../components/ProductCard";
+import ProductCard from "../components/Cards/ProductCard";
 import Button from "../components/Button";
 import { useState } from "react";
 import ProductForm from "../forms/ProductForm";

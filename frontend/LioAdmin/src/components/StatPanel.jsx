@@ -1,4 +1,4 @@
-import StatCard from "./StatCard";
+import StatCard from "./Cards/StatCard";
 
 const StatsPanel = ({ stats }) => {
   return (

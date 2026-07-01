@@ -1,5 +1,5 @@
 import { Package, Boxes, Truck, ClipboardList } from "lucide-react";
-import KpiCard from "../components/KpiCard";
+import KpiCard from "../components/Cards/KpiCard";
 import OrderItem from "../components/OrderItem";
 
 const kpis = [

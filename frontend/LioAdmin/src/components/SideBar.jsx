@@ -37,11 +37,6 @@ export const links = [
     icon: FiTruck,
   },
   {
-    to: "/sales",
-    label: "Ventas",
-    icon: FiFolder,
-  },
-  {
     label: "Cuentas",
     icon: FiDollarSign,
     children: [
@@ -87,9 +82,9 @@ const Sidebar = () => {
                 onClick={() =>
                   setOpenMenu(openMenu === label ? null : label)
                 }
-                className="w-full flex items-center justify-between px-15 py-3.5 hover:bg-white/30"
+                className="w-full flex items-center justify-between px-15 py-3.5 bg-white/30 hover:bg-white/30"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 ">
                   <Icon size={16} />
                   {label}
                 </div>
@@ -109,7 +104,7 @@ const Sidebar = () => {
                     key={child.to}
                     to={child.to}
                     className={({ isActive }) =>
-                      `block ml-10 mr-2 px-4 py-2 rounded transition ${isActive
+                      `w-full flex items-center justify-center block mr-2 px-4 py-3.5 rounded transition ${isActive
                         ? "bg-white font-bold"
                         : "hover:bg-white/30"
                       }`

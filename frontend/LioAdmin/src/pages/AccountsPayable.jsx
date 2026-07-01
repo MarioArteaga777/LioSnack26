@@ -1,95 +1,77 @@
-import { Banknote, CheckCircle2, Package, Clock } from "lucide-react";
+import { Plus, Wallet, AlertTriangle, DollarSign } from "lucide-react";
+import Button from "../components/Button";
+import StatsPanel from "../components/StatPanel";
+import AccountCard from "../components/Cards/AccountCard";
 
-const statusColors = {
-  Cobrado: "bg-sky-200 text-sky-900",
-  Pagado: "bg-sky-200 text-sky-900",
-  Pendiente: "bg-rose-600 text-white",
-};
+const stats = [
+  { icon: Wallet, label: "Cuentas", value: "43" },
+  { icon: AlertTriangle, label: "Cuentas pendientes", value: "28/43" },
+  { icon: DollarSign, label: "Cuentas pagadas", value: "15/43" },
+];
 
-const cardColors = {
-  Cobrado: "bg-sky-100",
-  Pagado: "bg-sky-100",
-  Pendiente: "bg-rose-600",
-};
+const accounts = [
+  {
+    id: 1,
+    client: "Don pepito",
+    amount: 29.55,
+    pendingBalance: 0,
+    status: "Pagado",
+    dueDate: "02/04/2026",
+  },
+  {
+    id: 2,
+    client: "Don pepito",
+    amount: 29.55,
+    pendingBalance: 0,
+    status: "Pagado",
+    dueDate: "02/04/2026",
+  },
+  {
+    id: 3,
+    client: "Don pepito",
+    amount: 29.55,
+    pendingBalance: 10.5,
+    status: "Pendiente",
+    dueDate: "20/05/2026",
+    daysLeft: 30,
+  },
+];
 
-const ClientAccountCard = ({
-  client,
-  image,
-  amount,
-  pendingBalance,
-  status,
-  dueDate,
-  onUpdate,
-  onDetails,
-  onDelete,
-}) => {
-  const isPending = status === "Pendiente";
-
+const AccountsPayable = () => {
   return (
-    <div className={`rounded-2xl p-3 ${cardColors[status]}`}>
-      {/* Nombre del cliente */}
-      <div className="bg-white rounded-full px-4 py-1.5 mb-3 text-center">
-        <span className="text-sm font-medium text-gray-800">
-          Cliente: {client}
-        </span>
+    <div>
+      {/* Header */}
+      <div className="mb-2 flex items-center justify-between">
+        <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">Cuentas por Pagar</h1>
+        <Button text="Nueva cuenta" icon={Plus} onClick={() => {}} />
       </div>
+      <button className="mb-4 block text-sm text-blue-400 hover:underline">
+        ver todo
+      </button>
 
-      {/* Contenido */}
-      <div className="flex gap-3 mb-3">
-        <img
-          src={image}
-          alt={client}
-          className="h-20 w-20 rounded-lg object-cover shrink-0"
-        />
-        <div className="flex flex-col gap-1.5">
-          <span className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${isPending ? "bg-rose-800/40 text-white" : "bg-white/60 text-gray-800"}`}>
-            <Banknote className="h-3 w-3" /> Monto: ${amount}
-          </span>
+      {/* Stats */}
+      <StatsPanel stats={stats} />
 
-          {pendingBalance !== undefined && (
-            <span className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${isPending ? "bg-rose-800/40 text-white" : "bg-white/60 text-gray-800"}`}>
-              <Clock className="h-3 w-3" /> Saldo pendiente: ${pendingBalance}
-            </span>
-          )}
-
-          <span className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${statusColors[status]}`}>
-            <CheckCircle2 className="h-3 w-3" /> Estado: {status}
-          </span>
-
-          <span className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${isPending ? "bg-rose-800/40 text-white" : "bg-white/60 text-gray-800"}`}>
-            <Package className="h-3 w-3" /> Productos
-          </span>
-        </div>
-      </div>
-
-      {/* Fecha */}
-      <div className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-full mb-2 ${isPending ? "bg-rose-800/40 text-white" : "bg-white/60 text-gray-800"}`}>
-        <Clock className="h-3 w-3" /> Fecha de vencimiento: {dueDate}
-      </div>
-
-      {/* Acciones */}
-      <div className="flex gap-2">
-        <button
-          onClick={onUpdate}
-          className="flex-1 bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium py-1.5 rounded-full transition-colors"
-        >
-          Actualizar
-        </button>
-        <button
-          onClick={onDetails}
-          className="flex-1 bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium py-1.5 rounded-full transition-colors"
-        >
-          Detalles
-        </button>
-        <button
-          onClick={onDelete}
-          className="flex-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium py-1.5 rounded-full transition-colors"
-        >
-          Eliminar
-        </button>
+      {/* Cards de cuentas */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {accounts.map((acc) => (
+          <AccountCard
+            key={acc.id}
+            client={acc.client}
+            image={acc.image}
+            amount={acc.amount}
+            pendingBalance={acc.pendingBalance}
+            status={acc.status}
+            dueDate={acc.dueDate}
+            daysLeft={acc.daysLeft}
+            onUpdate={() => console.log("actualizar", acc.id)}
+            onDetails={() => console.log("detalles", acc.id)}
+            onDelete={() => console.log("eliminar", acc.id)}
+          />
+        ))}
       </div>
     </div>
   );
 };
 
-export default ClientAccountCard;
+export default AccountsPayable;

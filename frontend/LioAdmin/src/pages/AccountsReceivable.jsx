@@ -1,8 +1,7 @@
 import { Plus, Coins, AlertCircle, Wallet, Users, UserCheck, UserX } from "lucide-react";
 import Button from "../components/Button";
-import StatsPanel from "../components/StatsPanel";
-import ClientAccountCard from "../components/ClientAccountCard";
-import snackImg from "../assets/snack-manzana.jpg";
+import StatsPanel from "../components/StatPanel";
+import AccountCard from "../components/Cards/AccountCard";
 
 const stats = [
   { icon: Coins, label: "Cuentas Cobradas", value: "15/43" },
@@ -14,20 +13,20 @@ const stats = [
 ];
 
 const accounts = [
-  { id: 1, client: "Don pepito", amount: 29.55, status: "Cobrado", dueDate: "02/04/2026", image: snackImg },
-  { id: 2, client: "Don pepito", amount: 29.55, status: "Cobrado", dueDate: "02/04/2026", image: snackImg },
-  { id: 3, client: "Don pepito", amount: 29.55, status: "Pendiente", dueDate: "20/05/2026", image: snackImg },
+  { id: 1, client: "Don pepito", amount: 29.55, status: "Cobrado", dueDate: "02/04/2026"},
+  { id: 2, client: "Don pepito", amount: 29.55, status: "Cobrado", dueDate: "02/04/2026"},
+  { id: 3, client: "Don pepito", amount: 29.55, status: "Pendiente", dueDate: "20/05/2026"},
 ];
 
 const AccountsReceivable = () => {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-2xl font-semibold text-white">Cuentas por Cobrar</h1>
+      <div className="mb-2 flex items-center justify-between">
+        <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">Cuentas por Cobrar</h1>
         <Button text="Nueva cuenta" icon={Plus} onClick={() => {}} />
       </div>
-      <button className="text-sm text-blue-400 hover:underline mb-4 block">
+      <button className="mb-4 block text-sm text-blue-400 hover:underline">
         ver todo
       </button>
 
@@ -35,15 +34,16 @@ const AccountsReceivable = () => {
       <StatsPanel stats={stats} />
 
       {/* Cards de clientes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {accounts.map((acc) => (
-          <ClientAccountCard
+          <AccountCard
             key={acc.id}
             client={acc.client}
             image={acc.image}
             amount={acc.amount}
             status={acc.status}
             dueDate={acc.dueDate}
+            showProducts
             onUpdate={() => console.log("actualizar", acc.id)}
             onDetails={() => console.log("detalles", acc.id)}
             onDelete={() => console.log("eliminar", acc.id)}
