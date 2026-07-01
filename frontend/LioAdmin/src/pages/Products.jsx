@@ -12,20 +12,27 @@ const products = Array.from({ length: 12 }, (_, i) => ({
 }));
 
 const Products = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div>
-        <div className="flex justify-center items-center">
+      <ProductForm
+        id="my-dialog"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
 
-      <ProductForm id={"my-dialog"} />
-
-        </div>
       {/* Header */}
       <div className="flex items-center justify-between mb-20">
         <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">
           Productos
         </h1>
 
-        <Button id="my-dialog" text="Nuevo Producto" icon={Plus} />
+        <Button
+          text="Nuevo Producto"
+          icon={Plus}
+          onClick={() => setIsModalOpen(true)}
+        />
       </div>
 
       <div className="flex justify-center">

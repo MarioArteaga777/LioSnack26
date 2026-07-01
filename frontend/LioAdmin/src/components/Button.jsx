@@ -20,12 +20,9 @@ const Button = ({
   size = "xl",
   disabled = false,
   className = "",
-  id=""
 }) => {
   return (
     <button
-      command="show-modal"
-      commandfor={id}
       type={type}
       onClick={onClick}
       disabled={disabled}
