@@ -20,7 +20,7 @@ const users = [
     id: 2,
     email: "morrison@gmail.com",
     username: "mor_2314",
-    password: "83r5^_",
+    password: "83445",
   },
   {
     id: 3,
@@ -65,11 +65,12 @@ const login = () => {
       localStorage.setItem("token", fakeToken);
 
       localStorage.setItem(
-        "user",
+        "token",
         JSON.stringify({
           id: user.id,
           username: user.username,
           email: user.email,
+          password: user.password
         })
       );
 
@@ -85,8 +86,8 @@ const login = () => {
     // Si ya existe un token, el usuario ya está autenticado.
     // Entonces redirige directamente a la página de inicio.
     const token =
-      localStorage.getItem("fakestore_token") ||
-      sessionStorage.getItem("fakestore_token");
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token");
     if (token) {
       navigate("/home");
     }

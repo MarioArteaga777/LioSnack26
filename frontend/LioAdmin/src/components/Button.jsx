@@ -9,7 +9,7 @@ const sizes = {
   md: "py-2 px-4 text-sm",
   lg: "py-3 px-6 text-base",
   xl: "py-4 px-8 text-lg",
-  };
+};
 
 const Button = ({
   type = "button",
@@ -20,9 +20,12 @@ const Button = ({
   size = "xl",
   disabled = false,
   className = "",
+  id=""
 }) => {
   return (
     <button
+      command="show-modal"
+      commandfor={id}
       type={type}
       onClick={onClick}
       disabled={disabled}
