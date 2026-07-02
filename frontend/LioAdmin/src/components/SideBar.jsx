@@ -1,6 +1,7 @@
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import img from "../../img/Logo.png"
 import { useState } from "react";
+import useAuth from "../hooks/useAuth";
 import {
   FiHome,
   FiPackage,
@@ -12,7 +13,8 @@ import {
   FiSmile,
   FiDollarSign,
   FiTruck,
-  FiChevronDown
+  FiChevronDown,
+  FiLogOut
 } from "react-icons/fi";
 
 export const links = [
@@ -65,12 +67,20 @@ export const links = [
 const Sidebar = () => {
 
   const [openMenu, setOpenMenu] = useState(null);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
 
   return (
     <aside className="w-60 h-screen bg-gray-300 text-black flex flex-col shrink-0">
       <div className="flex items-center justify-center py-6">
         <img src={img} alt="Logo" className="size-32 object-contain" />
       </div>
+      <div className="flex-1 overflow-y-auto">
       {links.map(({ to, label, icon: Icon, children }) => {
 
         // Si tiene submenu
@@ -82,7 +92,7 @@ const Sidebar = () => {
                 onClick={() =>
                   setOpenMenu(openMenu === label ? null : label)
                 }
-                className="w-full flex items-center justify-between px-15 py-3.5 bg-white/30 hover:bg-white/30"
+                className="w-full flex items-center justify-between px-15 py-3.5 hover:bg-white/30"
               >
                 <div className="flex items-center gap-3 ">
                   <Icon size={16} />
@@ -136,6 +146,15 @@ const Sidebar = () => {
           </NavLink>
         );
       })}
+      </div>
+
+      <button
+        onClick={handleLogout}
+        className="flex items-center gap-3 px-15 py-3.5 transition hover:bg-white/30 border-t border-black/10"
+      >
+        <FiLogOut size={16} />
+        Cerrar sesión
+      </button>
     </aside>
   );
 };
