@@ -45,7 +45,7 @@ loginUserController.login = async (req, res) => {
     await userFound.save();
 
     const token = jsonwebtoken.sign(
-      { id: userFound._id, userType: "User" },
+      { id: userFound._id, Type: "Admin" },
       config.JWT.secret,
       { expiresIn: "30d" }
     );
