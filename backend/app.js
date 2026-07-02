@@ -3,6 +3,8 @@ import CuentasPCRoutes from "./src/routes/cuentasPC.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import CuentasPPRoutes from "./src/routes/cuentasPP.js"
+import productosRoutes from "./src/routes/productos.js";
+import produccionRoutes from "./src/routes/produccion.js";
 
 
 const app = express();
@@ -20,6 +22,8 @@ app.use(cookieParser());
 //Que acepte JSON desde postman
 app.use(express.json());
 
+app.use("/api/produccion", produccionRoutes);
+app.use("/api/productos", productosRoutes);
 app.use("/api/CuentasPorCobrar", CuentasPCRoutes);
 app.use("/api/cuentasPorPagar", CuentasPPRoutes);
 
