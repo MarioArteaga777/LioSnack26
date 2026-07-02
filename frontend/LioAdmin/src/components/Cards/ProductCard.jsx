@@ -1,8 +1,7 @@
 import useActionsMenu from "../../hooks/useActionsMenu";
 import EntityActionsMenu from "./EntityActionsMenu";
 
-const ProductCard = ({ image, name, stock, price, onUpdate, onDetails, onDelete }) => {
-  const inStock = stock > 0;
+const ProductCard = ({ image, name, sku, price, onUpdate, onDetails, onDelete }) => {
   const { open: menuOpen, setOpen: setMenuOpen, containerRef } = useActionsMenu();
 
   const hasActions = onUpdate || onDetails || onDelete;
@@ -32,7 +31,7 @@ const ProductCard = ({ image, name, stock, price, onUpdate, onDetails, onDelete 
 
       <div className="relative flex flex-col items-center">
         {/* Imagen del producto */}
-        <div className="h-32 w-32 flex items-center justify-center mb-3">
+        <div className="h-40 w-40 flex items-center justify-center mb-3">
           <img
             src={image}
             alt={name}
@@ -45,17 +44,10 @@ const ProductCard = ({ image, name, stock, price, onUpdate, onDetails, onDelete 
           {name}
         </h3>
 
-        {/* Badges: stock y precio */}
+        {/* Badges: SKU y precio */}
         <div className="flex items-center gap-2">
-          <span
-            className={`flex items-center gap-1 text-xs font-medium px-3 py-1 rounded-full ${
-              inStock
-                ? "bg-pink-500/20 text-pink-300"
-                : "bg-red-500/20 text-red-300"
-            }`}
-          >
-            <span className="h-2 w-2 rounded-full bg-pink-400" />
-            En Stock: {stock}
+          <span className="text-xs font-medium px-3 py-1 rounded-full bg-pink-500/20 text-pink-300">
+            SKU: {sku}
           </span>
 
           <span className="text-xs font-medium px-3 py-1 rounded-full bg-white/10 text-white">

@@ -3,19 +3,15 @@ import { toast } from "sonner";
 import ProductCard from "../components/Cards/ProductCard";
 import ProductDetailsModal from "../components/Cards/ProductDetailsModal";
 import Button from "../components/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ProductForm from "../forms/ProductForm";
 import confirmToast from "../utils/confirmToast";
-
-const initialProducts = Array.from({ length: 12 }, (_, i) => ({
-  id: i,
-  name: "Snack liofilizado de Manzana",
-  stock: 0,
-  price: 2.5,
-}));
+import useFetchProductos from "../hooks/Products/useFetchProductos";
+import useProductosActions from "../hooks/Products/useProductosActions";
 
 const Products = () => {
-  const [products, setProducts] = useState(initialProducts);
+  const { productos, setProductos, getProductos, loading } = useFetchProductos();
+  const { createProducto, updateProducto, deleteProducto } = useProductosActions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [detailsProduct, setDetailsProduct] = useState(null);
@@ -35,26 +31,57 @@ const Products = () => {
     setEditingProduct(null);
   };
 
-  const handleSaveProduct = (data) => {
+  const handleSaveProduct = async (data) => {
+    // Verificar que hay imagen al crear
+    if (!editingProduct && !data.image) {
+      toast.error("Por favor selecciona una imagen");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("Nombre", data.name);
+    formData.append("SKU", data.sku);
+    formData.append("Precio", data.price);
+
+    // Si hay imagen, se agrega
+    if (data.image) {
+      formData.append("Imagen", data.image);
+    }
+
     if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((p) => (p.id === editingProduct.id ? { ...p, ...data } : p))
-      );
-      toast.success("Producto actualizado");
+      const result = await updateProducto(editingProduct._id, formData);
+      if (result.ok) {
+        await getProductos();
+        closeForm();
+      }
     } else {
-      setProducts((prev) => [...prev, { id: crypto.randomUUID(), ...data }]);
-      toast.success("Producto creado");
+      const result = await createProducto(formData);
+      if (result.ok) {
+        await getProductos();
+        closeForm();
+      }
     }
   };
 
   const handleDelete = async (product) => {
     const confirmed = await confirmToast(
-      `¿Eliminar "${product.name}"? Esta acción no se puede deshacer.`
+      `¿Eliminar "${product.Nombre}"? Esta acción no se puede deshacer.`
     );
     if (!confirmed) return;
-    setProducts((prev) => prev.filter((p) => p.id !== product.id));
-    toast.success("Producto eliminado");
+    
+    const result = await deleteProducto(product._id);
+    if (result.ok) {
+      await getProductos();
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-white">Cargando productos...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -87,16 +114,24 @@ const Products = () => {
 
       <div className="flex justify-center">
         {/* Grid de productos */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6 gap-4 ">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              {...product}
-              onUpdate={() => openUpdateForm(product)}
-              onDetails={() => setDetailsProduct(product)}
-              onDelete={() => handleDelete(product)}
-            />
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6 gap-x-8 gap-y-6 ">
+          {productos.length > 0 ? (
+            productos.map((product) => (
+              <ProductCard
+                key={product._id}
+                id={product._id}
+                name={product.Nombre}
+                price={product.Precio}
+                image={product.Imagen}
+                sku={product.SKU}
+                onUpdate={() => openUpdateForm(product)}
+                onDetails={() => setDetailsProduct(product)}
+                onDelete={() => handleDelete(product)}
+              />
+            ))
+          ) : (
+            <p className="text-white">No hay productos disponibles</p>
+          )}
         </div>
       </div>
     </div>

@@ -30,11 +30,11 @@ const ProductDetailsModal = ({ id, product, onClose }) => {
         <div className="w-[400px] rounded-2xl bg-[#1B022C] p-6 text-white">
           <h2 className="mb-6 text-xl font-semibold">Detalles del producto</h2>
 
-          {product.image && (
+          {product.Imagen && (
             <div className="mb-4 flex h-32 items-center justify-center">
               <img
-                src={product.image}
-                alt={product.name}
+                src={product.Imagen}
+                alt={product.Nombre}
                 className="h-full w-full object-contain"
               />
             </div>
@@ -43,15 +43,15 @@ const ProductDetailsModal = ({ id, product, onClose }) => {
           <dl className="flex flex-col gap-3 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-white/60">Nombre</dt>
-              <dd className="font-medium text-right">{product.name}</dd>
+              <dd className="font-medium text-right">{product.Nombre}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-white/60">SKU</dt>
+              <dd className="font-medium">{product.SKU}</dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-white/60">Precio</dt>
-              <dd className="font-medium">${product.price}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-white/60">En stock</dt>
-              <dd className="font-medium">{product.stock}</dd>
+              <dd className="font-medium">${product.Precio}</dd>
             </div>
           </dl>
 

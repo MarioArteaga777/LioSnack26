@@ -34,9 +34,19 @@ productosController.getProductoById = async (req, res) => {
 // Insertar
 productosController.insertProducto = async (req, res) => {
     try {
-
-        console.log(req.file);
+        console.log("=== INSERT PRODUCTO ===");
+        console.log("req.file:", req.file);
+        console.log("req.body:", req.body);
+        console.log("req.headers['content-type']:", req.headers['content-type']);
+        
         const { Nombre, SKU, Precio } = req.body;
+
+        if (!req.file) {
+            console.log("ERROR: No hay archivo en req.file");
+            return res.status(400).json({
+                message: "Error: La imagen es requerida"
+            });
+        }
 
         const newProducto = new productosModel({
             Nombre,
@@ -53,9 +63,10 @@ productosController.insertProducto = async (req, res) => {
         });
 
     } catch (error) {
-        console.log("error" + error);
+        console.log("error:", error.message);
         return res.status(500).json({
-            message: "Internal server error"
+            message: "Error al guardar la produccion",
+            error: error.message
         });
     }
 };
@@ -63,10 +74,13 @@ productosController.insertProducto = async (req, res) => {
 // Actualizar
 productosController.updateProducto = async (req, res) => {
     try {
-
         const { Nombre, SKU, Precio } = req.body;
 
         const productoEncontrado = await productosModel.findById(req.params.id);
+
+        if (!productoEncontrado) {
+            return res.status(404).json({ message: "Producto no encontrado" });
+        }
 
         const updatedData = {
             Nombre,
@@ -75,9 +89,7 @@ productosController.updateProducto = async (req, res) => {
         };
 
         if (req.file) {
-
             await cloudinary.uploader.destroy(productoEncontrado.public_id);
-
             updatedData.Imagen = req.file.path;
             updatedData.public_id = req.file.filename;
         }
@@ -93,9 +105,10 @@ productosController.updateProducto = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        console.log("error:", error.message);
         return res.status(500).json({
-            message: "Internal server error"
+            message: "Error al actualizar el producto",
+            error: error.message
         });
     }
 };
