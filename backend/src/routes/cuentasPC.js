@@ -1,5 +1,5 @@
 import express from "express";
-import CuentasPCController from "../controller/cuentasporCobrarController.js"
+import CuentasPCController from "../controller/cuentasPCController.js"
 
 
 const router = express.Router()

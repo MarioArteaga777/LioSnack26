@@ -1,5 +1,5 @@
 import express from "express";
-import cuentasPPController from "../controller/cuentasporPagarController.js";
+import cuentasPPController from "../controller/cuentasPPController.js";
 
 const router = express.Router();
 
@@ -13,4 +13,4 @@ router.route("/:id")
   .put(cuentasPPController.updateCuentaPP)
   .delete(cuentasPPController.deleteCuentaPP);
 
-export default router;a
+export default router;
