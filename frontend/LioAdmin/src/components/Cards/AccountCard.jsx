@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
 import { Banknote, CheckCircle2, Package, Clock, MoreVertical } from "lucide-react";
+import useActionsMenu from "../../hooks/useActionsMenu";
+import EntityActionsMenu from "./EntityActionsMenu";
 
 const statusColors = {
   Cobrado: "bg-sky-200 text-sky-900",
@@ -42,28 +43,11 @@ const AccountCard = ({
   onDelete,
 }) => {
   const isPending = status === "Pendiente";
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef(null);
-
-  // Cierra el menú si el usuario hace click afuera
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const { open: menuOpen, setOpen: setMenuOpen, containerRef: menuRef } = useActionsMenu();
 
   const pillClass = isPending
     ? "bg-rose-800/40 text-white"
     : "bg-white/60 text-gray-800";
-
-  const handleAction = (action) => {
-    setMenuOpen(false);
-    action?.();
-  };
 
   return (
     <div className={`relative rounded-2xl p-3 ${cardColors[status]}`}>
@@ -75,8 +59,16 @@ const AccountCard = ({
       )}
 
       {/* Nombre del cliente */}
-      <div className="mb-3 rounded-full bg-white px-4 py-1.5 text-center">
-        <span className="text-sm font-medium text-gray-800">
+      <div
+        className={`mb-3 rounded-full px-4 py-1.5 text-center ${
+          isPending ? "bg-rose-950" : "bg-white"
+        }`}
+      >
+        <span
+          className={`text-sm font-medium ${
+            isPending ? "text-white" : "text-gray-800"
+          }`}
+        >
           Cliente: {client}
         </span>
       </div>
@@ -131,26 +123,13 @@ const AccountCard = ({
 
         {/* Popup de acciones */}
         {menuOpen && (
-          <div className="absolute bottom-8 right-0 z-10 flex w-32 flex-col gap-1.5 rounded-xl bg-white/10 p-1.5 shadow-lg backdrop-blur-sm">
-            <button
-              onClick={() => handleAction(onUpdate)}
-              className="rounded-full bg-sky-500 py-1.5 text-xs font-medium text-white transition-colors hover:bg-sky-600"
-            >
-              Actualizar
-            </button>
-            <button
-              onClick={() => handleAction(onDetails)}
-              className="rounded-full bg-sky-500 py-1.5 text-xs font-medium text-white transition-colors hover:bg-sky-600"
-            >
-              Detalles
-            </button>
-            <button
-              onClick={() => handleAction(onDelete)}
-              className="rounded-full bg-rose-600 py-1.5 text-xs font-medium text-white transition-colors hover:bg-rose-700"
-            >
-              Eliminar
-            </button>
-          </div>
+          <EntityActionsMenu
+            className="bottom-8 right-0"
+            onUpdate={onUpdate}
+            onDetails={onDetails}
+            onDelete={onDelete}
+            onClose={() => setMenuOpen(false)}
+          />
         )}
       </div>
     </div>

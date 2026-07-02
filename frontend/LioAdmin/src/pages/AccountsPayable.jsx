@@ -1,7 +1,12 @@
+import { useState } from "react";
+import { toast } from "sonner";
 import { Plus, Wallet, AlertTriangle, DollarSign } from "lucide-react";
 import Button from "../components/Button";
 import StatsPanel from "../components/StatPanel";
 import AccountCard from "../components/Cards/AccountCard";
+import AccountForm from "../forms/AccountForm";
+import AccountDetailsModal from "../components/AccountDetailsModal";
+import confirmToast from "../utils/confirmToast";
 
 const stats = [
   { icon: Wallet, label: "Cuentas", value: "43" },
@@ -9,7 +14,9 @@ const stats = [
   { icon: DollarSign, label: "Cuentas pagadas", value: "15/43" },
 ];
 
-const accounts = [
+const STATUS_OPTIONS = ["Pendiente", "Pagado"];
+
+const initialAccounts = [
   {
     id: 1,
     client: "Don pepito",
@@ -38,12 +45,72 @@ const accounts = [
 ];
 
 const AccountsPayable = () => {
+  const [accounts, setAccounts] = useState(initialAccounts);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(null);
+  const [detailsAccount, setDetailsAccount] = useState(null);
+
+  const openCreateForm = () => {
+    setEditingAccount(null);
+    setIsFormOpen(true);
+  };
+
+  const openUpdateForm = (account) => {
+    setEditingAccount(account);
+    setIsFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setEditingAccount(null);
+  };
+
+  const handleSaveAccount = (data) => {
+    if (editingAccount) {
+      setAccounts((prev) =>
+        prev.map((acc) =>
+          acc.id === editingAccount.id ? { ...acc, ...data } : acc
+        )
+      );
+      toast.success("Cuenta actualizada");
+    } else {
+      setAccounts((prev) => [...prev, { id: crypto.randomUUID(), ...data }]);
+      toast.success("Cuenta creada");
+    }
+    closeForm();
+  };
+
+  const handleDelete = async (account) => {
+    const confirmed = await confirmToast(
+      `¿Eliminar la cuenta de ${account.client}? Esta acción no se puede deshacer.`
+    );
+    if (!confirmed) return;
+    setAccounts((prev) => prev.filter((acc) => acc.id !== account.id));
+    toast.success("Cuenta eliminada");
+  };
+
   return (
     <div>
+      <AccountForm
+        id="payable-account-form"
+        isOpen={isFormOpen}
+        onClose={closeForm}
+        onSubmit={handleSaveAccount}
+        initialData={editingAccount}
+        statusOptions={STATUS_OPTIONS}
+        showPendingBalance
+      />
+
+      <AccountDetailsModal
+        id="payable-account-details"
+        account={detailsAccount}
+        onClose={() => setDetailsAccount(null)}
+      />
+
       {/* Header */}
       <div className="mb-2 flex items-center justify-between">
         <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">Cuentas por Pagar</h1>
-        <Button text="Nueva cuenta" icon={Plus} onClick={() => {}} />
+        <Button text="Nueva cuenta" icon={Plus} onClick={openCreateForm} />
       </div>
       <button className="mb-4 block text-sm text-blue-400 hover:underline">
         ver todo
@@ -64,9 +131,9 @@ const AccountsPayable = () => {
             status={acc.status}
             dueDate={acc.dueDate}
             daysLeft={acc.daysLeft}
-            onUpdate={() => console.log("actualizar", acc.id)}
-            onDetails={() => console.log("detalles", acc.id)}
-            onDelete={() => console.log("eliminar", acc.id)}
+            onUpdate={() => openUpdateForm(acc)}
+            onDetails={() => setDetailsAccount(acc)}
+            onDelete={() => handleDelete(acc)}
           />
         ))}
       </div>

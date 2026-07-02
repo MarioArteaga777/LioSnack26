@@ -1,23 +1,11 @@
 import SearchBar from "../components/SearchBar";
 import SideBar from "../components/SideBar";
-import { Outlet, useNavigate } from "react-router";
-import { useEffect } from "react";
+import { Outlet } from "react-router";
 import bgImg from "../assets/AbstractBG.png";
 
+// La autenticación ya se valida en PrivateRoute (usa AuthContext),
+// así que este layout no necesita revisar la sesión por su cuenta.
 const Layout = () => {
-  const navigate = useNavigate();
-  const token =
-    localStorage.getItem("token") ||
-    sessionStorage.getItem("token");
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/");
-    }
-  }, []);
-
-  if (!token) return null;
-
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#110226]">
       <SideBar />

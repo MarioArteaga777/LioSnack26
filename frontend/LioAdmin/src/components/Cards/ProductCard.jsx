@@ -1,8 +1,32 @@
-const ProductCard = ({ image, name, stock, price }) => {
+import useActionsMenu from "../../hooks/useActionsMenu";
+import EntityActionsMenu from "./EntityActionsMenu";
+
+const ProductCard = ({ image, name, stock, price, onUpdate, onDetails, onDelete }) => {
   const inStock = stock > 0;
+  const { open: menuOpen, setOpen: setMenuOpen, containerRef } = useActionsMenu();
+
+  const hasActions = onUpdate || onDetails || onDelete;
 
   return (
-    <div className="relative w-64 rounded-2xl bg-[#2a1f5e] p-4 shadow-xl overflow-hidden">
+    <div
+      ref={containerRef}
+      className={`relative w-64 rounded-2xl bg-[#2a1f5e] p-4 shadow-xl overflow-hidden ${
+        hasActions ? "cursor-pointer" : ""
+      }`}
+      role={hasActions ? "button" : undefined}
+      tabIndex={hasActions ? 0 : undefined}
+      onClick={hasActions ? () => setMenuOpen((prev) => !prev) : undefined}
+      onKeyDown={
+        hasActions
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setMenuOpen((prev) => !prev);
+              }
+            }
+          : undefined
+      }
+    >
       {/* Fondo decorativo */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#3b2d7a] to-[#2a1f5e] opacity-80 pointer-events-none" />
 
@@ -39,6 +63,17 @@ const ProductCard = ({ image, name, stock, price }) => {
           </span>
         </div>
       </div>
+
+      {/* Popup de acciones */}
+      {hasActions && menuOpen && (
+        <EntityActionsMenu
+          className="bottom-4 right-4"
+          onUpdate={onUpdate}
+          onDetails={onDetails}
+          onDelete={onDelete}
+          onClose={() => setMenuOpen(false)}
+        />
+      )}
     </div>
   );
 };

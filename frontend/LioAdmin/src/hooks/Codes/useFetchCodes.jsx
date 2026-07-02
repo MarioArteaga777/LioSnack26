@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import url from "../../utils/apiUrl"
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 
 const fetchCodes = () => {

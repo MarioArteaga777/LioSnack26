@@ -1,9 +1,42 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
-const API_URL = "http://localhost:3000/api/auth"; // <-- Cambia por la URL de tu backend
+const API_URL = "http://localhost:3000/api/login"; // <-- Cambia por la URL de tu backend
 const SESSION_STORAGE_KEY = "lio_auth";
+
+// Cuando el backend de login esté listo, cambia esto a false
+// y el login empezará a usar la petición real a la API automáticamente.
+const USE_MOCK_LOGIN = true;
+
+// Usuarios de prueba usados solo mientras USE_MOCK_LOGIN es true.
+// No provienen de ninguna API.
+const MOCK_USERS = [
+  { id: 1, email: "john@gmail.com", username: "johnd", password: "12345" },
+  { id: 2, email: "morrison@gmail.com", username: "mor_2314", password: "83445" },
+  { id: 3, email: "kevin@gmail.com", username: "kevinryan", password: "kev02937@" },
+];
+
+function mockLoginRequest({ email, password }) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const user = MOCK_USERS.find(
+        (u) => u.email === email && u.password === password
+      );
+
+      if (!user) {
+        resolve({ ok: false, message: "Correo o contraseña incorrectos" });
+        return;
+      }
+
+      resolve({
+        ok: true,
+        message: "Sesión iniciada correctamente",
+        user: { id: user.id, username: user.username, email: user.email },
+      });
+    }, 500);
+  });
+}
 
 function readStoredSession() {
   try {
@@ -51,6 +84,17 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(
     async ({ email, password }) => {
+      if (USE_MOCK_LOGIN) {
+        const payload = await mockLoginRequest({ email, password });
+
+        if (!payload.ok) {
+          return payload;
+        }
+
+        persistSession(payload.user);
+        return payload;
+      }
+
       try {
         const response = await fetch(`${API_URL}/login`, {
           method: "POST",
@@ -155,6 +199,11 @@ export function AuthProvider({ children }) {
   );
 
   const logout = useCallback(async () => {
+    if (USE_MOCK_LOGIN) {
+      persistSession(null);
+      return;
+    }
+
     try {
       await fetch(`${API_URL}/logout`, {
         method: "POST",
@@ -165,16 +214,21 @@ export function AuthProvider({ children }) {
     }
   }, [persistSession]);
 
-  const value = {
-    user,
-    loading,
-    isAuthenticated: Boolean(user),
-    login,
-    register,
-    verifyRegistrationCode,
-    logout,
-    clearSession: () => persistSession(null),
-  };
+  const clearSession = useCallback(() => persistSession(null), [persistSession]);
+
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      isAuthenticated: Boolean(user),
+      login,
+      register,
+      verifyRegistrationCode,
+      logout,
+      clearSession,
+    }),
+    [user, loading, login, register, verifyRegistrationCode, logout, clearSession]
+  );
 
   return (
     <AuthContext.Provider value={value}>
@@ -182,3 +236,5 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
+export default AuthContext
