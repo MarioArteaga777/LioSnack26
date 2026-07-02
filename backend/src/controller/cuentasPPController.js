@@ -8,7 +8,7 @@ cuentasPPController.getAllCuentasPP = async (req, res) => {
     const cuentas = await cuentasPPFormModel.find();
     return res.status(200).json(cuentas);
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -52,7 +52,7 @@ cuentasPPController.insertCuentaPP = async (req, res) => {
     return res.status(200).json({ message: "Cuenta por pagar guardada exitosamente" });
 
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -63,7 +63,7 @@ cuentasPPController.deleteCuentaPP = async (req, res) => {
     await cuentasPPFormModel.findByIdAndDelete(req.params.id);
     return res.status(200).json({ message: "Cuenta por pagar eliminada exitosamente" });
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -109,7 +109,7 @@ cuentasPPController.updateCuentaPP = async (req, res) => {
 
     return res.status(200).json({ message: "Cuenta por pagar actualizada exitosamente" });
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

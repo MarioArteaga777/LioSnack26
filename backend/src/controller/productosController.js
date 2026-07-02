@@ -1,19 +1,20 @@
 import productosModel from "../models/productos.js";
-import upload from "../utils/cloudinaryConfig.js";
+import { v2 as cloudinary } from "cloudinary";
 
 const productosController = {};
 
+// Obtener todos
 productosController.getAllProductos = async (req, res) => {
     try {
         const productos = await productosModel.find();
         return res.status(200).json(productos);
     } catch (error) {
-        console.log("error: " + error);
+        console.log(error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
 
-
+// Obtener por ID
 productosController.getProductoById = async (req, res) => {
     try {
         const producto = await productosModel.findById(req.params.id);
@@ -23,46 +24,62 @@ productosController.getProductoById = async (req, res) => {
         }
 
         return res.status(200).json(producto);
+
     } catch (error) {
-        console.log("error: " + error);
+        console.log(error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
 
-
+// Insertar
 productosController.insertProducto = async (req, res) => {
     try {
-        const { Nombre, SKU, Precio, Estado } = req.body;
 
-      
-        const Imagen = req.file ? req.file.path : "";
+        console.log(req.file);
+        const { Nombre, SKU, Precio } = req.body;
 
         const newProducto = new productosModel({
             Nombre,
-            Imagen,
+            Imagen: req.file.path,
+            public_id: req.file.filename,
             SKU,
-            Precio,
-            Estado: Estado || "En Stock"
+            Precio
         });
 
         await newProducto.save();
 
-        return res.status(200).json({ message: "Producto guardado exitosamente" });
+        return res.status(200).json({
+            message: "Producto guardado"
+        });
 
     } catch (error) {
-        console.log("error: " + error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.log("error" + error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
     }
 };
 
+// Actualizar
 productosController.updateProducto = async (req, res) => {
     try {
-        const { Nombre, SKU, Precio, Estado } = req.body;
 
-        const updatedData = { Nombre, SKU, Precio, Estado };
+        const { Nombre, SKU, Precio } = req.body;
+
+        const productoEncontrado = await productosModel.findById(req.params.id);
+
+        const updatedData = {
+            Nombre,
+            SKU,
+            Precio
+        };
 
         if (req.file) {
+
+            await cloudinary.uploader.destroy(productoEncontrado.public_id);
+
             updatedData.Imagen = req.file.path;
+            updatedData.public_id = req.file.filename;
         }
 
         await productosModel.findByIdAndUpdate(
@@ -71,21 +88,37 @@ productosController.updateProducto = async (req, res) => {
             { new: true }
         );
 
-        return res.status(200).json({ message: "Producto actualizado exitosamente" });
+        return res.status(200).json({
+            message: "Producto actualizado"
+        });
 
     } catch (error) {
-        console.log("error: " + error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
     }
 };
 
+// Eliminar
 productosController.deleteProducto = async (req, res) => {
     try {
+
+        const productoEncontrado = await productosModel.findById(req.params.id);
+
+        await cloudinary.uploader.destroy(productoEncontrado.public_id);
+
         await productosModel.findByIdAndDelete(req.params.id);
-        return res.status(200).json({ message: "Producto eliminado exitosamente" });
+
+        return res.status(200).json({
+            message: "Producto eliminado"
+        });
+
     } catch (error) {
-        console.log("error: " + error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
     }
 };
 

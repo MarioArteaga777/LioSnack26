@@ -8,7 +8,7 @@ pedidoController.getAllPedidos = async (req, res) => {
     const pedidos = await pedidoModel.find();
     return res.status(200).json(pedidos);
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -45,7 +45,7 @@ pedidoController.insertPedido = async (req, res) => {
     return res.status(200).json({ message: "Pedido guardado exitosamente" });
 
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -56,7 +56,7 @@ pedidoController.deletePedido = async (req, res) => {
     await pedidoModel.findByIdAndDelete(req.params.id);
     return res.status(200).json({ message: "Pedido eliminado exitosamente" });
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -96,7 +96,7 @@ pedidoController.updatePedido = async (req, res) => {
 
     return res.status(200).json({ message: "Pedido actualizado exitosamente" });
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

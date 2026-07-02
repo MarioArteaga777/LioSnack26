@@ -2,34 +2,18 @@ import produccionModel from "../models/produccion.js";
 
 const produccionController = {};
 
-
+// Obtener todos
 produccionController.getAllProduccion = async (req, res) => {
     try {
-        const registros = await produccionModel.find().sort({ createdAt: -1 });
+        const registros = await produccionModel.find();
         return res.status(200).json(registros);
     } catch (error) {
-        console.log("error: " + error);
+        console.log("error:", error.message);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
 
-
-produccionController.getUltimaProduccion = async (req, res) => {
-    try {
-        const ultima = await produccionModel.findOne().sort({ createdAt: -1 });
-
-        if (!ultima) {
-            return res.status(404).json({ message: "No hay registros de produccion" });
-        }
-
-        return res.status(200).json(ultima);
-    } catch (error) {
-        console.log("error: " + error);
-        return res.status(500).json({ message: "Internal server error" });
-    }
-};
-
-
+// Obtener por ID
 produccionController.getProduccionById = async (req, res) => {
     try {
         const registro = await produccionModel.findById(req.params.id);
@@ -40,27 +24,24 @@ produccionController.getProduccionById = async (req, res) => {
 
         return res.status(200).json(registro);
     } catch (error) {
-        console.log("error: " + error);
+        console.log("error:", error.message);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
 
-
+// Insertar
 produccionController.insertProduccion = async (req, res) => {
     try {
-
         const {
             SKU,
             HoraInicio,
             HoraFinalizacion,
             BolsasEsperadas,
             HorasReales,
-            BolsasObtenidas,
             KG,
             Observaciones,
             Estado
         } = req.body;
-
 
         const newProduccion = new produccionModel({
             SKU,
@@ -68,27 +49,29 @@ produccionController.insertProduccion = async (req, res) => {
             HoraFinalizacion,
             BolsasEsperadas,
             HorasReales,
-            BolsasObtenidas,
+            BolsasObtenidas: 0,
             KG,
             Observaciones,
             Estado: Estado || "En proceso"
         });
 
-
         await newProduccion.save();
 
-        return res.status(200).json({ message: "Produccion registrada exitosamente" });
-
+        return res.status(200).json({
+            message: "Produccion registrada exitosamente"
+        });
     } catch (error) {
-        console.log("error: " + error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.log("error:", error.message);
+        return res.status(500).json({
+            message: "Error al guardar la produccion",
+            error: error.message
+        });
     }
 };
 
-
+// Actualizar
 produccionController.updateProduccion = async (req, res) => {
     try {
-
         const {
             SKU,
             HoraInicio,
@@ -113,29 +96,36 @@ produccionController.updateProduccion = async (req, res) => {
             Estado
         };
 
-
         await produccionModel.findByIdAndUpdate(
             req.params.id,
             updatedData,
             { new: true }
         );
 
-        return res.status(200).json({ message: "Produccion actualizada exitosamente" });
-
+        return res.status(200).json({
+            message: "Produccion actualizada exitosamente"
+        });
     } catch (error) {
-        console.log("error: " + error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.log("error:", error.message);
+        return res.status(500).json({
+            message: "Error al actualizar la produccion",
+            error: error.message
+        });
     }
 };
 
-
+// Eliminar
 produccionController.deleteProduccion = async (req, res) => {
     try {
         await produccionModel.findByIdAndDelete(req.params.id);
-        return res.status(200).json({ message: "Registro de produccion eliminado exitosamente" });
+        return res.status(200).json({
+            message: "Produccion eliminada"
+        });
     } catch (error) {
-        console.log("error: " + error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.log("error:", error.message);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
     }
 };
 

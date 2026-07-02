@@ -1,14 +1,28 @@
 import { Schema, model } from "mongoose";
 
 const productosSchema = new Schema({
-    Nombre:  { type: String },
-    Imagen:  { type: String },
-    SKU:     { type: String },
-    Precio:  { type: Number },
-    Estado:  { type: String }   // "En Stock" / "Sin Stock"
+    Nombre: {
+        type: String,
+        required: true
+    },
+    Imagen: {
+        type: String,
+        required: true
+    },
+    public_id: {
+        type: String,
+        required: true
+    },
+    SKU: {
+        type: String,
+        required: true
+    },
+    Precio: {
+        type: Number,
+        required: true
+    }
 }, {
-    timestamps: true,
-    strict: false
+    timestamps: true
 });
 
 export default model("productos", productosSchema);

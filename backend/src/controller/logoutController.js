@@ -5,7 +5,7 @@ logoutController.logout = async (req, res) => {
     res.clearCookie("authCookie");
     return res.status(200).json({ message: "Sesión cerrada" });
   } catch (error) {
-    console.log("error" + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

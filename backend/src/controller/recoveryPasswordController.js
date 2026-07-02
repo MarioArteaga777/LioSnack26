@@ -54,7 +54,7 @@ recoveryPasswordController.requestCode = async (req, res) => {
 
     return res.status(200).json({ message: "email sent" });
   } catch (error) {
-    console.log("error" + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -80,7 +80,7 @@ recoveryPasswordController.verifyCode = async (req, res) => {
 
     return res.status(200).json({ message: "Code verified successfully" });
   } catch (error) {
-    console.log("error" + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -112,7 +112,7 @@ recoveryPasswordController.newPassword = async (req, res) => {
 
     return res.status(200).json({ message: "Password updated" });
   } catch (error) {
-    console.log("error" + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

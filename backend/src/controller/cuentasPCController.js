@@ -8,7 +8,7 @@ cuentasPCController.getAllCuentasPC = async (req, res) => {
     const cuentas = await cuentasPCFormModel.find();
     return res.status(200).json(cuentas);
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -46,7 +46,7 @@ cuentasPCController.insertCuentaPC = async (req, res) => {
     return res.status(200).json({ message: "Cuenta por cobrar guardada exitosamente" });
 
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -57,7 +57,7 @@ cuentasPCController.deleteCuentaPC = async (req, res) => {
     await cuentasPCFormModel.findByIdAndDelete(req.params.id);
     return res.status(200).json({ message: "Cuenta por cobrar eliminada exitosamente" });
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -97,7 +97,7 @@ cuentasPCController.updateCuentaPC = async (req, res) => {
 
     return res.status(200).json({ message: "Cuenta por cobrar actualizada exitosamente" });
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
