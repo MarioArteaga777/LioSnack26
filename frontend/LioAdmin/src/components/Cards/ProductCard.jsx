@@ -1,17 +1,19 @@
 import useActionsMenu from "../../hooks/useActionsMenu";
 import EntityActionsMenu from "./EntityActionsMenu";
 
+// Tarjeta reutilizable para mostrar un producto en el listado
 const ProductCard = ({ image, name, sku, price, onUpdate, onDetails, onDelete }) => {
   const { open: menuOpen, setOpen: setMenuOpen, containerRef } = useActionsMenu();
 
+  // El menú de acciones solo se muestra si hay al menos un handler definido
   const hasActions = onUpdate || onDetails || onDelete;
 
   return (
     <div
-      ref={containerRef}
-      className={`relative w-64 rounded-2xl bg-[#2a1f5e] p-4 shadow-xl overflow-hidden ${
-        hasActions ? "cursor-pointer" : ""
-      }`}
+    ref={containerRef}
+    className={`relative w-full max-w-64 flex flex-col rounded-2xl bg-[#2a1f5e] p-4 shadow-xl overflow-hidden ${
+    hasActions ? "cursor-pointer" : ""
+  }`}
       role={hasActions ? "button" : undefined}
       tabIndex={hasActions ? 0 : undefined}
       onClick={hasActions ? () => setMenuOpen((prev) => !prev) : undefined}

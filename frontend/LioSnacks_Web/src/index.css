@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors — "Cosmic Pantry" palette */
+  --color-void: #0a0918;
+  --color-void-soft: #100e22;
+  --color-nebula: #16132c;
+  --color-nebula-light: #1f1a3d;
+  --color-nebula-border: #2c2650;
+  --color-stardust: #f4f1fb;
+  --color-mist: #a49dc7;
+  --color-mist-dim: #756e9c;
+  --color-bloom: #f5a8ca;
+  --color-bloom-dark: #e788b3;
+  --color-bloom-ink: #3a1226;
+  --color-gold: #d9b26a;
+  --color-teal: #63d9c4;
+  --color-teal-ink: #0d3a34;
+  --color-coral: #ff8f6e;
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Sora", ui-sans-serif, system-ui, sans-serif;
+
+  --animate-twinkle: twinkle 3.5s ease-in-out infinite;
+  --animate-rise: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+#root {
+  overflow-x: clip;
+}
+
+body {
+  color: var(--color-stardust);
+  font-family: var(--font-body);
+  background-color: var(--color-void);
+  background-image:
+    linear-gradient(180deg, rgba(8, 7, 18, 0.88) 0%, rgba(8, 7, 18, 0.94) 55%, rgba(8, 7, 18, 0.97) 100%),
+    url("/nebula-bg.jpg");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+@media (max-width: 768px) {
+  body {
+    /* fixed backgrounds can jitter/scroll oddly on mobile Safari */
+    background-attachment: scroll;
+  }
+}
+
+::selection {
+  background: var(--color-bloom);
+  color: var(--color-bloom-ink);
+}
+
+/* visible keyboard focus */
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--color-nebula-border);
+  border-radius: 999px;
+}

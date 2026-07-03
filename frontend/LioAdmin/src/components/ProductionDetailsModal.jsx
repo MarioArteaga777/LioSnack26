@@ -7,6 +7,7 @@ const ProductionDetailsModal = ({
 }) => {
   const dialogRef = useRef(null);
 
+  // Abre/cierra el <dialog> nativo según haya o no una producción seleccionada
   useEffect(() => {
     const dialog = dialogRef.current;
 
@@ -25,6 +26,7 @@ const ProductionDetailsModal = ({
 
   if (!production) return null;
 
+  // Color de la etiqueta de estado según el estado de la producción
   const getStatusColor = () => {
     switch (production.Estado) {
       case "Finalizado":

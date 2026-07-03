@@ -6,6 +6,7 @@ const useFetchProduction = () => {
   const [productions, setProductions] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Trae todos los registros de producción desde la API
   const getProductions = async () => {
     setLoading(true);
 

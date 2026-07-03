@@ -2,6 +2,7 @@ import url from "../../utils/apiUrl";
 import { toast } from "sonner";
 
 const useUsuariosActions = () => {
+    // Registra un nuevo usuario (usa el endpoint de registro)
     const createUsuario = async (data) => {
         try {
             const response = await fetch(`${url}/register`, {
@@ -25,6 +26,7 @@ const useUsuariosActions = () => {
         }
     };
 
+    // Actualiza los datos de un usuario existente
     const updateUsuario = async (id, data) => {
         try {
             const response = await fetch(`${url}/usuarios/${id}`, {
@@ -48,6 +50,7 @@ const useUsuariosActions = () => {
         }
     };
 
+    // Elimina un usuario por su ID
     const deleteUsuario = async (id) => {
         try {
             const response = await fetch(`${url}/usuarios/${id}`, {

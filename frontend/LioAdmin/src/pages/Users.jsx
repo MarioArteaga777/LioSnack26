@@ -41,6 +41,7 @@ const Users = () => {
     setEditingUser(null);
   };
 
+  // Decide si crea un usuario nuevo o actualiza el que se está editando
   const handleSaveUser = async (data) => {
     if (editingUser) {
       const result = await updateUsuario(editingUser._id, data);
@@ -66,6 +67,7 @@ const Users = () => {
     const result = await deleteUsuario(user._id);
     if (result.ok) {
       await getUsuarios();
+      // Ajusta la página actual por si la eliminación deja una página vacía
       setCurrentPage((prev) => {
         const remaining = usuarios.length - 1;
         const newTotalPages = Math.max(1, Math.ceil(remaining / USERS_PER_PAGE));

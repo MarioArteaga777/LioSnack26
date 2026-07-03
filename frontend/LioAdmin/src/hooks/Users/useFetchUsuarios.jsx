@@ -6,6 +6,7 @@ const useFetchUsuarios = () => {
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    // Trae todos los usuarios desde la API
     const getUsuarios = async () => {
         setLoading(true);
         try {

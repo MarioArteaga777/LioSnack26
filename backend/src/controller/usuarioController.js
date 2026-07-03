@@ -3,16 +3,18 @@ import userModel from "../models/user.js";
 
 const userController = {};
 
+// Devuelve todos los usuarios sin exponer la contraseña
 userController.getUsers = async (req, res) => {
   try {
     const users = await userModel.find().select("-password");
     return res.status(200).json(users);
   } catch (error) {
-    console.error("Error al obtener usuarios: " + error);
+    console.error("Error fetching users: " + error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// Elimina un usuario por su ID
 userController.deleteUser = async (req, res) => {
   try {
     const deletedUser = await userModel.findByIdAndDelete(req.params.id);
@@ -21,11 +23,12 @@ userController.deleteUser = async (req, res) => {
     }
     return res.status(200).json({ message: "Usuario eliminado" });
   } catch (error) {
-    console.error("Error al eliminar usuario: " + error);
+    console.error("Error deleting user: " + error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// Actualiza los datos de un usuario; la contraseña solo se rehashea si fue enviada
 userController.updateUser = async (req, res) => {
   try {
     let {
@@ -75,7 +78,7 @@ userController.updateUser = async (req, res) => {
 
     return res.status(200).json({ message: "Usuario actualizado con éxito", user: updatedUser });
   } catch (error) {
-    console.error("Error al actualizar usuario: " + error);
+    console.error("Error updating user: " + error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

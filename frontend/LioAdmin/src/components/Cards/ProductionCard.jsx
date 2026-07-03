@@ -19,8 +19,10 @@ const ProductionCard = ({
     containerRef,
   } = useActionsMenu();
 
+  // El menú de acciones solo se muestra si hay al menos un handler definido
   const hasActions = onUpdate || onDetails || onDelete;
 
+  // Color de la etiqueta de estado según el estado de la producción
   const getStatusColor = () => {
     switch (estado) {
       case "Finalizado":

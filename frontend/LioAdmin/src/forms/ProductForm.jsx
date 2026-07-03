@@ -56,6 +56,7 @@ const ProductForm = ({
     onClose?.();
   };
 
+  // Solo incluye la imagen en el envío si el usuario seleccionó una nueva
   const onSubmit = (data) => {
     const payload = {
       name: data.name,

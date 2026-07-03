@@ -6,6 +6,7 @@ import { config } from "../config.js";
 
 const loginUserController = {};
 
+// Autentica al usuario y, si es válido, entrega la cookie con el token JWT
 loginUserController.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -20,10 +21,11 @@ loginUserController.login = async (req, res) => {
       return res.status(403).json({ message: "Debes verificar tu correo antes de iniciar sesión" });
     }
 
+    // Bloqueo temporal activo por intentos fallidos previos
     if (userFound.timeOut && userFound.timeOut > Date.now()) {
       const remainingTime = Math.ceil((userFound.timeOut - Date.now()) / 60000);
-      return res.status(403).json({ 
-        message: `Cuenta bloqueada temporalmente. Intenta de nuevo en ${remainingTime} minutos.` 
+      return res.status(403).json({
+        message: `Cuenta bloqueada temporalmente. Intenta de nuevo en ${remainingTime} minutos.`
       });
     }
 
@@ -32,6 +34,7 @@ loginUserController.login = async (req, res) => {
     if (!isMatch) {
       userFound.loginAttempts = (userFound.loginAttempts || 0) + 1;
 
+      // A partir del quinto intento fallido, se bloquea la cuenta por 15 minutos
       if (userFound.loginAttempts >= 5) {
         userFound.timeOut = Date.now() + 15 * 60 * 1000;
         userFound.loginAttempts = 0;
@@ -44,6 +47,7 @@ loginUserController.login = async (req, res) => {
       return res.status(401).json({ message: "Credenciales incorrectas" });
     }
 
+    // Login correcto: se reinician los contadores de intentos y bloqueo
     userFound.loginAttempts = 0;
     userFound.timeOut = null;
     await userFound.save();
@@ -72,7 +76,7 @@ loginUserController.login = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error en el login: " + error);
+    console.error("Login error: " + error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

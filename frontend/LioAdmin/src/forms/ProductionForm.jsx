@@ -13,6 +13,7 @@ const ProductionForm = ({
 
   const dialogRef = useRef(null);
 
+  // Reglas de validación para el formulario de producción
   const schema = yup.object().shape({
     SKU: yup.string().required("El SKU es requerido"),
 
@@ -51,6 +52,7 @@ const ProductionForm = ({
     resolver: yupResolver(schema),
   });
 
+  // Abre/cierra el <dialog> nativo y precarga los datos al editar
   useEffect(() => {
     const dialog = dialogRef.current;
 
@@ -79,6 +81,7 @@ const ProductionForm = ({
     onClose();
   };
 
+  // Envía los datos del formulario al componente padre
   const onSubmit = (data) => {
     onSave(data);
     reset();

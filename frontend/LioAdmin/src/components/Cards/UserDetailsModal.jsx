@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 const UserDetailsModal = ({ id, user, onClose }) => {
   const dialogRef = useRef(null);
 
+  // Abre/cierra el <dialog> nativo según haya o no un usuario seleccionado
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;

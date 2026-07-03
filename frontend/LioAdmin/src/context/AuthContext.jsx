@@ -71,7 +71,7 @@ export function AuthProvider({ children }) {
 
     const session = {
       user: nextUser,
-      authenticatedAt: new Date().toISOString(), // <-- Faltaban los ()
+      authenticatedAt: new Date().toISOString(),
     };
 
     localStorage.setItem(
@@ -114,7 +114,7 @@ export function AuthProvider({ children }) {
           };
         }
 
-        // Si tu backend devuelve el usuario
+        // Si el backend no devuelve el usuario, se guarda al menos el email
         persistSession(payload.user || { email });
 
         return {

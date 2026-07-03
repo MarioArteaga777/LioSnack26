@@ -47,6 +47,7 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
     onClose?.();
   };
 
+  // Solo incluye la contraseña en el envío si el usuario la completó
   const onSubmit = (data) => {
     const payload = {
       name: data.name,

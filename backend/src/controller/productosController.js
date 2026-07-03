@@ -3,7 +3,7 @@ import { v2 as cloudinary } from "cloudinary";
 
 const productosController = {};
 
-// Obtener todos
+// Devuelve todos los productos registrados
 productosController.getAllProductos = async (req, res) => {
     try {
         const productos = await productosModel.find();
@@ -14,7 +14,7 @@ productosController.getAllProductos = async (req, res) => {
     }
 };
 
-// Obtener por ID
+// Busca un producto por su ID
 productosController.getProductoById = async (req, res) => {
     try {
         const producto = await productosModel.findById(req.params.id);
@@ -31,18 +31,18 @@ productosController.getProductoById = async (req, res) => {
     }
 };
 
-// Insertar
+// Crea un nuevo producto, la imagen se sube previamente a Cloudinary
 productosController.insertProducto = async (req, res) => {
     try {
-        console.log("=== INSERT PRODUCTO ===");
+        console.log("=== INSERT PRODUCT ===");
         console.log("req.file:", req.file);
         console.log("req.body:", req.body);
         console.log("req.headers['content-type']:", req.headers['content-type']);
-        
+
         const { Nombre, SKU, Precio } = req.body;
 
         if (!req.file) {
-            console.log("ERROR: No hay archivo en req.file");
+            console.log("ERROR: No file found in req.file");
             return res.status(400).json({
                 message: "Error: La imagen es requerida"
             });
@@ -71,7 +71,7 @@ productosController.insertProducto = async (req, res) => {
     }
 };
 
-// Actualizar
+// Actualiza un producto; si llega una imagen nueva, reemplaza la anterior en Cloudinary
 productosController.updateProducto = async (req, res) => {
     try {
         const { Nombre, SKU, Precio } = req.body;
@@ -113,7 +113,7 @@ productosController.updateProducto = async (req, res) => {
     }
 };
 
-// Eliminar
+// Elimina un producto junto con su imagen en Cloudinary
 productosController.deleteProducto = async (req, res) => {
     try {
 

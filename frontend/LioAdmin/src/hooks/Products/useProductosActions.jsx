@@ -2,6 +2,7 @@ import url from "../../utils/apiUrl";
 import { toast } from "sonner";
 
 const useProductosActions = () => {
+    // Crea un nuevo producto (usa FormData porque incluye la imagen)
     const createProducto = async (formData) => {
         try {
             const response = await fetch(`${url}/productos`, {
@@ -24,6 +25,7 @@ const useProductosActions = () => {
         }
     };
 
+    // Actualiza un producto existente, con o sin nueva imagen
     const updateProducto = async (id, formData) => {
         try {
             const response = await fetch(`${url}/productos/${id}`, {
@@ -46,6 +48,7 @@ const useProductosActions = () => {
         }
     };
 
+    // Elimina un producto por su ID
     const deleteProducto = async (id) => {
         try {
             const response = await fetch(`${url}/productos/${id}`, {

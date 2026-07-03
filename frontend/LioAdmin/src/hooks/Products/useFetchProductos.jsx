@@ -6,6 +6,7 @@ const useFetchProductos = () => {
     const [productos, setProductos] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    // Trae todos los productos desde la API
     const getProductos = async () => {
         setLoading(true);
         try {
