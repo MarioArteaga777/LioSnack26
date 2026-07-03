@@ -4,7 +4,7 @@ import { useState } from "react";
 import Button from "../components/Button";
 
 import ProductionCard from "../components/Cards/ProductionCard";
-import ProductionDetailsModal from "../components/Cards/ProductionDetailsModal";
+import ProductionDetailsModal from "../components/ProductionDetailsModal";
 
 import ProductionForm from "../forms/ProductionForm";
 

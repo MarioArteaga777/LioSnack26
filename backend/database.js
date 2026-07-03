@@ -1,7 +1,13 @@
 import mongoose from "mongoose"
 import { config } from "./src/config.js";
 
-mongoose.connect(config.db.URI)
+if (!config.db.URI) {
+    console.error("DB_URI is not configured");
+} else {
+    mongoose.connect(config.db.URI).catch((error) => {
+        console.error("MongoDB connection error:", error.message);
+    });
+}
 
 //Comprobar que todo funciona
 const connection = mongoose.connection;
