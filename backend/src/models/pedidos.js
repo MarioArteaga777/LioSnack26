@@ -4,7 +4,7 @@ const pedidoSchema = new Schema({
     fecha_pedido: { type: Date },
     cliente: { type: String },
     punto_de_venta: { type: String },
-    vendedor_assigned: { type: String }, 
+    vendedor_asignado: { type: String },
     items: [
         {
             sku: { type: String },
@@ -17,7 +17,7 @@ const pedidoSchema = new Schema({
     estado_pedido: { type: String },
     observaciones: { type: String }
 }, {
-    timespamps: true,
+    timestamps: true,
     strict: false
 });
 
