@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "react-router";
 import img from "../../img/Logo.png"
 import { useState } from "react";
 import useAuth from "../hooks/useAuth";
+import { Factory } from "lucide-react";
 import {
   FiHome,
   FiPackage,
@@ -15,7 +16,7 @@ import {
   FiDollarSign,
   FiTruck,
   FiChevronDown,
-  FiLogOut
+  FiLogOut 
 } from "react-icons/fi";
 
 export const links = [
@@ -33,6 +34,11 @@ export const links = [
     to: "/customers",
     label: "Clientes",
     icon: FiUsers,
+  },
+  {
+  to: "/production",
+  label: "Producción",
+  icon: FiFolder,
   },
   {
     to: "/users",

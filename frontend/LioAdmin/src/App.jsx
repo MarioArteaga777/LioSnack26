@@ -14,6 +14,7 @@ import Users from './pages/Users.jsx'
 import AccountsPayable from './pages/AccountsPayable.jsx'
 import AccountsReceivable from './pages/AccountsReceivable.jsx'
 import PrivateRoute from './hooks/PrivateRoute.jsx'
+import Production from './pages/production.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
               <Route path="/products" element={<Products />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/codes" element={<Codes />} />
+              <Route path="/production" element={<Production />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/users" element={<Users />} />
               <Route path="/sales/payable" element={<AccountsPayable />} />

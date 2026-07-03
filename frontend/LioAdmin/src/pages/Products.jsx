@@ -1,14 +1,13 @@
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import ProductCard from "../components/Cards/ProductCard";
-import ProductDetailsModal from "../components/Cards/ProductDetailsModal";
 import Button from "../components/Button";
 import { useState, useEffect } from "react";
 import ProductForm from "../forms/ProductForm";
 import confirmToast from "../utils/confirmToast";
 import useFetchProductos from "../hooks/Products/useFetchProductos";
 import useProductosActions from "../hooks/Products/useProductosActions";
-
+import ProductDetailsModal from "../components/ProductDetailsModal";
 const Products = () => {
   const { productos, setProductos, getProductos, loading } = useFetchProductos();
   const { createProducto, updateProducto, deleteProducto } = useProductosActions();
