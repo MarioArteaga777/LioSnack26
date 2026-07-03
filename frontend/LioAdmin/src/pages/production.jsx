@@ -4,8 +4,12 @@ import { useState } from "react";
 import Button from "../components/Button";
 
 import ProductionCard from "../components/Cards/ProductionCard";
+<<<<<<< HEAD
 import ProductionDetailsModal from "../components/Cards/ProductionDetailsModal";
 import FinalizeProductionModal from "../components/Cards/FinalizeProductionModal";
+=======
+import ProductionDetailsModal from "../components/ProductionDetailsModal";
+>>>>>>> 8f8a0225b282981f6162506c65c4bb558ef41f54
 
 import ProductionForm from "../forms/ProductionForm";
 

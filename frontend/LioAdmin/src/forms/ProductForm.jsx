@@ -3,16 +3,26 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-const ProductForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
+const ProductForm = ({
+  id,
+  isOpen,
+  onClose,
+  onSubmit: onSave,
+  initialData,
+}) => {
   const dialogRef = useRef(null);
   const isEditing = Boolean(initialData);
 
-  const schema = yup.object().shape({
-    name: yup.string().required("El nombre es requerido"),
-    sku: yup.string().required("El SKU es requerido"),
-    price: yup.number().typeError("El precio debe ser un número").required("El precio es requerido"),
-    // Al editar no se exige volver a subir la imagen; se conserva la actual
-    image: isEditing ? yup.mixed().notRequired() : yup.mixed().required("La imagen es requerida"),
+  const schema = yup.object({
+    name: yup.string().required("Product name is required."),
+    sku: yup.string().required("SKU is required."),
+    price: yup
+      .number()
+      .typeError("Price must be a number.")
+      .required("Price is required."),
+    image: isEditing
+      ? yup.mixed().notRequired()
+      : yup.mixed().required("Product image is required."),
   });
 
   const {
@@ -24,17 +34,18 @@ const ProductForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => 
     resolver: yupResolver(schema),
   });
 
-  // Abre/cierra el <dialog> nativo y precarga los datos al editar
   useEffect(() => {
     const dialog = dialogRef.current;
+
     if (!dialog) return;
 
     if (isOpen) {
       reset({
-        name: initialData?.Nombre ?? "",
+        name: initialData?.Name ?? "",
         sku: initialData?.SKU ?? "",
-        price: initialData?.Precio ?? "",
+        price: initialData?.Price ?? "",
       });
+
       dialog.showModal();
     } else {
       dialog.close();
@@ -47,21 +58,26 @@ const ProductForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => 
 
   // Solo incluye la imagen en el envío si el usuario seleccionó una nueva
   const onSubmit = (data) => {
-    const payload = { name: data.name, sku: data.sku, price: Number(data.price) };
+    const payload = {
+      name: data.name,
+      sku: data.sku,
+      price: Number(data.price),
+    };
+
     const file = data.image?.[0];
 
     if (file) {
       payload.image = file;
     }
 
-    onSave?.(payload);
+    onSave(payload);
     reset();
-    onClose?.();
+    onClose();
   };
 
   const handleCancel = () => {
     reset();
-    onClose?.();
+    onClose();
   };
 
   return (
@@ -73,19 +89,25 @@ const ProductForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => 
     >
       <div className="w-[450px] rounded-2xl bg-[#1B022C] p-6">
         <h2 className="mb-6 text-xl font-semibold text-white">
-          {isEditing ? "Actualizar Producto" : "Nuevo Producto"}
+          {isEditing ? "Update Product" : "New Product"}
         </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-4"
+        >
           <div>
             <input
               type="text"
               {...register("name")}
-              placeholder="Nombre"
+              placeholder="Product Name"
               className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
             />
+
             {errors.name && (
-              <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>
+              <p className="mt-1 text-sm text-red-400">
+                {errors.name.message}
+              </p>
             )}
           </div>
 
@@ -96,8 +118,11 @@ const ProductForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => 
               placeholder="SKU"
               className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
             />
+
             {errors.sku && (
-              <p className="mt-1 text-sm text-red-400">{errors.sku.message}</p>
+              <p className="mt-1 text-sm text-red-400">
+                {errors.sku.message}
+              </p>
             )}
           </div>
 
@@ -107,11 +132,14 @@ const ProductForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => 
               step="0.01"
               min="0"
               {...register("price")}
-              placeholder="Precio"
+              placeholder="Price"
               className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
             />
+
             {errors.price && (
-              <p className="mt-1 text-sm text-red-400">{errors.price.message}</p>
+              <p className="mt-1 text-sm text-red-400">
+                {errors.price.message}
+              </p>
             )}
           </div>
 
@@ -120,15 +148,19 @@ const ProductForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => 
               type="file"
               accept="image/*"
               {...register("image")}
-              className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
+              className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none"
             />
+
             {isEditing && (
-              <p className="mt-1 text-xs text-white/50">
-                Deja vacío para conservar la imagen actual.
+              <p className="mt-1 text-xs text-white/60">
+                Leave empty to keep the current image.
               </p>
             )}
+
             {errors.image && (
-              <p className="mt-1 text-sm text-red-400">{errors.image.message}</p>
+              <p className="mt-1 text-sm text-red-400">
+                {errors.image.message}
+              </p>
             )}
           </div>
 
@@ -138,13 +170,14 @@ const ProductForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => 
               onClick={handleCancel}
               className="rounded-lg bg-white/10 px-6 py-2 text-white transition hover:bg-white/20"
             >
-              Cancelar
+              Cancel
             </button>
+
             <button
               type="submit"
               className="rounded-lg bg-sky-500 px-6 py-2 text-white transition hover:bg-sky-600"
             >
-              {isEditing ? "Guardar Cambios" : "Guardar Producto"}
+              {isEditing ? "Save Changes" : "Save Product"}
             </button>
           </div>
         </form>
