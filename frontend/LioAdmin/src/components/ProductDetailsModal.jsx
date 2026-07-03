@@ -30,10 +30,10 @@ const ProductDetailsModal = ({ id, product, onClose }) => {
         <div className="w-[400px] rounded-2xl bg-[#1B022C] p-6 text-white">
           <h2 className="mb-6 text-xl font-semibold">Detalles del producto</h2>
 
-          {product.Imagen && (
+          {product.Image && (
             <div className="mb-4 flex h-32 items-center justify-center">
               <img
-                src={product.Imagen}
+                src={product.Image}
                 alt={product.Nombre}
                 className="h-full w-full object-contain"
               />
