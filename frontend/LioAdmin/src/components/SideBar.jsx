@@ -8,6 +8,7 @@ import {
   FiUsers,
   FiBox,
   FiUser,
+  FiUserCheck,
   FiFolder,
   FiEdit2,
   FiSmile,
@@ -32,6 +33,11 @@ export const links = [
     to: "/customers",
     label: "Clientes",
     icon: FiUsers,
+  },
+  {
+    to: "/users",
+    label: "Usuarios",
+    icon: FiUserCheck,
   },
   {
     to: "/orders",

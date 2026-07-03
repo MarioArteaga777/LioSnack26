@@ -1,5 +1,5 @@
 import bcryptjs from "bcryptjs";
-import userModel from "../models/users.js";
+import userModel from "../models/user.js";
 
 const userController = {};
 

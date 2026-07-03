@@ -10,6 +10,7 @@ import Products from './pages/Products.jsx'
 import Orders from './pages/Orders.jsx'
 import Codes from './pages/Codes.jsx'
 import Customers from './pages/Customers.jsx'
+import Users from './pages/Users.jsx'
 import AccountsPayable from './pages/AccountsPayable.jsx'
 import AccountsReceivable from './pages/AccountsReceivable.jsx'
 import PrivateRoute from './hooks/PrivateRoute.jsx'
@@ -42,6 +43,7 @@ function App() {
               <Route path="/orders" element={<Orders />} />
               <Route path="/codes" element={<Codes />} />
               <Route path="/customers" element={<Customers />} />
+              <Route path="/users" element={<Users />} />
               <Route path="/sales/payable" element={<AccountsPayable />} />
               <Route path="/sales/receivable" element={<AccountsReceivable />} />
             </Route>
