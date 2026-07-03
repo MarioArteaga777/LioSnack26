@@ -48,12 +48,6 @@ const UserDetailsModal = ({ id, user, onClose }) => {
                 {user.isVerified ? "Verificado" : "No verificado"}
               </dd>
             </div>
-            {user.loginAttempts !== undefined && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-white/60">Intentos de acceso</dt>
-                <dd className="font-medium text-right">{user.loginAttempts}</dd>
-              </div>
-            )}
             {user.createdAt && (
               <div className="flex justify-between gap-4">
                 <dt className="text-white/60">Registrado</dt>

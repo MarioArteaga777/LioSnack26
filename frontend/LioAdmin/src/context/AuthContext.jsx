@@ -2,12 +2,12 @@ import { createContext, useCallback, useEffect, useMemo, useState } from "react"
 
 export const AuthContext = createContext(null);
 
-const API_URL = "http://localhost:4000/api/login"; 
+const API_URL = "http://localhost:4000/api"; 
 const SESSION_STORAGE_KEY = "lio_auth";
 
 // Cuando el backend de login esté listo, cambia esto a false
 // y el login empezará a usar la petición real a la API automáticamente.
-const USE_MOCK_LOGIN = true;
+const USE_MOCK_LOGIN = false;
 
 // Usuarios de prueba usados solo mientras USE_MOCK_LOGIN es true.
 // No provienen de ninguna API.

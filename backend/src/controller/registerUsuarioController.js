@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 import crypto from "crypto";
-import jsonwebtoken from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
 
 import userModel from "../models/user.js";
@@ -8,9 +7,43 @@ import { config } from "../config.js";
 
 const registerUserController = {};
 
+const VERIFICATION_CODE_TTL_MS = 15 * 60 * 1000;
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: config.email.user_email,
+    pass: config.email.user_password,
+  },
+});
+
+const sendVerificationEmail = (toEmail, code) => {
+  return transporter.sendMail({
+    from: config.email.user_email,
+    to: toEmail,
+    subject: "Verificación de cuenta",
+    text: `Para verificar tu cuenta, utiliza este código: ${code} (expira en 15 minutos)`,
+  });
+};
+
+// Genera un código, lo guarda hasheado en el usuario y lo envía por correo.
+const issueVerificationCode = async (user) => {
+  const code = crypto.randomInt(100000, 1000000).toString();
+
+  user.verificationCode = await bcryptjs.hash(code, 10);
+  user.verificationCodeExpires = new Date(Date.now() + VERIFICATION_CODE_TTL_MS);
+  await user.save();
+
+  await sendVerificationEmail(user.email, code);
+};
+
 registerUserController.register = async (req, res) => {
   try {
     let { name, lastName, email, password } = req.body;
+
+    if (!name || !lastName || !email || !password) {
+      return res.status(400).json({ message: "Todos los campos son requeridos" });
+    }
 
     const normalizedEmail = email.toLowerCase();
 
@@ -25,50 +58,24 @@ registerUserController.register = async (req, res) => {
       name,
       lastName,
       email: normalizedEmail,
-      password: passwordHash
+      password: passwordHash,
     });
 
     await newUser.save();
 
-    const verificationCode = crypto.randomBytes(3).toString("hex");
+    try {
+      await issueVerificationCode(newUser);
+    } catch (mailError) {
+      console.error("Error al enviar email: " + mailError);
+      return res.status(201).json({
+        message:
+          "Usuario creado, pero no se pudo enviar el correo de verificación. Puede reenviarse más tarde.",
+      });
+    }
 
-    const tokenCode = jsonwebtoken.sign(
-      { email: normalizedEmail, verificationCode },
-      config.JWT.secret,
-      { expiresIn: "15m" }
-    );
-
-    res.cookie("verificationTokenCookie", tokenCode, {
-      maxAge: 15 * 60 * 1000,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict"
+    return res.status(201).json({
+      message: "Usuario creado. Se envió un código de verificación al correo.",
     });
-
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: config.email.user_email,
-        pass: config.email.user_password,
-      },
-    });
-
-    const mailOptions = {
-      from: config.email.user_email,
-      to: normalizedEmail,
-      subject: "Verificación de cuenta",
-      text: `Para verificar tu cuenta, utiliza este código: ${verificationCode} (expira en 15 minutos)`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error al enviar email: " + error);
-        return res.status(500).json({ message: "Error al enviar el correo de verificación" });
-      }
-
-      return res.status(200).json({ message: "Correo de verificación enviado con éxito" });
-    });
-
   } catch (error) {
     console.error("Error en el registro: " + error);
     return res.status(500).json({ message: "Internal server error" });
@@ -77,36 +84,73 @@ registerUserController.register = async (req, res) => {
 
 registerUserController.verifyCode = async (req, res) => {
   try {
-    const { verificationCodeRequest } = req.body;
-    const token = req.cookies.verificationTokenCookie;
+    const { email, code } = req.body;
 
-    if (!token) {
-      return res.status(400).json({ message: "Código expirado o inexistente" });
+    if (!email || !code) {
+      return res.status(400).json({ message: "Correo y código son requeridos" });
     }
 
-    const decoded = jsonwebtoken.verify(token, config.JWT.secret);
-    const { email, verificationCode: storedCode } = decoded;
+    const normalizedEmail = email.toLowerCase();
+    const user = await userModel.findOne({ email: normalizedEmail });
 
-    if (verificationCodeRequest !== storedCode) {
-      return res.status(400).json({ message: "Código inválido" });
-    }
-
-    const user = await userModel.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    user.isVerified = true;
-    await user.save();
+    if (user.isVerified) {
+      return res.status(200).json({ message: "La cuenta ya estaba verificada" });
+    }
 
-    res.clearCookie("verificationTokenCookie");
+    if (!user.verificationCode || !user.verificationCodeExpires) {
+      return res.status(400).json({ message: "No hay un código pendiente, solicita uno nuevo" });
+    }
+
+    if (user.verificationCodeExpires.getTime() < Date.now()) {
+      return res.status(400).json({ message: "El código ha expirado, solicita uno nuevo" });
+    }
+
+    const isMatch = await bcryptjs.compare(String(code), user.verificationCode);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Código inválido" });
+    }
+
+    user.isVerified = true;
+    user.verificationCode = null;
+    user.verificationCodeExpires = null;
+    await user.save();
 
     return res.json({ message: "Cuenta verificada con éxito" });
   } catch (error) {
     console.error("Error en la verificación: " + error);
-    if (error.name === "TokenExpiredError") {
-      return res.status(400).json({ message: "El código ha expirado" });
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+registerUserController.resendCode = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "El correo es requerido" });
     }
+
+    const normalizedEmail = email.toLowerCase();
+    const user = await userModel.findOne({ email: normalizedEmail });
+
+    // Respuesta genérica para no revelar si el correo existe o ya fue verificado.
+    const genericResponse = {
+      message: "Si el correo existe y no ha sido verificado, se envió un nuevo código",
+    };
+
+    if (!user || user.isVerified) {
+      return res.status(200).json(genericResponse);
+    }
+
+    await issueVerificationCode(user);
+
+    return res.status(200).json(genericResponse);
+  } catch (error) {
+    console.error("Error al reenviar el código: " + error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

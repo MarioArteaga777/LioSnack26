@@ -16,6 +16,10 @@ loginUserController.login = async (req, res) => {
       return res.status(401).json({ message: "Credenciales incorrectas" });
     }
 
+    if (!userFound.isVerified) {
+      return res.status(403).json({ message: "Debes verificar tu correo antes de iniciar sesión" });
+    }
+
     if (userFound.timeOut && userFound.timeOut > Date.now()) {
       const remainingTime = Math.ceil((userFound.timeOut - Date.now()) / 60000);
       return res.status(403).json({ 

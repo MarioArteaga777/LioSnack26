@@ -64,11 +64,6 @@ const Login = () => {
               Pagina Administrativa de LioSnacks
             </p>
           </div>
-          {/** 
-          <div className="max-w-screen jusityn-center text-center">
-            <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">Bienvenido</h1>
-          </div>
-          */}
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit(attemptLogin)} noValidate>
             <div className="space-y-4">
