@@ -10,6 +10,7 @@ const ProductionCard = ({
   kg,
   estado,
   onUpdate,
+  onFinalize,
   onDetails,
   onDelete,
 }) => {
@@ -20,7 +21,10 @@ const ProductionCard = ({
   } = useActionsMenu();
 
   // El menú de acciones solo se muestra si hay al menos un handler definido
-  const hasActions = onUpdate || onDetails || onDelete;
+  const hasActions = onUpdate || onFinalize || onDetails || onDelete;
+
+  // El botón de finalizar solo tiene sentido mientras la producción sigue en proceso
+  const canFinalize = estado !== "Finalizado" && estado !== "Cancelado";
 
   // Color de la etiqueta de estado según el estado de la producción
   const getStatusColor = () => {
@@ -137,6 +141,7 @@ const ProductionCard = ({
         <EntityActionsMenu
           className="bottom-4 right-4"
           onUpdate={onUpdate}
+          onFinalize={canFinalize ? onFinalize : undefined}
           onDetails={onDetails}
           onDelete={onDelete}
           onClose={() => setMenuOpen(false)}

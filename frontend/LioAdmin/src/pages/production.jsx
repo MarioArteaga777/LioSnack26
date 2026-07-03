@@ -4,7 +4,12 @@ import { useState } from "react";
 import Button from "../components/Button";
 
 import ProductionCard from "../components/Cards/ProductionCard";
+<<<<<<< HEAD
+import ProductionDetailsModal from "../components/Cards/ProductionDetailsModal";
+import FinalizeProductionModal from "../components/Cards/FinalizeProductionModal";
+=======
 import ProductionDetailsModal from "../components/ProductionDetailsModal";
+>>>>>>> 8f8a0225b282981f6162506c65c4bb558ef41f54
 
 import ProductionForm from "../forms/ProductionForm";
 
@@ -31,6 +36,8 @@ const Production = () => {
     const [editingProduction, setEditingProduction] = useState(null);
 
     const [detailsProduction, setDetailsProduction] = useState(null);
+
+    const [finalizingProduction, setFinalizingProduction] = useState(null);
 
     // Abre el formulario en modo creación
     const openCreateForm = () => {
@@ -74,6 +81,22 @@ const Production = () => {
                 closeForm();
             }
 
+        }
+
+    };
+
+    // Registra las bolsas finales y marca la producción como finalizada
+    const handleFinalizeProduction = async (bolsasFinales) => {
+
+        const result = await updateProduction(finalizingProduction._id, {
+            ...finalizingProduction,
+            BolsasObtenidas: bolsasFinales,
+            Estado: "Finalizado",
+        });
+
+        if (result.ok) {
+            await getProductions();
+            setFinalizingProduction(null);
         }
 
     };
@@ -136,6 +159,18 @@ const Production = () => {
 
             />
 
+            <FinalizeProductionModal
+
+                id="production-finalize"
+
+                production={finalizingProduction}
+
+                onClose={() => setFinalizingProduction(null)}
+
+                onConfirm={handleFinalizeProduction}
+
+            />
+
             {/* Header */}
 
             <div className="mb-20 flex items-center justify-between">
@@ -187,6 +222,10 @@ const Production = () => {
 
                                 onUpdate={() =>
                                     openUpdateForm(production)
+                                }
+
+                                onFinalize={() =>
+                                    setFinalizingProduction(production)
                                 }
 
                                 onDetails={() =>
