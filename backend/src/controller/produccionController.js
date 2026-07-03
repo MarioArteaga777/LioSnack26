@@ -2,18 +2,18 @@ import produccionModel from "../models/produccion.js";
 
 const produccionController = {};
 
-// Obtener todos
+// Devuelve todos los registros de producción
 produccionController.getAllProduccion = async (req, res) => {
     try {
         const registros = await produccionModel.find();
         return res.status(200).json(registros);
     } catch (error) {
-        console.log("error:", error.message);
+        console.log("Error:", error.message);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
 
-// Obtener por ID
+// Busca un registro de producción por su ID
 produccionController.getProduccionById = async (req, res) => {
     try {
         const registro = await produccionModel.findById(req.params.id);
@@ -24,12 +24,12 @@ produccionController.getProduccionById = async (req, res) => {
 
         return res.status(200).json(registro);
     } catch (error) {
-        console.log("error:", error.message);
+        console.log("Error:", error.message);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
 
-// Insertar
+// Crea un nuevo registro de producción con estado inicial "En proceso"
 produccionController.insertProduccion = async (req, res) => {
     try {
         const {
@@ -61,7 +61,7 @@ produccionController.insertProduccion = async (req, res) => {
             message: "Produccion registrada exitosamente"
         });
     } catch (error) {
-        console.log("error:", error.message);
+        console.log("Error:", error.message);
         return res.status(500).json({
             message: "Error al guardar la produccion",
             error: error.message
@@ -69,7 +69,7 @@ produccionController.insertProduccion = async (req, res) => {
     }
 };
 
-// Actualizar
+// Actualiza los datos de un registro de producción existente
 produccionController.updateProduccion = async (req, res) => {
     try {
         const {
@@ -106,7 +106,7 @@ produccionController.updateProduccion = async (req, res) => {
             message: "Produccion actualizada exitosamente"
         });
     } catch (error) {
-        console.log("error:", error.message);
+        console.log("Error:", error.message);
         return res.status(500).json({
             message: "Error al actualizar la produccion",
             error: error.message
@@ -114,7 +114,7 @@ produccionController.updateProduccion = async (req, res) => {
     }
 };
 
-// Eliminar
+// Elimina un registro de producción por su ID
 produccionController.deleteProduccion = async (req, res) => {
     try {
         await produccionModel.findByIdAndDelete(req.params.id);
@@ -122,7 +122,7 @@ produccionController.deleteProduccion = async (req, res) => {
             message: "Produccion eliminada"
         });
     } catch (error) {
-        console.log("error:", error.message);
+        console.log("Error:", error.message);
         return res.status(500).json({
             message: "Internal server error"
         });

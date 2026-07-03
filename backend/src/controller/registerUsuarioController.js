@@ -37,6 +37,7 @@ const issueVerificationCode = async (user) => {
   await sendVerificationEmail(user.email, code);
 };
 
+// Registra un nuevo usuario y dispara el envío del código de verificación
 registerUserController.register = async (req, res) => {
   try {
     let { name, lastName, email, password } = req.body;
@@ -66,7 +67,7 @@ registerUserController.register = async (req, res) => {
     try {
       await issueVerificationCode(newUser);
     } catch (mailError) {
-      console.error("Error al enviar email: " + mailError);
+      console.error("Error sending email: " + mailError);
       return res.status(201).json({
         message:
           "Usuario creado, pero no se pudo enviar el correo de verificación. Puede reenviarse más tarde.",
@@ -77,11 +78,12 @@ registerUserController.register = async (req, res) => {
       message: "Usuario creado. Se envió un código de verificación al correo.",
     });
   } catch (error) {
-    console.error("Error en el registro: " + error);
+    console.error("Registration error: " + error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// Valida el código de verificación enviado por correo y activa la cuenta
 registerUserController.verifyCode = async (req, res) => {
   try {
     const { email, code } = req.body;
@@ -121,11 +123,12 @@ registerUserController.verifyCode = async (req, res) => {
 
     return res.json({ message: "Cuenta verificada con éxito" });
   } catch (error) {
-    console.error("Error en la verificación: " + error);
+    console.error("Verification error: " + error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// Reenvía un nuevo código de verificación si la cuenta aún no fue verificada
 registerUserController.resendCode = async (req, res) => {
   try {
     const { email } = req.body;
@@ -150,7 +153,7 @@ registerUserController.resendCode = async (req, res) => {
 
     return res.status(200).json(genericResponse);
   } catch (error) {
-    console.error("Error al reenviar el código: " + error);
+    console.error("Error resending code: " + error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

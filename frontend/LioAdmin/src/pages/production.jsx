@@ -32,21 +32,25 @@ const Production = () => {
 
     const [detailsProduction, setDetailsProduction] = useState(null);
 
+    // Abre el formulario en modo creación
     const openCreateForm = () => {
         setEditingProduction(null);
         setIsModalOpen(true);
     };
 
+    // Abre el formulario precargado con la producción a editar
     const openUpdateForm = (production) => {
         setEditingProduction(production);
         setIsModalOpen(true);
     };
 
+    // Cierra el formulario y limpia la producción en edición
     const closeForm = () => {
         setEditingProduction(null);
         setIsModalOpen(false);
     };
 
+    // Decide si crea un registro nuevo o actualiza el que se está editando
     const handleSaveProduction = async (data) => {
 
         if (editingProduction) {
@@ -74,6 +78,7 @@ const Production = () => {
 
     };
 
+    // Pide confirmación y elimina el registro de producción seleccionado
     const handleDelete = async (production) => {
 
         const confirmed = await confirmToast(
@@ -90,6 +95,7 @@ const Production = () => {
 
     };
 
+    // Mientras se obtienen los registros, se muestra un mensaje de carga
     if (loading) {
 
         return (
@@ -154,6 +160,7 @@ const Production = () => {
 
             <div className="flex justify-center">
 
+                {/* Listado de registros de producción en formato grilla */}
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
 
                     {productions.length > 0 ? (

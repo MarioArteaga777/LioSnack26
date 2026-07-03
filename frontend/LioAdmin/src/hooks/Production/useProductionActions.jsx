@@ -2,6 +2,7 @@ import url from "../../utils/apiUrl";
 import { toast } from "sonner";
 
 const useProductionActions = () => {
+  // Crea un nuevo registro de producción
   const createProduction = async (data) => {
     try {
       const response = await fetch(`${url}/produccion`, {
@@ -28,6 +29,7 @@ const useProductionActions = () => {
     }
   };
 
+  // Actualiza un registro de producción existente
   const updateProduction = async (id, data) => {
     try {
       const response = await fetch(`${url}/produccion/${id}`, {
@@ -54,6 +56,7 @@ const useProductionActions = () => {
     }
   };
 
+  // Elimina un registro de producción por su ID
   const deleteProduction = async (id) => {
     try {
       const response = await fetch(`${url}/produccion/${id}`, {

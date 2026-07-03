@@ -15,23 +15,26 @@ const Products = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [detailsProduct, setDetailsProduct] = useState(null);
 
+  // Abre el formulario en modo creación
   const openCreateForm = () => {
     setEditingProduct(null);
     setIsModalOpen(true);
   };
 
+  // Abre el formulario precargado con el producto a editar
   const openUpdateForm = (product) => {
     setEditingProduct(product);
     setIsModalOpen(true);
   };
 
+  // Cierra el formulario y limpia el producto en edición
   const closeForm = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
   };
 
   const handleSaveProduct = async (data) => {
-    // Verificar que hay imagen al crear
+    // Al crear un producto, la imagen es obligatoria
     if (!editingProduct && !data.image) {
       toast.error("Por favor selecciona una imagen");
       return;
@@ -42,7 +45,7 @@ const Products = () => {
     formData.append("SKU", data.sku);
     formData.append("Precio", data.price);
 
-    // Si hay imagen, se agrega
+    // Al editar, la imagen es opcional
     if (data.image) {
       formData.append("Imagen", data.image);
     }
@@ -62,18 +65,20 @@ const Products = () => {
     }
   };
 
+  // Pide confirmación y elimina el producto seleccionado
   const handleDelete = async (product) => {
     const confirmed = await confirmToast(
       `¿Eliminar "${product.Nombre}"? Esta acción no se puede deshacer.`
     );
     if (!confirmed) return;
-    
+
     const result = await deleteProducto(product._id);
     if (result.ok) {
       await getProductos();
     }
   };
 
+  // Mientras se obtienen los productos, se muestra un mensaje de carga
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -111,9 +116,8 @@ const Products = () => {
         />
       </div>
 
-      <div className="flex justify-center">
-        {/* Grid de productos */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6 gap-x-8 gap-y-6 ">
+      {/* Listado de productos en formato grilla */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-7 ">
           {productos.length > 0 ? (
             productos.map((product) => (
               <ProductCard
@@ -126,6 +130,7 @@ const Products = () => {
                 onUpdate={() => openUpdateForm(product)}
                 onDetails={() => setDetailsProduct(product)}
                 onDelete={() => handleDelete(product)}
+                className="mx-2"
               />
             ))
           ) : (
@@ -133,7 +138,6 @@ const Products = () => {
           )}
         </div>
       </div>
-    </div>
   );
 };
 

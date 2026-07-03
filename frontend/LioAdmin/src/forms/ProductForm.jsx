@@ -45,6 +45,7 @@ const ProductForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => 
     onClose?.();
   };
 
+  // Solo incluye la imagen en el envío si el usuario seleccionó una nueva
   const onSubmit = (data) => {
     const payload = { name: data.name, sku: data.sku, price: Number(data.price) };
     const file = data.image?.[0];

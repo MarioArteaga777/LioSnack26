@@ -1,4 +1,4 @@
-// ForgotPassword.jsx - Página para recuperar contraseña
+// Página para recuperar el nombre de usuario a partir del email registrado
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import img_Background from "../../img/background_image_2026.png";
