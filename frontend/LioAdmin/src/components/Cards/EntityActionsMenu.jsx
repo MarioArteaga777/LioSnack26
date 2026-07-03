@@ -2,7 +2,7 @@
  * Menú flotante de acciones (Actualizar / Detalles / Eliminar) reutilizable
  * entre distintos tipos de tarjeta (cuentas, productos, etc.).
  */
-const EntityActionsMenu = ({ onUpdate, onDetails, onDelete, onClose, className = "" }) => {
+const EntityActionsMenu = ({ onUpdate, onFinalize, onDetails, onDelete, onClose, className = "" }) => {
   const handleAction = (action) => {
     onClose?.();
     action?.();
@@ -20,6 +20,15 @@ const EntityActionsMenu = ({ onUpdate, onDetails, onDelete, onClose, className =
       >
         Actualizar
       </button>
+      {onFinalize && (
+        <button
+          type="button"
+          onClick={() => handleAction(onFinalize)}
+          className="rounded-full bg-emerald-500 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-600"
+        >
+          Finalizar
+        </button>
+      )}
       <button
         type="button"
         onClick={() => handleAction(onDetails)}
