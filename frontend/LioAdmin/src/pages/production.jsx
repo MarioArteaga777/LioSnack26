@@ -4,17 +4,12 @@ import { useState } from "react";
 import Button from "../components/Button";
 
 import ProductionCard from "../components/Cards/ProductionCard";
-<<<<<<< HEAD
-import ProductionDetailsModal from "../components/Cards/ProductionDetailsModal";
 import FinalizeProductionModal from "../components/Cards/FinalizeProductionModal";
-=======
-import ProductionDetailsModal from "../components/ProductionDetailsModal";
->>>>>>> 8f8a0225b282981f6162506c65c4bb558ef41f54
 
 import ProductionForm from "../forms/ProductionForm";
 
 import confirmToast from "../utils/confirmToast";
-
+import ProductionDetailsModal from "../components/ProductionDetailsModal";
 import useFetchProduction from "../hooks/Production/useFetchProduction";
 import useProductionActions from "../hooks/Production/useProductionActions";
 const Production = () => {
@@ -196,7 +191,7 @@ const Production = () => {
             <div className="flex justify-center">
 
                 {/* Listado de registros de producción en formato grilla */}
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
 
                     {productions.length > 0 ? (
 
