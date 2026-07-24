@@ -11,7 +11,7 @@ const ProductCard = ({ image, name, sku, price, onUpdate, onDetails, onDelete })
   return (
     <div
     ref={containerRef}
-    className={`relative w-full max-w-64 flex flex-col rounded-2xl bg-[#2a1f5e] p-4 shadow-xl overflow-hidden ${
+    className={`group relative w-full max-w-64 flex flex-col rounded-2xl bg-[#2a1f5e] p-4 shadow-xl overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 hover:ring-1 hover:ring-sky-400/40 ${
     hasActions ? "cursor-pointer" : ""
   }`}
       role={hasActions ? "button" : undefined}
@@ -37,7 +37,7 @@ const ProductCard = ({ image, name, sku, price, onUpdate, onDetails, onDelete })
           <img
             src={image}
             alt={name}
-            className="h-full w-full object-contain drop-shadow-lg"
+            className="h-full w-full object-contain drop-shadow-lg transition-transform duration-300 group-hover:scale-110"
           />
         </div>
 

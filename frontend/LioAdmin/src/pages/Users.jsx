@@ -130,6 +130,7 @@ const Users = () => {
                   name={user.name}
                   lastName={user.lastName}
                   isVerified={user.isVerified}
+                  image={user.image}
                   onUpdate={() => openUpdateForm(user)}
                   onDetails={() => setDetailsUser(user)}
                   onDelete={() => handleDelete(user)}

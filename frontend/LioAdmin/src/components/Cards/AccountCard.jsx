@@ -50,7 +50,9 @@ const AccountCard = ({
     : "bg-white/60 text-gray-800";
 
   return (
-    <div className={`relative rounded-2xl p-3 ${cardColors[status]}`}>
+    <div
+      className={`group relative rounded-2xl p-3 shadow-lg transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/30 ${cardColors[status]}`}
+    >
       {/* Badge de días restantes (Cuentas por Pagar) */}
       {daysLeft !== undefined && (
         <span className="absolute -top-3 -right-3 flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow">
@@ -78,7 +80,7 @@ const AccountCard = ({
         <img
           src={image}
           alt={client}
-          className="h-20 w-20 shrink-0 rounded-lg object-cover"
+          className="h-20 w-20 shrink-0 rounded-lg object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <div className="flex flex-col gap-1.5">
           <span className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${pillClass}`}>

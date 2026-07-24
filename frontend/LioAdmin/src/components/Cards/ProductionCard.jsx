@@ -43,7 +43,7 @@ const ProductionCard = ({
   return (
     <div
       ref={containerRef}
-      className={`relative w-72 rounded-2xl bg-[#2A1F5E] p-5 shadow-xl overflow-hidden ${
+      className={`relative w-72 rounded-2xl bg-[#2A1F5E] p-5 shadow-xl overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 hover:ring-1 hover:ring-sky-400/40 ${
         hasActions ? "cursor-pointer" : ""
       }`}
       role={hasActions ? "button" : undefined}

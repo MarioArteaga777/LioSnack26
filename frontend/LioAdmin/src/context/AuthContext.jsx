@@ -216,6 +216,23 @@ export function AuthProvider({ children }) {
 
   const clearSession = useCallback(() => persistSession(null), [persistSession]);
 
+  // Actualiza los datos del usuario logueado (ej. tras editar el perfil)
+  // sin tener que volver a autenticarse.
+  const updateUser = useCallback((updates) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+
+      const nextUser = { ...prev, ...updates };
+
+      localStorage.setItem(
+        SESSION_STORAGE_KEY,
+        JSON.stringify({ user: nextUser, authenticatedAt: new Date().toISOString() })
+      );
+
+      return nextUser;
+    });
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
@@ -226,8 +243,9 @@ export function AuthProvider({ children }) {
       verifyRegistrationCode,
       logout,
       clearSession,
+      updateUser,
     }),
-    [user, loading, login, register, verifyRegistrationCode, logout, clearSession]
+    [user, loading, login, register, verifyRegistrationCode, logout, clearSession, updateUser]
   );
 
   return (

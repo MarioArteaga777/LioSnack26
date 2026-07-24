@@ -26,13 +26,16 @@ const useUsuariosActions = () => {
         }
     };
 
-    // Actualiza los datos de un usuario existente
+    // Actualiza los datos de un usuario existente.
+    // Acepta un objeto plano (JSON) o un FormData (cuando incluye la foto de perfil).
     const updateUsuario = async (id, data) => {
         try {
+            const isFormData = data instanceof FormData;
+
             const response = await fetch(`${url}/usuarios/${id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
+                headers: isFormData ? undefined : { "Content-Type": "application/json" },
+                body: isFormData ? data : JSON.stringify(data),
             });
 
             if (!response.ok) {
@@ -41,8 +44,9 @@ const useUsuariosActions = () => {
                 return { ok: false };
             }
 
+            const result = await response.json();
             toast.success("Usuario actualizado exitosamente");
-            return { ok: true };
+            return { ok: true, user: result.user };
         } catch (error) {
             console.log(error);
             toast.error("Error al actualizar el usuario");

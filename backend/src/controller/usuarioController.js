@@ -1,4 +1,5 @@
 import bcryptjs from "bcryptjs";
+import { v2 as cloudinary } from "cloudinary";
 import userModel from "../models/user.js";
 
 const userController = {};
@@ -21,6 +22,11 @@ userController.deleteUser = async (req, res) => {
     if (!deletedUser) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
+
+    if (deletedUser.public_id) {
+      await cloudinary.uploader.destroy(deletedUser.public_id);
+    }
+
     return res.status(200).json({ message: "Usuario eliminado" });
   } catch (error) {
     console.error("Error deleting user: " + error);
@@ -28,7 +34,9 @@ userController.deleteUser = async (req, res) => {
   }
 };
 
-// Actualiza los datos de un usuario; la contraseña solo se rehashea si fue enviada
+// Actualiza los datos de un usuario; la contraseña solo se rehashea si fue enviada.
+// La foto de perfil se sube/reemplaza en Cloudinary si llega un archivo, o se
+// elimina si el cliente manda removeImage=true sin archivo nuevo.
 userController.updateUser = async (req, res) => {
   try {
     let {
@@ -39,6 +47,7 @@ userController.updateUser = async (req, res) => {
       isVerified,
       loginAttempts,
       timeOut,
+      removeImage,
     } = req.body;
 
     name = name?.trim();
@@ -47,6 +56,12 @@ userController.updateUser = async (req, res) => {
 
     if (name && (name.length < 3 || name.length > 15)) {
       return res.status(400).json({ message: "Nombre inválido (debe tener entre 3 y 15 caracteres)" });
+    }
+
+    const userFound = await userModel.findById(req.params.id);
+
+    if (!userFound) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
     const updateData = {
@@ -62,6 +77,20 @@ userController.updateUser = async (req, res) => {
       updateData.password = await bcryptjs.hash(password, 10);
     }
 
+    if (req.file) {
+      if (userFound.public_id) {
+        await cloudinary.uploader.destroy(userFound.public_id);
+      }
+      updateData.image = req.file.path;
+      updateData.public_id = req.file.filename;
+    } else if (removeImage === "true" || removeImage === true) {
+      if (userFound.public_id) {
+        await cloudinary.uploader.destroy(userFound.public_id);
+      }
+      updateData.image = null;
+      updateData.public_id = null;
+    }
+
     Object.keys(updateData).forEach(
       (key) => updateData[key] === undefined && delete updateData[key]
     );
@@ -71,10 +100,6 @@ userController.updateUser = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     ).select("-password");
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
 
     return res.status(200).json({ message: "Usuario actualizado con éxito", user: updatedUser });
   } catch (error) {

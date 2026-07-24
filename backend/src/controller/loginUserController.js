@@ -71,7 +71,8 @@ loginUserController.login = async (req, res) => {
         name: userFound.name,
         lastName: userFound.lastName,
         email: userFound.email,
-        isVerified: userFound.isVerified
+        isVerified: userFound.isVerified,
+        image: userFound.image
       }
     });
 

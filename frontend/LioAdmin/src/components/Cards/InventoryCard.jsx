@@ -33,7 +33,7 @@ const InventoryCard = ({
   return (
     <div
       ref={containerRef}
-      className={`relative w-72 overflow-hidden rounded-2xl bg-[#2A1F5E] p-5 shadow-xl ${
+      className={`group relative w-72 overflow-hidden rounded-2xl bg-[#2A1F5E] p-5 shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 hover:ring-1 hover:ring-sky-400/40 ${
         hasActions ? "cursor-pointer" : ""
       }`}
       role={hasActions ? "button" : undefined}
@@ -65,7 +65,7 @@ const InventoryCard = ({
           <img
             src={image}
             alt={name}
-            className="h-full object-contain"
+            className="h-full object-contain transition-transform duration-300 group-hover:scale-110"
           />
         </div>
 

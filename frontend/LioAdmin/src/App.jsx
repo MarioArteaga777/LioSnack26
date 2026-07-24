@@ -23,6 +23,7 @@ import Inventory from "./pages/Inventory.jsx";
 
 import AccountsPayable from "./pages/AccountsPayable.jsx";
 import AccountsReceivable from "./pages/AccountsReceivable.jsx";
+import Profile from "./pages/Profile.jsx";
 
 import PrivateRoute from "./hooks/PrivateRoute.jsx";
 
@@ -69,6 +70,8 @@ function App() {
 
               <Route path="/sales/payable" element={<AccountsPayable />} />
               <Route path="/sales/receivable" element={<AccountsReceivable />} />
+
+              <Route path="/perfil" element={<Profile />} />
             </Route>
           </Route>
         </Routes>
