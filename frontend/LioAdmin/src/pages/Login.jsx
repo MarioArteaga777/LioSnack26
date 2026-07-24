@@ -142,6 +142,9 @@ const Login = () => {
             >
               {loading ? "Ingresando..." : "Iniciar sesión"}
             </button>
+            <p className="text-center text-sm hover:text-blue-400 text-[#201D73] cursor-pointer" onClick={() => navigate("/verify-account")}>
+              Si necesita verificar su cuenta, puede dar click a este mensaje para redirigirlo.
+            </p>
           </form>
         </div>
       </div>
