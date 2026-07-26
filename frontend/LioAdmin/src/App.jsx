@@ -8,6 +8,7 @@ import Home from "./pages/Home.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ForgotUsername from "./pages/ForgotUsername.jsx";
 import VerificationCode from "./pages/VerificationCode.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 import Layout from "./layout/NavLayout.jsx";
 
@@ -52,6 +53,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/forgot-username" element={<ForgotUsername />} />
           <Route path="/verification-code" element={<VerificationCode />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Protected routes */}
           <Route element={<PrivateRoute />}>

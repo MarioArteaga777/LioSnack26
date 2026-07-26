@@ -1,12 +1,12 @@
-// ForgotPassword.jsx - Página para recuperar contraseña
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import url from "../utils/apiUrl";
 import img_Background from "../../img/background_image_2026.png";
 import img_Logo from "../../img/Logo.png";
 
-const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
+const ResetPassword = () => {
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,35 +17,39 @@ const ForgotPassword = () => {
     setError("");
     setMessage("");
 
-    if (!email.trim()) {
-      setError("Por favor ingresa tu email.");
+    if (!newPassword || !confirmNewPassword) {
+      setError("Completa ambos campos de contraseña.");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setError("Las contraseñas no coinciden.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(`${url}/recovery-password/requestCode`, {
+      const response = await fetch(`${url}/recovery-password/newPassword`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ newPassword, confirmNewPassword }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "No se pudo enviar el código de recuperación.");
+        throw new Error(data.message || "No se pudo actualizar la contraseña.");
       }
 
-      setMessage("Se ha enviado un código de recuperación a tu email.");
-
-      const sentEmail = email.trim();
-      setEmail("");
+      setMessage("Contraseña actualizada con éxito. Redirigiendo al login...");
+      setNewPassword("");
+      setConfirmNewPassword("");
 
       setTimeout(() => {
-        navigate("/verification-code", { state: { email: sentEmail } });
-      }, 1500);
+        navigate("/login");
+      }, 2000);
     } catch (error_) {
       setError(error_.message || "Error al procesar tu solicitud.");
     } finally {
@@ -69,23 +73,34 @@ const ForgotPassword = () => {
           </div>
           <div className="flex items-center justify-center">
             <p className="text-1xl font-bold text-slate-900 sm:text-2xl mb-6">
-              Recuperar Contraseña
+              Nueva Contraseña
             </p>
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <label className="block text-sm font-medium text-slate-700">
-                Email
+                Nueva contraseña
               </label>
-              <p className="text-sm text-slate-600 mb-3">
-                Ingresa el email asociado a tu cuenta. Te enviaremos un código para recuperar tu contraseña.
-              </p>
               <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="usuario@dominio.com"
+                type="password"
+                value={newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition duration-200 focus:border-indigo-500 focus:bg-white"
+                required
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-slate-700">
+                Confirmar contraseña
+              </label>
+              <input
+                type="password"
+                value={confirmNewPassword}
+                onChange={(event) => setConfirmNewPassword(event.target.value)}
+                placeholder="••••••••"
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition duration-200 focus:border-indigo-500 focus:bg-white"
                 required
               />
@@ -116,15 +131,7 @@ const ForgotPassword = () => {
               disabled={loading}
               className="flex w-full items-center justify-center rounded-2xl bg-[#201D73] px-5 py-4 text-sm font-semibold text-white transition hover:bg-[#6AA5D9] disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {loading ? "Procesando..." : "Enviar Código de Recuperación"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              className="flex w-full justify-center text-sm font-semibold text-[#201D73] hover:text-gray-400"
-            >
-              Volver al Login
+              {loading ? "Guardando..." : "Guardar Contraseña"}
             </button>
           </form>
         </div>
@@ -133,4 +140,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default ResetPassword;

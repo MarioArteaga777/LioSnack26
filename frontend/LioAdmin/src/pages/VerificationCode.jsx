@@ -1,39 +1,48 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
+import url from "../utils/apiUrl";
 import img_Background from "../../img/background_image_2026.png";
 import img_Logo from "../../img/Logo.png";
 
 const VerificationCode = () => {
-  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const email = location.state?.email;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
     setMessage("");
 
-    if (!email.trim()) {
-      setError("Por favor ingresa tu email.");
+    if (!code.trim()) {
+      setError("Por favor ingresa el código de verificación.");
       return;
     }
 
     setLoading(true);
 
     try {
-      // Aquí simularemos el envío de email de recuperación
-      // En producción, esto sería una llamada a tu API
-      setMessage(
-        "Se ha enviado un enlace de recuperación a tu email. Por favor revisa tu bandeja de entrada.",
-      );
-      setEmail("");
+      const response = await fetch(`${url}/recovery-password/verifyCode`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ code: code.trim() }),
+      });
 
-      // Opcional: redirige al login después de 3 segundos
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "No se pudo verificar el código.");
+      }
+
+      setMessage("Código verificado con éxito.");
       setTimeout(() => {
-        navigate("/");
-      }, 3000);
+        navigate("/reset-password");
+      }, 1000);
     } catch (error_) {
       setError(error_.message || "Error al procesar tu solicitud.");
     } finally {
@@ -67,13 +76,17 @@ const VerificationCode = () => {
                 Verificación de Código
               </label>
               <p className="text-sm text-slate-600 mb-3">
-                Ingresa el código que hemos enviado hacia tu correo electrónico, si no encuentras el código, revisa la carpeta de spam.
+                {email
+                  ? `Ingresa el código que enviamos a ${email}. Si no lo encuentras, revisa la carpeta de spam.`
+                  : "Ingresa el código que hemos enviado hacia tu correo electrónico, si no encuentras el código, revisa la carpeta de spam."}
               </p>
               <input
                 type="text"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                inputMode="numeric"
+                value={code}
+                onChange={(event) => setCode(event.target.value)}
                 placeholder="XXXXXX"
+                maxLength={6}
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition duration-200 focus:border-indigo-500 focus:bg-white"
                 required
               />
@@ -104,7 +117,15 @@ const VerificationCode = () => {
               disabled={loading}
               className="flex w-full items-center justify-center rounded-2xl bg-[#201D73] px-5 py-4 text-sm font-semibold text-white transition hover:bg-[#6AA5D9] disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              <p>Enviar código de verificación</p>
+              <p>{loading ? "Verificando..." : "Verificar código"}</p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="flex w-full justify-center text-sm font-semibold text-[#201D73] hover:text-gray-400"
+            >
+              Volver
             </button>
           </form>
         </div>
