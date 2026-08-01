@@ -22,7 +22,16 @@ const emptyItem = {
   precio_unitario: 0,
 };
 
-const OrderForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
+const OrderForm = ({
+  id,
+  isOpen,
+  onClose,
+  onSubmit: onSave,
+  initialData,
+  clientes = [],
+  productos = [],
+  vendedorAsignado = "",
+}) => {
   const dialogRef = useRef(null);
 
   const schema = yup.object().shape({
@@ -65,6 +74,7 @@ const OrderForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
     reset,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
@@ -75,6 +85,18 @@ const OrderForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
     control,
     name: "items",
   });
+
+  // Al elegir un producto real, autocompleta su SKU y precio en esa fila
+  const handleProductSelect = (index, nombre) => {
+    const producto = productos.find((item) => item.Nombre === nombre);
+
+    setValue(`items.${index}.sku`, producto?.SKU ?? "", { shouldValidate: true });
+    setValue(
+      `items.${index}.precio_unitario`,
+      producto ? Number(producto.Precio) : 0,
+      { shouldValidate: true }
+    );
+  };
 
   // Total calculado en vivo a partir de los items.
   const watchedItems = watch("items");
@@ -97,7 +119,7 @@ const OrderForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
           toDatetimeLocal(new Date()),
         cliente: initialData?.cliente ?? "",
         punto_de_venta: initialData?.punto_de_venta ?? "",
-        vendedor_asignado: initialData?.vendedor_asignado ?? "",
+        vendedor_asignado: initialData?.vendedor_asignado ?? vendedorAsignado,
         items:
           initialData?.items?.length > 0
             ? initialData.items.map((item) => ({
@@ -177,11 +199,30 @@ const OrderForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
           <div className="grid grid-cols-2 gap-4">
 
             <div>
-              <input
+              <select
                 {...register("cliente")}
-                placeholder="Cliente"
                 className="w-full rounded-lg bg-gray-300 px-3 py-2"
-              />
+              >
+                <option value="">Selecciona un cliente</option>
+
+                {/* Preserva el valor guardado aunque ya no exista en la lista de clientes */}
+                {initialData?.cliente &&
+                  !clientes.some((cliente) => cliente.name === initialData.cliente) && (
+                    <option value={initialData.cliente}>{initialData.cliente}</option>
+                  )}
+
+                {clientes.map((cliente) => (
+                  <option key={cliente._id} value={cliente.name}>
+                    {cliente.name}
+                  </option>
+                ))}
+              </select>
+
+              {clientes.length === 0 && (
+                <p className="mt-1 text-xs text-white/60">
+                  No hay clientes registrados. Créalos en la sección Clientes.
+                </p>
+              )}
 
               <p className="text-red-400 text-sm">
                 {errors.cliente?.message}
@@ -205,9 +246,14 @@ const OrderForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
           <div>
             <input
               {...register("vendedor_asignado")}
+              readOnly
               placeholder="Vendedor asignado"
-              className="w-full rounded-lg bg-gray-300 px-3 py-2"
+              className="w-full cursor-not-allowed rounded-lg bg-gray-300 px-3 py-2 opacity-80"
             />
+
+            <p className="mt-1 text-xs text-white/60">
+              Se asigna automáticamente según tu sesión.
+            </p>
 
             <p className="text-red-400 text-sm">
               {errors.vendedor_asignado?.message}
@@ -231,65 +277,97 @@ const OrderForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
               </button>
             </div>
 
+            {productos.length === 0 && (
+              <p className="mb-2 text-xs text-white/60">
+                No hay productos registrados. Créalos en la sección Productos.
+              </p>
+            )}
+
             <div className="flex flex-col gap-3">
 
-              {fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="grid grid-cols-[1fr_2fr_1fr_1fr_auto] gap-2 items-start"
-                >
-                  <input
-                    {...register(`items.${index}.sku`)}
-                    placeholder="SKU"
-                    className="rounded-lg bg-gray-300 px-2 py-2 text-sm"
-                  />
+              {fields.map((field, index) => {
+                const currentProducto = watchedItems?.[index]?.producto;
+                const { onChange: productoOnChange, ...productoField } = register(
+                  `items.${index}.producto`
+                );
 
-                  <div>
-                    <input
-                      {...register(`items.${index}.producto`)}
-                      placeholder="Producto"
-                      className="w-full rounded-lg bg-gray-300 px-2 py-2 text-sm"
-                    />
-                    <p className="text-red-400 text-xs">
-                      {errors.items?.[index]?.producto?.message}
-                    </p>
-                  </div>
-
-                  <div>
-                    <input
-                      type="number"
-                      {...register(`items.${index}.cantidad_solicitada`)}
-                      placeholder="Cant."
-                      className="w-full rounded-lg bg-gray-300 px-2 py-2 text-sm"
-                    />
-                    <p className="text-red-400 text-xs">
-                      {errors.items?.[index]?.cantidad_solicitada?.message}
-                    </p>
-                  </div>
-
-                  <div>
-                    <input
-                      type="number"
-                      step="0.01"
-                      {...register(`items.${index}.precio_unitario`)}
-                      placeholder="Precio"
-                      className="w-full rounded-lg bg-gray-300 px-2 py-2 text-sm"
-                    />
-                    <p className="text-red-400 text-xs">
-                      {errors.items?.[index]?.precio_unitario?.message}
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    disabled={fields.length === 1}
-                    className="rounded-lg bg-rose-600 px-2 py-2 text-xs text-white hover:bg-rose-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                return (
+                  <div
+                    key={field.id}
+                    className="grid grid-cols-[1fr_2fr_1fr_1fr_auto] gap-2 items-start"
                   >
-                    ✕
-                  </button>
-                </div>
-              ))}
+                    <input
+                      {...register(`items.${index}.sku`)}
+                      readOnly
+                      placeholder="SKU"
+                      className="cursor-not-allowed rounded-lg bg-gray-300 px-2 py-2 text-sm opacity-80"
+                    />
+
+                    <div>
+                      <select
+                        {...productoField}
+                        onChange={(event) => {
+                          productoOnChange(event);
+                          handleProductSelect(index, event.target.value);
+                        }}
+                        className="w-full rounded-lg bg-gray-300 px-2 py-2 text-sm"
+                      >
+                        <option value="">Selecciona un producto</option>
+
+                        {/* Preserva el valor guardado aunque ya no exista en la lista de productos */}
+                        {currentProducto &&
+                          !productos.some((producto) => producto.Nombre === currentProducto) && (
+                            <option value={currentProducto}>{currentProducto}</option>
+                          )}
+
+                        {productos.map((producto) => (
+                          <option key={producto._id} value={producto.Nombre}>
+                            {producto.Nombre}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-red-400 text-xs">
+                        {errors.items?.[index]?.producto?.message}
+                      </p>
+                    </div>
+
+                    <div>
+                      <input
+                        type="number"
+                        {...register(`items.${index}.cantidad_solicitada`)}
+                        placeholder="Cant."
+                        className="w-full rounded-lg bg-gray-300 px-2 py-2 text-sm"
+                      />
+                      <p className="text-red-400 text-xs">
+                        {errors.items?.[index]?.cantidad_solicitada?.message}
+                      </p>
+                    </div>
+
+                    <div>
+                      <input
+                        type="number"
+                        step="0.01"
+                        {...register(`items.${index}.precio_unitario`)}
+                        readOnly
+                        placeholder="Precio"
+                        className="w-full cursor-not-allowed rounded-lg bg-gray-300 px-2 py-2 text-sm opacity-80"
+                      />
+                      <p className="text-red-400 text-xs">
+                        {errors.items?.[index]?.precio_unitario?.message}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => remove(index)}
+                      disabled={fields.length === 1}
+                      className="rounded-lg bg-rose-600 px-2 py-2 text-xs text-white hover:bg-rose-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                );
+              })}
 
             </div>
 

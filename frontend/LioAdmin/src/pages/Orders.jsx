@@ -15,11 +15,20 @@ import {
 
 import useFetchPedidos from "../hooks/Orders/useFetchPedidos";
 import usePedidosActions from "../hooks/Orders/usePedidosActions";
+import useFetchClientes from "../hooks/Customers/useFetchClientes";
+import useFetchProductos from "../hooks/Products/useFetchProductos";
+import useAuth from "../hooks/useAuth";
 
 const Orders = () => {
   const { pedidos, getPedidos, loading } = useFetchPedidos();
 
   const { createPedido, updatePedido, deletePedido } = usePedidosActions();
+
+  const { clientes } = useFetchClientes();
+  const { productos } = useFetchProductos();
+  const { user } = useAuth();
+
+  const vendedorAsignado = [user?.name, user?.lastName].filter(Boolean).join(" ");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPedido, setEditingPedido] = useState(null);
@@ -89,6 +98,9 @@ const Orders = () => {
         onClose={closeForm}
         onSubmit={handleSavePedido}
         initialData={editingPedido}
+        clientes={clientes}
+        productos={productos}
+        vendedorAsignado={vendedorAsignado}
       />
 
       <OrderDetailsModal

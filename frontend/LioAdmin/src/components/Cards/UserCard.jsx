@@ -22,7 +22,11 @@ const UserCard = ({
   onDetails,
   onDelete,
 }) => {
-  const { open: menuOpen, setOpen: setMenuOpen, containerRef } = useActionsMenu();
+  const {
+    open: menuOpen,
+    setOpen: setMenuOpen,
+    containerRef,
+  } = useActionsMenu();
   const hasActions = onUpdate || onDetails || onDelete;
 
   return (
@@ -62,7 +66,7 @@ const UserCard = ({
         </div>
       </div>
 
-      {/* Botón de menú (kebab) */}
+      {/* Botón de menú */}
       {hasActions && (
         <div className="relative mt-2 flex justify-end">
           <button

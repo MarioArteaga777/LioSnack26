@@ -63,7 +63,7 @@ const UserDetailsModal = ({ id, user, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg bg-white/10 px-6 py-2 text-white transition hover:bg-white/20"
+              className="rounded-lg bg-white/10 px-4 py-2 text-white transition hover:bg-white/20"
             >
               Cerrar
             </button>

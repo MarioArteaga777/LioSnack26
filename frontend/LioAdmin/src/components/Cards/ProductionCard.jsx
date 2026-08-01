@@ -48,11 +48,7 @@ const ProductionCard = ({
       }`}
       role={hasActions ? "button" : undefined}
       tabIndex={hasActions ? 0 : undefined}
-      onClick={
-        hasActions
-          ? () => setMenuOpen((prev) => !prev)
-          : undefined
-      }
+      onClick={hasActions ? () => setMenuOpen((prev) => !prev) : undefined}
       onKeyDown={
         hasActions
           ? (e) => {
@@ -68,73 +64,59 @@ const ProductionCard = ({
       <div className="absolute inset-0 bg-gradient-to-b from-[#3D2F80] to-[#2A1F5E] opacity-90 pointer-events-none" />
 
       <div className="relative">
-
-        <h2 className="text-white font-semibold text-lg mb-5">
-          Producción
-        </h2>
+        <h2 className="text-white font-semibold text-lg mb-5">Producción</h2>
 
         <div className="space-y-3 text-white text-sm">
-
           <div className="flex justify-between">
-            <span className="font-medium text-white/70">
-              SKU
-            </span>
+            <span className="font-medium text-white/70">SKU</span>
 
             <span>{sku}</span>
           </div>
 
           <div className="flex justify-between">
-            <span className="font-medium text-white/70">
-              Hora Inicio
-            </span>
+            <span className="font-medium text-white/70">Hora Inicio</span>
 
             <span>{horaInicio}</span>
           </div>
 
           <div className="flex justify-between">
-            <span className="font-medium text-white/70">
-              Hora Final
-            </span>
+            <span className="font-medium text-white/70">Hora Final</span>
 
             <span>{horaFinalizacion}</span>
           </div>
 
           <div className="flex justify-between">
-            <span className="font-medium text-white/70">
-              Bolsas Esperadas
-            </span>
+            <span className="font-medium text-white/70">Bolsas Esperadas</span>
 
             <span>{bolsasEsperadas}</span>
           </div>
 
           <div className="flex justify-between">
-            <span className="font-medium text-white/70">
-              Bolsas Obtenidas
-            </span>
+            <span className="font-medium text-white/70">Bolsas Obtenidas</span>
 
             <span>{bolsasObtenidas}</span>
           </div>
 
           <div className="flex justify-between">
-            <span className="font-medium text-white/70">
-              KG
-            </span>
+            <span className="font-medium text-white/70">KG</span>
 
             <span>{kg}</span>
           </div>
-
         </div>
 
         <div className="mt-6 flex justify-between items-center">
-
           <span
             className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor()}`}
           >
             {estado}
           </span>
-
         </div>
 
+        {hasActions && (
+          <div className="mt-4 flex justify-end text-xs text-white/70">
+            Click for actions
+          </div>
+        )}
       </div>
 
       {hasActions && menuOpen && (

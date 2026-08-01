@@ -19,9 +19,6 @@ import Customers from "./pages/Customers.jsx";
 import Users from "./pages/Users.jsx";
 import Production from "./pages/production.jsx";
 
-// 👉 NUEVO INVENTORY PAGE
-import Inventory from "./pages/Inventory.jsx";
-
 import AccountsPayable from "./pages/AccountsPayable.jsx";
 import AccountsReceivable from "./pages/AccountsReceivable.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -60,9 +57,6 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/home" element={<Home />} />
               <Route path="/products" element={<Products />} />
-
-              {/* 👉 NUEVA RUTA INVENTORY */}
-              <Route path="/inventory" element={<Inventory />} />
 
               <Route path="/orders" element={<Orders />} />
               <Route path="/codes" element={<Codes />} />

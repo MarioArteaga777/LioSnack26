@@ -2,31 +2,22 @@ import { useEffect, useMemo, useRef } from "react";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Camera, UserRound } from "lucide-react";
+import { Building2, Camera, UserRound } from "lucide-react";
 
-const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
+const CustomerForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
   const dialogRef = useRef(null);
   const isEditing = Boolean(initialData);
 
-  const schema = yup.object().shape({
-    name: yup
+  const schema = yup.object({
+    name: yup.string().required("El nombre es requerido"),
+    type: yup
       .string()
-      .required("El nombre es requerido")
-      .min(3, "Mínimo 3 caracteres")
-      .max(15, "Máximo 15 caracteres"),
-    lastName: yup.string().required("El apellido es requerido"),
-    email: yup
-      .string()
-      .email("Correo inválido")
-      .required("El correo es requerido"),
-    // Al editar no se exige volver a definir la contraseña
-    password: isEditing
-      ? yup.string().notRequired()
-      : yup
-          .string()
-          .required("La contraseña es requerida")
-          .min(6, "Mínimo 6 caracteres"),
-    // La foto de perfil es opcional tanto al crear como al editar
+      .oneOf(["empresa", "persona"], "Selecciona un tipo válido")
+      .required("El tipo de cliente es requerido"),
+    address: yup.string().notRequired(),
+    phone: yup.string().notRequired(),
+    email: yup.string().email("Correo inválido").notRequired(),
+    // La foto es opcional tanto al crear como al editar
     image: yup.mixed().notRequired(),
   });
 
@@ -42,6 +33,7 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
 
   const { ref: imageFieldRef, ...imageField } = register("image");
   const fileInputRef = useRef(null);
+  const selectedType = watch("type");
   const selectedFile = watch("image")?.[0];
 
   // Genera (y libera) una vista previa del archivo recién seleccionado
@@ -65,9 +57,10 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
     if (isOpen) {
       reset({
         name: initialData?.name ?? "",
-        lastName: initialData?.lastName ?? "",
+        type: initialData?.type ?? "persona",
+        address: initialData?.address ?? "",
+        phone: initialData?.phone ?? "",
         email: initialData?.email ?? "",
-        password: "",
       });
       dialog.showModal();
     } else {
@@ -79,17 +72,14 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
     onClose?.();
   };
 
-  // Solo incluye la contraseña en el envío si el usuario la completó
   const onSubmit = (data) => {
     const payload = {
       name: data.name,
-      lastName: data.lastName,
+      type: data.type,
+      address: data.address,
+      phone: data.phone,
       email: data.email,
     };
-
-    if (data.password) {
-      payload.password = data.password;
-    }
 
     const file = data.image?.[0];
 
@@ -116,7 +106,7 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
     >
       <div className="w-[700px] rounded-2xl bg-[#1B022C] p-6">
         <h2 className="mb-6 text-xl font-semibold text-white">
-          {isEditing ? "Actualizar Usuario" : "Nuevo Usuario"}
+          {isEditing ? "Actualizar Cliente" : "Nuevo Cliente"}
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex gap-8">
@@ -125,27 +115,48 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
               <input
                 type="text"
                 {...register("name")}
-                placeholder="Nombre"
+                placeholder="Nombre del cliente"
                 className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
               />
               {errors.name && (
-                <p className="mt-1 text-sm text-red-400">
-                  {errors.name.message}
-                </p>
+                <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>
+              )}
+            </div>
+
+            <div>
+              <select
+                {...register("type")}
+                className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none"
+              >
+                <option value="persona">Persona</option>
+                <option value="empresa">Empresa</option>
+              </select>
+              {errors.type && (
+                <p className="mt-1 text-sm text-red-400">{errors.type.message}</p>
               )}
             </div>
 
             <div>
               <input
                 type="text"
-                {...register("lastName")}
-                placeholder="Apellido"
+                {...register("address")}
+                placeholder="Dirección"
                 className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
               />
-              {errors.lastName && (
-                <p className="mt-1 text-sm text-red-400">
-                  {errors.lastName.message}
-                </p>
+              {errors.address && (
+                <p className="mt-1 text-sm text-red-400">{errors.address.message}</p>
+              )}
+            </div>
+
+            <div>
+              <input
+                type="text"
+                {...register("phone")}
+                placeholder="Número telefónico"
+                className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
+              />
+              {errors.phone && (
+                <p className="mt-1 text-sm text-red-400">{errors.phone.message}</p>
               )}
             </div>
 
@@ -157,59 +168,43 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
                 className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-400">
-                  {errors.email.message}
-                </p>
+                <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>
               )}
             </div>
 
-            <div>
-              <input
-                type="password"
-                {...register("password")}
-                placeholder={
-                  isEditing ? "Nueva contraseña (opcional)" : "Contraseña"
-                }
-                className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
-              />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-400">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            <div className="flex justify-center gap-3 pt-2">
+            <div className="flex justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={handleCancel}
-                className="rounded-lg bg-white/10 px-7 py-2 text-white transition hover:bg-white/20"
+                className="rounded-lg bg-white/10 px-6 py-2 text-white transition hover:bg-white/20"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="rounded-lg bg-sky-500 px-7 py-2 text-white transition hover:bg-sky-600"
+                className="rounded-lg bg-sky-500 px-6 py-2 text-white transition hover:bg-sky-600"
               >
-                {isEditing ? "Guardar Cambios" : "Guardar Usuario"}
+                {isEditing ? "Guardar Cambios" : "Guardar Cliente"}
               </button>
             </div>
           </div>
 
-          {/* Foto de perfil: click en el círculo para elegir la imagen */}
+          {/* Foto del cliente: click en el círculo para elegirla (opcional) */}
           <div className="flex flex-1 flex-col items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              aria-label="Elegir foto de perfil"
+              aria-label="Elegir foto del cliente"
               className="group relative flex h-56 w-56 items-center justify-center overflow-hidden rounded-full bg-white/10"
             >
               {avatarSrc ? (
                 <img
                   src={avatarSrc}
-                  alt="Foto de perfil"
+                  alt="Foto del cliente"
                   className="h-full w-full object-cover"
                 />
+              ) : selectedType === "empresa" ? (
+                <Building2 className="h-20 w-20 text-white/70" />
               ) : (
                 <UserRound className="h-20 w-20 text-white/70" />
               )}
@@ -246,4 +241,4 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
   );
 };
 
-export default UserForm;
+export default CustomerForm;

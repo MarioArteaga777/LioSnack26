@@ -8,9 +8,9 @@ import loginRoutes from "./src/routes/loginUser.js"
 import userRoutes from "./src/routes/user.js"
 import registerUserRoutes from "./src/routes/registerUser.js"
 import pedidosRoutes from "./src/routes/pedidos.js"
-import inventoryRoutes from "./src/routes/inventory.js";
 import CuentasPCRoutes from "./src/routes/cuentasPC.js";
 import recoveryPasswordRoutes from "./src/routes/recoveryPassword.js";
+import clientsRoutes from "./src/routes/clients.js";
 
 const app = express();
 
@@ -34,9 +34,7 @@ app.use("/api/usuarios", userRoutes)
 app.use("/api/register", registerUserRoutes)
 app.use("/api/pedidos", pedidosRoutes)
 app.use("/api/recovery-password", recoveryPasswordRoutes)
-
-app.use("/api/inventario", inventoryRoutes);
-
+app.use("/api/clientes", clientsRoutes)
 
 app.use("/api/cuentasPorCobrar", CuentasPCRoutes);
 app.use("/api/cuentasPorPagar", CuentasPPRoutes);

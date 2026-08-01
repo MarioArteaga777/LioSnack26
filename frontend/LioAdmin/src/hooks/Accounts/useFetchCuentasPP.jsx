@@ -3,23 +3,23 @@ import { toast } from "sonner";
 import url from "../../utils/apiUrl";
 import readApiResponse from "../../utils/readApiResponse";
 
-const useFetchInventory = () => {
-  const [inventory, setInventory] = useState([]);
+const useFetchCuentasPP = () => {
+  const [cuentasPP, setCuentasPP] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const getInventory = async () => {
+  const getCuentasPP = async () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${url}/inventario`);
+      const response = await fetch(`${url}/cuentasPorPagar`);
       const data = await readApiResponse(response);
 
       if (!response.ok) {
-        toast.error(data?.message || "Error al obtener el inventario");
+        toast.error(data?.message || "Error al obtener las cuentas por pagar");
         return;
       }
 
-      setInventory(Array.isArray(data) ? data : []);
+      setCuentasPP(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
       toast.error(error.message || "Error de conexion con el servidor");
@@ -29,15 +29,15 @@ const useFetchInventory = () => {
   };
 
   useEffect(() => {
-    getInventory();
+    getCuentasPP();
   }, []);
 
   return {
-    inventory,
-    setInventory,
-    getInventory,
+    cuentasPP,
+    setCuentasPP,
+    getCuentasPP,
     loading,
   };
 };
 
-export default useFetchInventory;
+export default useFetchCuentasPP;

@@ -41,16 +41,28 @@ const Users = () => {
     setEditingUser(null);
   };
 
-  // Decide si crea un usuario nuevo o actualiza el que se está editando
+  // Decide si crea un usuario nuevo o actualiza el que se está editando.
+  // Si el modal incluyó una foto, se envía todo junto como FormData.
   const handleSaveUser = async (data) => {
+    const { image, ...fields } = data;
+
+    let payload = fields;
+
+    if (image) {
+      const formData = new FormData();
+      Object.entries(fields).forEach(([key, value]) => formData.append(key, value));
+      formData.append("image", image);
+      payload = formData;
+    }
+
     if (editingUser) {
-      const result = await updateUsuario(editingUser._id, data);
+      const result = await updateUsuario(editingUser._id, payload);
       if (result.ok) {
         await getUsuarios();
         closeForm();
       }
     } else {
-      const result = await createUsuario(data);
+      const result = await createUsuario(payload);
       if (result.ok) {
         await getUsuarios();
         closeForm();
