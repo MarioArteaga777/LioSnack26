@@ -32,14 +32,30 @@ const Home = () => {
     : "Sin producciones finalizadas";
 
   const pedidosPendientes = pedidos.filter(
-    (pedido) => (pedido.estado_pedido || "Pendiente") === "Pendiente"
+    (pedido) => (pedido.estado_pedido || "Pendiente") === "Pendiente",
   ).length;
 
   const kpis = [
-    { icon: PackageCheck, label: "Última producción", value: latestProductionValue },
-    { icon: Boxes, label: "Productos registrados", value: String(productos.length) },
-    { icon: UserCheck, label: "Usuarios verificados", value: `${verifiedUsers}/${usuarios.length}` },
-    { icon: ClipboardList, label: "Pedidos pendientes", value: `${pedidosPendientes}/${pedidos.length}` },
+    {
+      icon: PackageCheck,
+      label: "Última producción",
+      value: latestProductionValue,
+    },
+    {
+      icon: Boxes,
+      label: "Productos registrados",
+      value: String(productos.length),
+    },
+    {
+      icon: UserCheck,
+      label: "Usuarios verificados",
+      value: `${verifiedUsers}/${usuarios.length}`,
+    },
+    {
+      icon: ClipboardList,
+      label: "Pedidos pendientes",
+      value: `${pedidosPendientes}/${pedidos.length}`,
+    },
   ];
 
   // Pedidos ordenados del más reciente al más antiguo, solo los que caben en el panel

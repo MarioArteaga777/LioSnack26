@@ -17,7 +17,8 @@ const toDisplayAccount = (cuenta) => ({
   client: cuenta.proveedor || "Sin proveedor",
   amount: Number(cuenta.monto_total || 0).toFixed(2),
   pendingBalance: Number(
-    cuenta.saldo_pendiente ?? Math.max((cuenta.monto_total || 0) - (cuenta.pagos_realizados || 0), 0)
+    cuenta.saldo_pendiente ??
+      Math.max((cuenta.monto_total || 0) - (cuenta.pagos_realizados || 0), 0),
   ).toFixed(2),
   status: cuenta.estado || "Pendiente",
   dueDate: formatFechaCuenta(cuenta.fecha_vencimiento),
@@ -27,20 +28,31 @@ const toDisplayAccount = (cuenta) => ({
 
 const AccountsPayable = () => {
   const { cuentasPP, getCuentasPP, loading } = useFetchCuentasPP();
-  const { createCuentaPP, updateCuentaPP, deleteCuentaPP } = useCuentasPPActions();
+  const { createCuentaPP, updateCuentaPP, deleteCuentaPP } =
+    useCuentasPPActions();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState(null);
   const [detailsAccount, setDetailsAccount] = useState(null);
 
   const displayAccounts = cuentasPP.map(toDisplayAccount);
-  const pagadas = displayAccounts.filter((acc) => acc.status === "Pagado").length;
+  const pagadas = displayAccounts.filter(
+    (acc) => acc.status === "Pagado",
+  ).length;
   const pendientes = displayAccounts.length - pagadas;
 
   const stats = [
     { icon: Wallet, label: "Cuentas", value: String(displayAccounts.length) },
-    { icon: AlertTriangle, label: "Cuentas pendientes", value: `${pendientes}/${displayAccounts.length}` },
-    { icon: DollarSign, label: "Cuentas pagadas", value: `${pagadas}/${displayAccounts.length}` },
+    {
+      icon: AlertTriangle,
+      label: "Cuentas pendientes",
+      value: `${pendientes}/${displayAccounts.length}`,
+    },
+    {
+      icon: DollarSign,
+      label: "Cuentas pagadas",
+      value: `${pagadas}/${displayAccounts.length}`,
+    },
   ];
 
   const openCreateForm = () => {
@@ -71,7 +83,7 @@ const AccountsPayable = () => {
 
   const handleDelete = async (cuenta) => {
     const confirmed = await confirmToast(
-      `¿Eliminar la cuenta de "${cuenta.proveedor || "proveedor sin nombre"}"? Esta acción no se puede deshacer.`
+      `¿Eliminar la cuenta de "${cuenta.proveedor || "proveedor sin nombre"}"? Esta acción no se puede deshacer.`,
     );
     if (!confirmed) return;
 
@@ -108,7 +120,9 @@ const AccountsPayable = () => {
 
       {/* Header */}
       <div className="mb-2 flex items-center justify-between">
-        <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">Cuentas por Pagar</h1>
+        <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">
+          Cuentas por Pagar
+        </h1>
         <Button text="Nueva cuenta" icon={Plus} onClick={openCreateForm} />
       </div>
 
@@ -144,11 +158,17 @@ const AccountsPayable = () => {
                 Aún no hay cuentas por pagar
               </h2>
               <p className="max-w-sm text-sm text-white/60">
-                Cuando registres una factura pendiente de pago a un proveedor, aparecerá aquí con su monto y estado.
+                Cuando registres una factura pendiente de pago a un proveedor,
+                aparecerá aquí con su monto y estado.
               </p>
             </div>
 
-            <Button text="Nueva Cuenta" icon={Plus} size="md" onClick={openCreateForm} />
+            <Button
+              text="Nueva Cuenta"
+              icon={Plus}
+              size="md"
+              onClick={openCreateForm}
+            />
           </div>
         )}
       </div>

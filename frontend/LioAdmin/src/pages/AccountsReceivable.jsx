@@ -14,7 +14,8 @@ import useFetchClientes from "../hooks/Customers/useFetchClientes";
 // Convierte una cuenta por cobrar real (backend) al formato que ya
 // entienden AccountCard / AccountDetailsModal (client, amount, status...).
 const toDisplayAccount = (cuenta, clientes) => {
-  const saldoPendiente = Number(cuenta.monto_facturado || 0) - Number(cuenta.abono || 0);
+  const saldoPendiente =
+    Number(cuenta.monto_facturado || 0) - Number(cuenta.abono || 0);
   const clienteInfo = clientes.find((c) => c.name === cuenta.cliente);
 
   return {
@@ -32,21 +33,37 @@ const toDisplayAccount = (cuenta, clientes) => {
 
 const AccountsReceivable = () => {
   const { cuentasPC, getCuentasPC, loading } = useFetchCuentasPC();
-  const { createCuentaPC, updateCuentaPC, deleteCuentaPC } = useCuentasPCActions();
+  const { createCuentaPC, updateCuentaPC, deleteCuentaPC } =
+    useCuentasPCActions();
   const { clientes } = useFetchClientes();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState(null);
   const [detailsAccount, setDetailsAccount] = useState(null);
 
-  const displayAccounts = cuentasPC.map((cuenta) => toDisplayAccount(cuenta, clientes));
-  const cobradas = displayAccounts.filter((acc) => acc.status === "Cobrado").length;
+  const displayAccounts = cuentasPC.map((cuenta) =>
+    toDisplayAccount(cuenta, clientes),
+  );
+  const cobradas = displayAccounts.filter(
+    (acc) => acc.status === "Cobrado",
+  ).length;
   const pendientes = displayAccounts.length - cobradas;
-  const totalAbonado = cuentasPC.reduce((sum, cuenta) => sum + Number(cuenta.abono || 0), 0);
+  const totalAbonado = cuentasPC.reduce(
+    (sum, cuenta) => sum + Number(cuenta.abono || 0),
+    0,
+  );
 
   const stats = [
-    { icon: Coins, label: "Cuentas Cobradas", value: `${cobradas}/${displayAccounts.length}` },
-    { icon: AlertCircle, label: "Cuentas Pendientes", value: `${pendientes}/${displayAccounts.length}` },
+    {
+      icon: Coins,
+      label: "Cuentas Cobradas",
+      value: `${cobradas}/${displayAccounts.length}`,
+    },
+    {
+      icon: AlertCircle,
+      label: "Cuentas Pendientes",
+      value: `${pendientes}/${displayAccounts.length}`,
+    },
     { icon: Wallet, label: "Total Abonado", value: formatMonto(totalAbonado) },
     { icon: Users, label: "Clientes Totales", value: String(clientes.length) },
   ];
@@ -79,7 +96,7 @@ const AccountsReceivable = () => {
 
   const handleDelete = async (cuenta) => {
     const confirmed = await confirmToast(
-      `¿Eliminar la cuenta de "${cuenta.cliente || "cliente sin nombre"}"? Esta acción no se puede deshacer.`
+      `¿Eliminar la cuenta de "${cuenta.cliente || "cliente sin nombre"}"? Esta acción no se puede deshacer.`,
     );
     if (!confirmed) return;
 
@@ -116,7 +133,9 @@ const AccountsReceivable = () => {
 
       {/* Header */}
       <div className="mb-2 flex items-center justify-between">
-        <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">Cuentas por Cobrar</h1>
+        <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">
+          Cuentas por Cobrar
+        </h1>
         <Button text="Nueva cuenta" icon={Plus} onClick={openCreateForm} />
       </div>
 
@@ -153,11 +172,17 @@ const AccountsReceivable = () => {
                 Aún no hay cuentas por cobrar
               </h2>
               <p className="max-w-sm text-sm text-white/60">
-                Cuando registres una factura pendiente de cobro, aparecerá aquí con su cliente, monto y estado.
+                Cuando registres una factura pendiente de cobro, aparecerá aquí
+                con su cliente, monto y estado.
               </p>
             </div>
 
-            <Button text="Nueva Cuenta" icon={Plus} size="md" onClick={openCreateForm} />
+            <Button
+              text="Nueva Cuenta"
+              icon={Plus}
+              size="md"
+              onClick={openCreateForm}
+            />
           </div>
         )}
       </div>

@@ -7,7 +7,14 @@ import { toDateInputValue, diasParaVencer } from "../utils/cuentaFormat";
 const FORMAS_PAGO = ["Efectivo", "Transferencia", "Tarjeta", "Cheque"];
 const ESTADOS = ["Pendiente", "Pagado"];
 
-const PayableForm = ({ id, isOpen, onClose, onSubmit, initialData }) => {
+const PayableForm = ({
+  id,
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData,
+  proveedores = [],
+}) => {
   const dialogRef = useRef(null);
   const isEditing = Boolean(initialData);
 
@@ -25,7 +32,9 @@ const PayableForm = ({ id, isOpen, onClose, onSubmit, initialData }) => {
       .typeError("Los pagos realizados deben ser un número")
       .min(0, "No puede ser negativo")
       .notRequired(),
-    fecha_vencimiento: yup.string().required("La fecha de vencimiento es requerida"),
+    fecha_vencimiento: yup
+      .string()
+      .required("La fecha de vencimiento es requerida"),
     forma_pago: yup
       .string()
       .oneOf(FORMAS_PAGO, "Selecciona una forma de pago válida")
@@ -42,6 +51,7 @@ const PayableForm = ({ id, isOpen, onClose, onSubmit, initialData }) => {
     handleSubmit,
     reset,
     formState: { errors },
+    watch
   } = useForm({ resolver: yupResolver(schema) });
 
   useEffect(() => {
@@ -50,12 +60,15 @@ const PayableForm = ({ id, isOpen, onClose, onSubmit, initialData }) => {
 
     if (isOpen) {
       reset({
-        fecha_factura: toDateInputValue(initialData?.fecha_factura) || toDateInputValue(new Date()),
+        fecha_factura:
+          toDateInputValue(initialData?.fecha_factura) ||
+          toDateInputValue(new Date()),
         proveedor: initialData?.proveedor ?? "",
         concepto_material: initialData?.concepto_material ?? "",
         monto_total: initialData?.monto_total ?? "",
         pagos_realizados: initialData?.pagos_realizados ?? 0,
-        fecha_vencimiento: toDateInputValue(initialData?.fecha_vencimiento) ?? "",
+        fecha_vencimiento:
+          toDateInputValue(initialData?.fecha_vencimiento) ?? "",
         forma_pago: initialData?.forma_pago ?? FORMAS_PAGO[0],
         estado: initialData?.estado ?? ESTADOS[0],
         notas: initialData?.notas ?? "",
@@ -102,7 +115,10 @@ const PayableForm = ({ id, isOpen, onClose, onSubmit, initialData }) => {
           {isEditing ? "Actualizar Cuenta por Pagar" : "Nueva Cuenta por Pagar"}
         </h2>
 
-        <form onSubmit={handleSubmit(submitForm)} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit(submitForm)}
+          className="flex flex-col gap-4"
+        >
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm text-white/70">Fecha de factura</label>
@@ -112,32 +128,63 @@ const PayableForm = ({ id, isOpen, onClose, onSubmit, initialData }) => {
                 className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none"
               />
               {errors.fecha_factura && (
-                <p className="mt-1 text-sm text-red-400">{errors.fecha_factura.message}</p>
+                <p className="mt-1 text-sm text-red-400">
+                  {errors.fecha_factura.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="text-sm text-white/70">Fecha de vencimiento</label>
+              <label className="text-sm text-white/70">
+                Fecha de vencimiento
+              </label>
               <input
                 type="date"
                 {...register("fecha_vencimiento")}
                 className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none"
               />
               {errors.fecha_vencimiento && (
-                <p className="mt-1 text-sm text-red-400">{errors.fecha_vencimiento.message}</p>
+                <p className="mt-1 text-sm text-red-400">
+                  {errors.fecha_vencimiento.message}
+                </p>
               )}
             </div>
           </div>
 
           <div>
-            <input
-              type="text"
+            <select
               {...register("proveedor")}
-              placeholder="Proveedor"
-              className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
-            />
+              className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none"
+            >
+              <option value="">Selecciona un proveedor</option>
+
+              {initialData?.proveedor &&
+                !proveedores.some(
+                  (proveedor) => proveedor.name === initialData.proveedor,
+                ) && (
+                  <option value={initialData.proveedor}>
+                    {initialData.proveedor}
+                  </option>
+                )}
+
+              {proveedores.map((proveedor) => (
+                <option key={proveedor._id} value={proveedor.name}>
+                  {proveedor.name}
+                </option>
+              ))}
+            </select>
+
+            {proveedores.length === 0 && (
+              <p className="mt-1 text-xs text-white/60">
+                No hay proveedores registrados. Créalos en la sección
+                Proveedores.
+              </p>
+            )}
+
             {errors.proveedor && (
-              <p className="mt-1 text-sm text-red-400">{errors.proveedor.message}</p>
+              <p className="mt-1 text-sm text-red-400">
+                {errors.proveedor.message}
+              </p>
             )}
           </div>
 
@@ -150,20 +197,29 @@ const PayableForm = ({ id, isOpen, onClose, onSubmit, initialData }) => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
+          <div>
+            <div className="relative">
+              <span
+                className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${
+                  watch("monto_total") ? "text-gray-800" : "text-gray-500"
+                }`}
+              >
+                $
+              </span>
               <input
                 type="number"
-                step="0.01"
+                step="1"
                 {...register("monto_total")}
                 placeholder="Monto total"
-                className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
+                className="w-full rounded-lg bg-gray-300 pl-6 py-2 outline-none placeholder:text-gray-500"
               />
               {errors.monto_total && (
-                <p className="mt-1 text-sm text-red-400">{errors.monto_total.message}</p>
+                <p className="mt-1 text-sm text-red-400">
+                  {errors.monto_total.message}
+                </p>
               )}
             </div>
-
+            {/**
             <div>
               <input
                 type="number"
@@ -176,6 +232,7 @@ const PayableForm = ({ id, isOpen, onClose, onSubmit, initialData }) => {
                 <p className="mt-1 text-sm text-red-400">{errors.pagos_realizados.message}</p>
               )}
             </div>
+             */}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -191,13 +248,16 @@ const PayableForm = ({ id, isOpen, onClose, onSubmit, initialData }) => {
                 ))}
               </select>
               {errors.forma_pago && (
-                <p className="mt-1 text-sm text-red-400">{errors.forma_pago.message}</p>
+                <p className="mt-1 text-sm text-red-400">
+                  {errors.forma_pago.message}
+                </p>
               )}
             </div>
 
             <div>
               <select
                 {...register("estado")}
+                disabled={!isEditing}
                 className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none"
               >
                 {ESTADOS.map((estado) => (
@@ -207,7 +267,9 @@ const PayableForm = ({ id, isOpen, onClose, onSubmit, initialData }) => {
                 ))}
               </select>
               {errors.estado && (
-                <p className="mt-1 text-sm text-red-400">{errors.estado.message}</p>
+                <p className="mt-1 text-sm text-red-400">
+                  {errors.estado.message}
+                </p>
               )}
             </div>
           </div>

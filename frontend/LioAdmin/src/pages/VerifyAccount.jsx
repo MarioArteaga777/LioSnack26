@@ -73,7 +73,9 @@ const VerifyAccount = () => {
         throw new Error(data.message || "No se pudo reenviar el código.");
       }
 
-      setMessage(data.message || "Si el correo existe, se envió un nuevo código.");
+      setMessage(
+        data.message || "Si el correo existe, se envió un nuevo código.",
+      );
     } catch (error_) {
       setError(error_.message || "Error al reenviar el código.");
     } finally {
@@ -121,7 +123,8 @@ const VerifyAccount = () => {
                 Código de verificación
               </label>
               <p className="text-sm text-slate-600 mb-3">
-                Ingresa el código de 6 dígitos que enviamos a tu correo. Si no lo encuentras, revisa la carpeta de spam.
+                Ingresa el código de 6 dígitos que enviamos a tu correo. Si no
+                lo encuentras, revisa la carpeta de spam.
               </p>
               <input
                 type="text"

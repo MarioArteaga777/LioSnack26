@@ -50,7 +50,9 @@ const Users = () => {
 
     if (image) {
       const formData = new FormData();
-      Object.entries(fields).forEach(([key, value]) => formData.append(key, value));
+      Object.entries(fields).forEach(([key, value]) =>
+        formData.append(key, value),
+      );
       formData.append("image", image);
       payload = formData;
     }
@@ -72,7 +74,7 @@ const Users = () => {
 
   const handleDelete = async (user) => {
     const confirmed = await confirmToast(
-      `¿Eliminar a "${user.name} ${user.lastName}"? Esta acción no se puede deshacer.`
+      `¿Eliminar a "${user.name} ${user.lastName}"? Esta acción no se puede deshacer.`,
     );
     if (!confirmed) return;
 
@@ -82,7 +84,10 @@ const Users = () => {
       // Ajusta la página actual por si la eliminación deja una página vacía
       setCurrentPage((prev) => {
         const remaining = usuarios.length - 1;
-        const newTotalPages = Math.max(1, Math.ceil(remaining / USERS_PER_PAGE));
+        const newTotalPages = Math.max(
+          1,
+          Math.ceil(remaining / USERS_PER_PAGE),
+        );
         return Math.min(prev, newTotalPages);
       });
     }

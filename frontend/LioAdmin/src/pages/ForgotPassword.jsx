@@ -35,7 +35,9 @@ const ForgotPassword = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "No se pudo enviar el código de recuperación.");
+        throw new Error(
+          data.message || "No se pudo enviar el código de recuperación.",
+        );
       }
 
       setMessage("Se ha enviado un código de recuperación a tu email.");
@@ -79,7 +81,8 @@ const ForgotPassword = () => {
                 Email
               </label>
               <p className="text-sm text-slate-600 mb-3">
-                Ingresa el email asociado a tu cuenta. Te enviaremos un código para recuperar tu contraseña.
+                Ingresa el email asociado a tu cuenta. Te enviaremos un código
+                para recuperar tu contraseña.
               </p>
               <input
                 type="email"

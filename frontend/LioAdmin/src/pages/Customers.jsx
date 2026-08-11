@@ -38,7 +38,9 @@ const Customers = () => {
 
     if (image) {
       const formData = new FormData();
-      Object.entries(fields).forEach(([key, value]) => formData.append(key, value ?? ""));
+      Object.entries(fields).forEach(([key, value]) =>
+        formData.append(key, value ?? ""),
+      );
       formData.append("image", image);
       payload = formData;
     }
@@ -55,7 +57,7 @@ const Customers = () => {
 
   const handleDelete = async (client) => {
     const confirmed = await confirmToast(
-      `¿Eliminar a "${client.name}"? Esta acción no se puede deshacer.`
+      `¿Eliminar a "${client.name}"? Esta acción no se puede deshacer.`,
     );
     if (!confirmed) return;
 
@@ -125,11 +127,17 @@ const Customers = () => {
               Aún no hay clientes registrados
             </h2>
             <p className="max-w-sm text-sm text-white/60">
-              Cuando registres un cliente, empresa o persona, aparecerá aquí con sus datos de contacto.
+              Cuando registres un cliente, empresa o persona, aparecerá aquí con
+              sus datos de contacto.
             </p>
           </div>
 
-          <Button text="Registrar Cliente" icon={Plus} size="md" onClick={openCreateForm} />
+          <Button
+            text="Registrar Cliente"
+            icon={Plus}
+            size="md"
+            onClick={openCreateForm}
+          />
         </div>
       )}
     </div>

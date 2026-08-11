@@ -54,6 +54,14 @@ const AccountCard = ({
   onDelete,
 }) => {
   const isPending = status === "Pendiente";
+
+  const dueDateLabel =
+    isPending && daysLeft < 0
+      ? "Pago vencido"
+      : !isPending && daysLeft < 0
+        ? "Pagado con atraso"
+        : `Fecha de vencimiento: ${dueDate}`;
+
   const {
     open: menuOpen,
     setOpen: setMenuOpen,
@@ -66,7 +74,7 @@ const AccountCard = ({
 
   return (
     <div
-      className={`group relative rounded-2xl p-3 shadow-lg transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/30 ${cardColors[status]}`}
+      className={`group relative max-w-sm rounded-2xl p-3 shadow-lg transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/30 ${cardColors[status]}`}
     >
       {/* Badge de días restantes (Cuentas por Pagar) */}
       {daysLeft !== undefined && (
@@ -91,7 +99,7 @@ const AccountCard = ({
       </div>
 
       {/* Contenido */}
-      <div className="mb-3 flex gap-3">
+      <div className="mb-4 flex gap-3 items-center">
         {image ? (
           <img
             src={image}
@@ -103,7 +111,7 @@ const AccountCard = ({
             <UserRound className="h-9 w-9 text-gray-500" />
           </div>
         )}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-1 flex-col gap-2">
           <span
             className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${pillClass}`}
           >
@@ -138,7 +146,7 @@ const AccountCard = ({
       <div
         className={`mb-2 flex items-center gap-1 rounded-full px-3 py-1.5 text-xs ${pillClass}`}
       >
-        <Clock className="h-3 w-3" /> Fecha de vencimiento: {dueDate}
+        <Clock className="h-3 w-3" /> Fecha de vencimiento: {dueDateLabel}
       </div>
 
       {/* Botón de menú (kebab) */}

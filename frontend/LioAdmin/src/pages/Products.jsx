@@ -9,8 +9,10 @@ import useFetchProductos from "../hooks/Products/useFetchProductos";
 import useProductosActions from "../hooks/Products/useProductosActions";
 import ProductDetailsModal from "../components/ProductDetailsModal";
 const Products = () => {
-  const { productos, setProductos, getProductos, loading } = useFetchProductos();
-  const { createProducto, updateProducto, deleteProducto } = useProductosActions();
+  const { productos, setProductos, getProductos, loading } =
+    useFetchProductos();
+  const { createProducto, updateProducto, deleteProducto } =
+    useProductosActions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [detailsProduct, setDetailsProduct] = useState(null);
@@ -68,7 +70,7 @@ const Products = () => {
   // Pide confirmación y elimina el producto seleccionado
   const handleDelete = async (product) => {
     const confirmed = await confirmToast(
-      `¿Eliminar "${product.Nombre}"? Esta acción no se puede deshacer.`
+      `¿Eliminar "${product.Nombre}"? Esta acción no se puede deshacer.`,
     );
     if (!confirmed) return;
 
@@ -109,35 +111,31 @@ const Products = () => {
           Productos
         </h1>
 
-        <Button
-          text="Nuevo Producto"
-          icon={Plus}
-          onClick={openCreateForm}
-        />
+        <Button text="Nuevo Producto" icon={Plus} onClick={openCreateForm} />
       </div>
 
       {/* Listado de productos en formato grilla */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-7 ">
-          {productos.length > 0 ? (
-            productos.map((product) => (
-              <ProductCard
-                key={product._id}
-                id={product._id}
-                name={product.Nombre}
-                price={product.Precio}
-                image={product.Imagen}
-                sku={product.SKU}
-                onUpdate={() => openUpdateForm(product)}
-                onDetails={() => setDetailsProduct(product)}
-                onDelete={() => handleDelete(product)}
-                className="mx-2"
-              />
-            ))
-          ) : (
-            <p className="text-white">No hay productos disponibles</p>
-          )}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-7 ">
+        {productos.length > 0 ? (
+          productos.map((product) => (
+            <ProductCard
+              key={product._id}
+              id={product._id}
+              name={product.Nombre}
+              price={product.Precio}
+              image={product.Imagen}
+              sku={product.SKU}
+              onUpdate={() => openUpdateForm(product)}
+              onDetails={() => setDetailsProduct(product)}
+              onDelete={() => handleDelete(product)}
+              className="mx-2"
+            />
+          ))
+        ) : (
+          <p className="text-white">No hay productos disponibles</p>
+        )}
       </div>
+    </div>
   );
 };
 
