@@ -1,192 +1,116 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
 
 // Componentes
-import Navbar from "./components/Navbar";
+import Navbar from "./components/NavBar";
 import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
 import ScrollToTop from "./components/ScrollToTop";
 import ProductModal from "./components/ProductModal";
 
 // Contexto
-import { CartProvider } from "./context/CartContext";
+import { CartProvider, useCart } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
 
 // Páginas
 import Home from "./pages/Home";
 import Catalog from "./pages/Catalog";
 import History from "./pages/History";
 import Location from "./pages/Location";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Checkout from "./pages/Checkout";
 
-export default function App() {
+function AppShell() {
   // Producto seleccionado para el modal
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Producto agregado recientemente
-  const [recentlyAddedId, setRecentlyAddedId] = useState(null);
-
-  // Carrito
-  const [cart, setCart] = useState([]);
-  const [cartOpen, setCartOpen] = useState(false);
-
-  const cartCount = cart.reduce((total, item) => total + item.qty, 0);
-
-  // ==========================
-  // Agregar producto
-  // ==========================
-
-  function handleAdd(product) {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-
-      if (existing) {
-        return prev.map((item) =>
-          item.id === product.id
-            ? {
-                ...item,
-                qty: item.qty + 1,
-              }
-            : item
-        );
-      }
-
-      return [
-        ...prev,
-        {
-          ...product,
-          qty: 1,
-        },
-      ];
-    });
-
-    setRecentlyAddedId(product.id);
-  }
-
-  // ==========================
-  // Quitar animación "Añadido"
-  // ==========================
-
-  useEffect(() => {
-    if (!recentlyAddedId) return;
-
-    const timer = setTimeout(() => {
-      setRecentlyAddedId(null);
-    }, 1200);
-
-    return () => clearTimeout(timer);
-  }, [recentlyAddedId]);
-
-  // ==========================
-  // Carrito
-  // ==========================
-
-  function handleIncrement(id) {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              qty: item.qty + 1,
-            }
-          : item
-      )
-    );
-  }
-
-  function handleDecrement(id) {
-    setCart((prev) =>
-      prev
-        .map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                qty: item.qty - 1,
-              }
-            : item
-        )
-        .filter((item) => item.qty > 0)
-    );
-  }
-
-  function handleRemove(id) {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  }
-
-  function handleClearCart() {
-    setCart([]);
-  }
+  const {
+    cart,
+    cartCount,
+    cartOpen,
+    setCartOpen,
+    addToCart,
+    increment,
+    decrement,
+    remove,
+    recentlyAddedId,
+  } = useCart();
 
   return (
+    <>
+      <ScrollToTop />
+
+      <div
+        className="min-h-screen bg-cover bg-center bg-fixed bg-no-repeat"
+        style={{
+          backgroundImage: "url('/fondo.jpg')",
+        }}
+      >
+        <Navbar cartCount={cartCount} onCartClick={() => setCartOpen(true)} />
+
+        <main>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Home
+                  onAdd={addToCart}
+                  recentlyAddedId={recentlyAddedId}
+                  onProductDetail={setSelectedProduct}
+                />
+              }
+            />
+
+            <Route
+              path="/catalogo"
+              element={
+                <Catalog
+                  onAdd={addToCart}
+                  recentlyAddedId={recentlyAddedId}
+                  onProductDetail={setSelectedProduct}
+                />
+              }
+            />
+
+            <Route path="/historia" element={<History />} />
+            <Route path="/ubicacion" element={<Location />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Register />} />
+            <Route path="/checkout" element={<Checkout />} />
+          </Routes>
+        </main>
+
+        <Footer />
+
+        <CartDrawer
+          open={cartOpen}
+          onClose={() => setCartOpen(false)}
+          items={cart}
+          onIncrement={increment}
+          onDecrement={decrement}
+          onRemove={remove}
+        />
+
+        <ProductModal
+          product={selectedProduct}
+          isOpen={!!selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAdd={addToCart}
+        />
+      </div>
+    </>
+  );
+}
+
+export default function App() {
+  return (
     <HashRouter>
-      <CartProvider>
-        <ScrollToTop />
-
-        <div
-          className="min-h-screen bg-cover bg-center bg-fixed bg-no-repeat"
-          style={{
-            backgroundImage: "url('/fondo.jpg')",
-          }}
-        >
-          <Navbar
-            cartCount={cartCount}
-            onCartClick={() => setCartOpen(true)}
-          />
-
-          <main>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <Home
-                    onAdd={handleAdd}
-                    recentlyAddedId={recentlyAddedId}
-                    onProductDetail={setSelectedProduct}
-                  />
-                }
-              />
-
-              <Route
-                path="/catalogo"
-                element={
-                  <Catalog
-                    onAdd={handleAdd}
-                    recentlyAddedId={recentlyAddedId}
-                    onProductDetail={setSelectedProduct}
-                  />
-                }
-              />
-
-              <Route
-                path="/historia"
-                element={<History />}
-              />
-
-              <Route
-                path="/ubicacion"
-                element={<Location />}
-              />
-            </Routes>
-          </main>
-
-          <Footer />
-
-          <CartDrawer
-            open={cartOpen}
-            onClose={() => setCartOpen(false)}
-            items={cart}
-            onIncrement={handleIncrement}
-            onDecrement={handleDecrement}
-            onRemove={handleRemove}
-            onClear={handleClearCart}
-          />
-
-          <ProductModal
-            product={selectedProduct}
-            isOpen={!!selectedProduct}
-            onClose={() => setSelectedProduct(null)}
-            onAdd={handleAdd}
-          />
-        </div>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <AppShell />
+        </CartProvider>
+      </AuthProvider>
     </HashRouter>
   );
 }

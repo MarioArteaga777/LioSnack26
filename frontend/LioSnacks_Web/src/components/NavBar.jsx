@@ -1,5 +1,7 @@
-import { ShoppingCart, User } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { ShoppingCart, User, LogOut } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const links = [
   { name: "Inicio", to: "/" },
@@ -9,6 +11,16 @@ const links = [
 ];
 
 export default function Navbar({ cartCount, onCartClick }) {
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  async function handleLogout() {
+    await logout();
+    setMenuOpen(false);
+    navigate("/");
+  }
+
   return (
     <header className="sticky top-0 z-40 border-b border-nebula-border/70 bg-void/70 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2 sm:px-8">
@@ -67,12 +79,38 @@ export default function Navbar({ cartCount, onCartClick }) {
             )}
           </button>
 
-          <button
-            aria-label="Cuenta"
-            className="rounded-full p-2 text-stardust transition-colors hover:bg-nebula-light"
-          >
-            <User className="h-5 w-5" strokeWidth={1.75} />
-          </button>
+          {isAuthenticated ? (
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen((prev) => !prev)}
+                aria-label="Cuenta"
+                className="flex items-center gap-2 rounded-full p-2 text-stardust transition-colors hover:bg-nebula-light"
+              >
+                <User className="h-5 w-5" strokeWidth={1.75} />
+                <span className="hidden font-body text-sm sm:inline">{user.name}</span>
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-44 rounded-xl border border-nebula-border bg-void-soft/95 p-2 shadow-xl backdrop-blur-md">
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left font-body text-sm text-mist hover:bg-nebula-light hover:text-stardust"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <NavLink
+              to="/login"
+              aria-label="Iniciar sesión"
+              className="rounded-full p-2 text-stardust transition-colors hover:bg-nebula-light"
+            >
+              <User className="h-5 w-5" strokeWidth={1.75} />
+            </NavLink>
+          )}
         </div>
       </div>
     </header>

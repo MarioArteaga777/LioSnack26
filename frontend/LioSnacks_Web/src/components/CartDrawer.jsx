@@ -1,7 +1,14 @@
 import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function CartDrawer({ open, onClose, items, onIncrement, onDecrement, onRemove }) {
+  const navigate = useNavigate();
   const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+  function handleCheckout() {
+    onClose();
+    navigate("/checkout");
+  }
 
   return (
     <>
@@ -98,6 +105,7 @@ export default function CartDrawer({ open, onClose, items, onIncrement, onDecrem
             </span>
           </div>
           <button
+            onClick={handleCheckout}
             disabled={items.length === 0}
             className="w-full rounded-full bg-bloom py-3 font-body text-sm font-semibold text-bloom-ink transition-colors hover:bg-bloom-dark disabled:cursor-not-allowed disabled:opacity-40"
           >
