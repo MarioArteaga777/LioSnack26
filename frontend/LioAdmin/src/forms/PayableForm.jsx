@@ -208,7 +208,7 @@ const PayableForm = ({
               </span>
               <input
                 type="number"
-                step="1"
+                step="0.01"
                 {...register("monto_total")}
                 placeholder="Monto total"
                 className="w-full rounded-lg bg-gray-300 pl-6 py-2 outline-none placeholder:text-gray-500"

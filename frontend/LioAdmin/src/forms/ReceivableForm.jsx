@@ -44,6 +44,7 @@ const ReceivableForm = ({
     handleSubmit,
     reset,
     formState: { errors },
+    watch
   } = useForm({ resolver: yupResolver(schema) });
 
   useEffect(() => {
@@ -164,30 +165,26 @@ const ReceivableForm = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
+          <div>
+            <div className="relative">
+              <span
+                className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${
+                  watch("monto_facturado") ? "text-gray-800" : "text-gray-500"
+                }`}
+              >
+                $
+              </span>
               <input
                 type="number"
                 step="0.01"
                 {...register("monto_facturado")}
                 placeholder="Monto facturado"
-                className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
+                className="w-full rounded-lg bg-gray-300 pl-6 py-2 outline-none placeholder:text-gray-500"
               />
               {errors.monto_facturado && (
-                <p className="mt-1 text-sm text-red-400">{errors.monto_facturado.message}</p>
-              )}
-            </div>
-
-            <div>
-              <input
-                type="number"
-                step="0.01"
-                {...register("abono")}
-                placeholder="Abono"
-                className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
-              />
-              {errors.abono && (
-                <p className="mt-1 text-sm text-red-400">{errors.abono.message}</p>
+                <p className="mt-1 text-sm text-red-400">
+                  {errors.monto_facturado.message}
+                </p>
               )}
             </div>
           </div>

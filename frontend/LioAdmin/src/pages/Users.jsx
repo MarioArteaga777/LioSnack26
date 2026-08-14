@@ -118,19 +118,14 @@ const Users = () => {
       />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="mb-2 mt-6 text-2xl md:text-3xl font-semibold text-white">
+      <div className="flex items-center justify-between mb-20">
+        <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">
           Usuarios
         </h1>
 
         <Button text="Nuevo Usuario" icon={Plus} onClick={openCreateForm} />
       </div>
-      <button
-        onClick={() => toast.info("Mostrando todos los usuarios")}
-        className="mb-4 block text-sm text-blue-400 hover:underline"
-      >
-        ver todo
-      </button>
+
 
       {/* Panel de usuarios */}
       <div className="rounded-3xl bg-[#3b2d7a]/60 p-6">

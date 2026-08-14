@@ -107,8 +107,8 @@ const Orders = () => {
       />
 
       {/* Header */}
-      <div className="mb-10 flex items-center justify-between">
-        <h1 className="mt-6 text-3xl font-semibold text-white">Pedidos</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="mb-12 mt-6 text-3xl font-semibold text-white">Pedidos</h1>
 
         <Button text="Nuevo Pedido" icon={Plus} onClick={openCreateForm} />
       </div>

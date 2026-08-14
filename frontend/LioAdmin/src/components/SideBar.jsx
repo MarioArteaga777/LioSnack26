@@ -63,11 +63,6 @@ export const links = [
     ],
   },
   {
-    to: "/codes",
-    label: "Códigos",
-    icon: FiEdit2,
-  },
-  {
     to: "/perfil",
     label: "Perfil",
     icon: FiUser,

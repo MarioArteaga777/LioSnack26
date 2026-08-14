@@ -111,7 +111,7 @@ const AccountCard = ({
             <UserRound className="h-9 w-9 text-gray-500" />
           </div>
         )}
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="flex flex-123 flex-col gap-2">
           <span
             className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${pillClass}`}
           >
