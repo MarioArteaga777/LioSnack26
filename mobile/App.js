@@ -1,20 +1,22 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import { CartProvider } from './src/context/CartContext';
+import TabMenu from './src/navigation/TabMenu';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaView style={styles.safeArea}>
+      <CartProvider>
+        <TabMenu />
+        <StatusBar style="dark" />
+      </CartProvider>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#FFF8F1',
   },
 });
