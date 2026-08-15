@@ -9,5 +9,9 @@ export function getCartTotals(items) {
 }
 
 export function canAddProduct(item) {
-  return item.stock === null || item.stock === undefined || item.quantity < item.stock;
+  return (
+    item.stock === null ||
+    item.stock === undefined ||
+    item.quantity < item.stock
+  );
 }

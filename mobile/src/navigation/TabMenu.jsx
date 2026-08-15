@@ -1,11 +1,40 @@
-import { useState } from 'react';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import CartScreen from '../screens/CartScreen';
 import ProductsScreen from '../screens/ProductsScreen';
+import HomeScreen from '../screens/HomeScreen';
 
-// La aplicación aún no usa una librería de navegación; este flujo local evita añadir una dependencia innecesaria.
+const Drawer = createDrawerNavigator();
+
 export default function TabMenu() {
-  const [screen, setScreen] = useState('products');
-  return screen === 'cart'
-    ? <CartScreen onBack={() => setScreen('products')} />
-    : <ProductsScreen onOpenCart={() => setScreen('cart')} />;
+  return (
+    <Drawer.Navigator
+      initialRouteName="Products"
+      screenOptions={{
+        headerShown: false,
+        drawerStyle: {
+          backgroundColor: '#FFF8F1',
+          width: 240,
+        },
+        drawerActiveTintColor: '#D3543C',
+        drawerInactiveTintColor: '#3E2520',
+        drawerActiveBackgroundColor: '#F2E4D5',
+      }}
+    >
+      <Drawer.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ drawerLabel: 'Inicio' }}
+      />
+      <Drawer.Screen
+        name="Products"
+        component={ProductsScreen}
+        options={{ drawerLabel: 'Productos' }}
+      />
+      <Drawer.Screen
+        name="Cart"
+        component={CartScreen}
+        options={{ drawerLabel: 'Mi Carrito' }}
+      />
+    </Drawer.Navigator>
+  );
 }

@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import { CartProvider } from './src/context/CartContext';
 import TabMenu from './src/navigation/TabMenu';
 
@@ -7,7 +8,9 @@ export default function App() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <CartProvider>
-        <TabMenu />
+        <NavigationContainer>
+          <TabMenu />
+        </NavigationContainer>
         <StatusBar style="dark" />
       </CartProvider>
     </SafeAreaView>
