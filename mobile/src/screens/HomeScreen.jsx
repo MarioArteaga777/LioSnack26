@@ -1,22 +1,36 @@
 import { StyleSheet, Text, View } from "react-native";
 import CustomButton from "../components/Buttons/CustomButton";
 import { useAuth } from "../hooks/useAuth";
+import { COLORS } from "../utils/theme";
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const { user, logout } = useAuth();
-  const fullName = `${user?.name || "Cliente"} ${user?.lastName || ""}`.trim();
+  const fullName = `${user?.name || "Astronauta"} ${user?.lastName || ""}`.trim();
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Home</Text>
-        <Text style={styles.welcome}>Hola, {fullName}</Text>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>✦ PANEL DE USUARIO ✦</Text>
+        </View>
+
+        <Text style={styles.title}>LioSnack</Text>
+        <Text style={styles.welcome}>¡Hola, {fullName}!</Text>
         <Text style={styles.caption}>
-          Disfruta de nuestro catalogo de pizzas.
+          Explora nuestro catálogo cósmico de snacks liofilizados 100% naturales.
         </Text>
 
-        <View style={styles.logoutContainer}>
-          <CustomButton textButton="Cerrar sesion" actionButton={logout} />
+        <View style={styles.actions}>
+          <View style={styles.buttonWrapper}>
+            <CustomButton
+              textButton="Ver Productos"
+              actionButton={() => navigation?.navigate?.("Products")}
+            />
+          </View>
+
+          <View style={styles.logoutContainer}>
+            <CustomButton textButton="Cerrar sesión" actionButton={logout} />
+          </View>
         </View>
       </View>
     </View>
@@ -26,30 +40,54 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAF5EE",
+    backgroundColor: COLORS.void,
   },
   content: {
+    flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 40,
+    paddingTop: 50,
+  },
+  badge: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    backgroundColor: "rgba(245, 168, 202, 0.12)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(245, 168, 202, 0.3)",
+    marginBottom: 16,
+  },
+  badgeText: {
+    color: COLORS.bloom,
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1.5,
   },
   title: {
-    color: "#6F3E1F",
+    color: COLORS.stardust,
     fontSize: 34,
     fontWeight: "800",
   },
   welcome: {
-    marginTop: 12,
-    color: "#8E4D24",
+    marginTop: 10,
+    color: COLORS.bloom,
     fontSize: 22,
     fontWeight: "700",
   },
   caption: {
     marginTop: 8,
-    color: "#875F42",
+    color: COLORS.mist,
     fontSize: 15,
+    lineHeight: 22,
+  },
+  actions: {
+    marginTop: 32,
+    gap: 16,
+  },
+  buttonWrapper: {
+    maxWidth: 220,
   },
   logoutContainer: {
-    marginTop: 28,
-    maxWidth: 210,
+    maxWidth: 220,
   },
 });

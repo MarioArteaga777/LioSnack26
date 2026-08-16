@@ -6,38 +6,17 @@ import {
   useState,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Platform } from "react-native";
+import { authService } from "../services/authService";
 
 const AuthContext = createContext(null);
-
-const AUTH_STORAGE_KEY = "pizza-movil:auth-session";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
-
-function getApiBaseUrl() {
-  // Devuelve la URL base de la API y ajusta localhost para emulador Android.
-  // On Android emulators localhost points to the device itself.
-  if (Platform.OS === "android") {
-    return API_BASE_URL.replace("localhost", "10.0.2.2");
-  }
-  return API_BASE_URL;
-}
+const AUTH_STORAGE_KEY = "liosnack:auth-session";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isBooting, setIsBooting] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  // Guarda la sesion del usuario en almacenamiento local.
-  const persistSession = useCallback(async (nextUser) => {
-    await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextUser));
-  }, []);
-
-  // Elimina la sesion guardada del almacenamiento local.
-  const clearSessionStorage = useCallback(async () => {
-    await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
-  }, []);
-
-  // Inicializa la sesion al abrir la app leyendo AsyncStorage.
+  // Inicializa la sesión guardada en el dispositivo
   const initializeSession = useCallback(async () => {
     try {
       const raw = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
@@ -45,81 +24,86 @@ export function AuthProvider({ children }) {
         setUser(JSON.parse(raw));
       }
     } catch (error) {
-      console.log("Auth bootstrap error", error);
+      console.log("Error al cargar sesión de LioSnack:", error);
     } finally {
       setIsBooting(false);
     }
   }, []);
 
   useEffect(() => {
-    // Ejecuta la inicializacion de sesion una vez al montar el provider.
     initializeSession();
   }, [initializeSession]);
 
-  // Inicia sesion en backend, construye el usuario y lo persiste localmente.
-  const login = useCallback(
-    async ({ email, password }) => {
-      const normalizedEmail = email.trim().toLowerCase();
-
-      const loginResponse = await fetch(`${getApiBaseUrl()}/loginCustomers`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: normalizedEmail, password }),
-      });
-
-      const loginData = await loginResponse.json().catch(() => ({}));
-
-      if (!loginResponse.ok) {
-        throw new Error(loginData?.message ?? "No se pudo iniciar sesion");
-      }
-
-      // Backend login only returns a message, so we resolve the user name by email.
-      const customersResponse = await fetch(`${getApiBaseUrl()}/customers`);
-      const customersData = await customersResponse.json().catch(() => []);
-
-      const customer = Array.isArray(customersData)
-        ? customersData.find(
-            (item) => item?.email?.toLowerCase() === normalizedEmail,
-          )
-        : null;
-
-      const sessionUser = {
-        email: normalizedEmail,
-        name: customer?.name ?? "Cliente",
-        lastName: customer?.lastName ?? "",
-      };
-
-      setUser(sessionUser);
-      await persistSession(sessionUser);
-
-      return sessionUser;
-    },
-    [persistSession],
-  );
-
-  // Cierra sesion en backend y limpia el estado/localStorage en la app.
-  const logout = useCallback(async () => {
+  const register = useCallback(async ({ name, lastName, email, password }) => {
+    setLoading(true);
     try {
-      await fetch(`${getApiBaseUrl()}/logout`, { method: "POST" });
+      const data = await authService.register({ name, lastName, email, password });
+      return { ok: true, message: data?.message || "Código enviado a tu correo." };
     } catch (error) {
-      console.log("Logout request error", error);
+      return { ok: false, message: error.message };
+    } finally {
+      setLoading(false);
     }
+  }, []);
 
+  const verifyCode = useCallback(async ({ email, code }) => {
+    setLoading(true);
+    try {
+      const data = await authService.verifyCode({ email, code });
+      return { ok: true, message: data?.message || "Cuenta verificada con éxito." };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const resendCode = useCallback(async (email) => {
+    try {
+      const data = await authService.resendCode(email);
+      return { ok: true, message: data?.message || "Código reenviado." };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }, []);
+
+  const login = useCallback(async ({ email, password }) => {
+    setLoading(true);
+    try {
+      const data = await authService.login({ email, password });
+      const sessionUser = data.user || { email: email.trim().toLowerCase(), name: "Cliente" };
+      setUser(sessionUser);
+      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser));
+      return { ok: true, message: data?.message || "Bienvenido", user: sessionUser };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
     setUser(null);
-    await clearSessionStorage();
-  }, [clearSessionStorage]);
+    try {
+      await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch (error) {
+      console.log("Error al eliminar sesión:", error);
+    }
+  }, []);
 
-  // Agrupa y memoriza los valores y funciones compartidas por el contexto.
   const value = useMemo(
     () => ({
       user,
-      isBooting,
       isAuthenticated: Boolean(user),
+      isBooting,
+      loading,
       login,
+      register,
+      verifyCode,
+      resendCode,
       logout,
-      apiBaseUrl: getApiBaseUrl(),
     }),
-    [isBooting, login, logout, user],
+    [user, isBooting, loading, login, register, verifyCode, resendCode, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

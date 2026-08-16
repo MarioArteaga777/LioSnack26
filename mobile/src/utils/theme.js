@@ -1,0 +1,18 @@
+export const COLORS = {
+  void: "#0A0918",
+  voidSoft: "#100E22",
+  nebula: "#16132C",
+  nebulaLight: "#1F1A3D",
+  nebulaBorder: "#2C2650",
+  stardust: "#F4F1FB",
+  mist: "#A49DC7",
+  mistDim: "#756E9C",
+  bloom: "#F5A8CA",
+  bloomDark: "#E788B3",
+  bloomInk: "#3A1226",
+  gold: "#D9B26A",
+  teal: "#63D9C4",
+  tealBg: "rgba(99, 217, 196, 0.12)",
+  coral: "#FF8F6E",
+  coralBg: "rgba(255, 143, 110, 0.12)",
+};
