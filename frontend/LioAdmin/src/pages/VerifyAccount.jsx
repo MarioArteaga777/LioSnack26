@@ -10,7 +10,7 @@ const VerifyAccount = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [resending, setResending] = useState(false);
+  const [resending, setResending] = useState(false);  
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -59,7 +59,7 @@ const VerifyAccount = () => {
     }
 
     setResending(true);
-
+    
     try {
       const response = await fetch(`${url}/register/resendCode`, {
         method: "POST",
@@ -117,7 +117,6 @@ const VerifyAccount = () => {
                 required
               />
             </div>
-
             <div className="space-y-4">
               <label className="block text-sm font-medium text-slate-700">
                 Código de verificación

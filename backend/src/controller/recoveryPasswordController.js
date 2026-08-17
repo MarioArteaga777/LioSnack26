@@ -1,22 +1,13 @@
 import jsonbwebtoken from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../utils/sendMailMailjet.js";
 import HTMLRecoveryEmail from "../utils/sendMailRecovery.js";
 
 import { config } from "../config.js";
-
 import userModel from "../models/user.js";
 
 const recoveryPasswordController = {};
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: config.email.user_email,
-    pass: config.email.user_password,
-  },
-});
 
 const cookieOptions = {
   httpOnly: true,
@@ -52,12 +43,7 @@ recoveryPasswordController.requestCode = async (req, res) => {
     res.cookie("recoveryCookie", token, cookieOptions);
 
     try {
-      await transporter.sendMail({
-        from: config.email.user_email,
-        to: normalizedEmail,
-        subject: "Código de recuperación de contraseña",
-        html: HTMLRecoveryEmail(randomCode),
-      });
+      await sendEmail(normalizedEmail, "Código de recuperación de contraseña", HTMLRecoveryEmail(randomCode));
     } catch (mailError) {
       console.log("mail error:", mailError.message);
       return res.status(500).json({ message: "Error al enviar correo" });
@@ -70,6 +56,7 @@ recoveryPasswordController.requestCode = async (req, res) => {
   }
 };
 
+// verifyCode y newPassword quedan exactamente igual, no usan correo
 recoveryPasswordController.verifyCode = async (req, res) => {
   try {
     const { code } = req.body;
