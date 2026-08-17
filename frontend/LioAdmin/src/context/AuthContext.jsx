@@ -1,8 +1,8 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from "react";
-
+import api from "../utils/apiUrl.js";
 export const AuthContext = createContext(null);
 
-const API_URL = "http://localhost:4000/api"; 
+const API_URL = api; 
 const SESSION_STORAGE_KEY = "lio_auth";
 
 // Cuando el backend de login esté listo, cambia esto a false
