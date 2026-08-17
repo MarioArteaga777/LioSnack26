@@ -6,6 +6,8 @@ const userSchema = new Schema({
     lastName: {type: String},
     email: {type: String, unique: true},
     password: {type: String},
+    image: {type: String, default: null},
+    public_id: {type: String, default: null},
     isVerified: {type: Boolean, default: false},
     verificationCode: {type: String, default: null},
     verificationCodeExpires: {type: Date, default: null},

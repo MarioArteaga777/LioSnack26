@@ -1,6 +1,7 @@
 // ForgotPassword.jsx - Página para recuperar contraseña
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import url from "../utils/apiUrl";
 import img_Background from "../../img/background_image_2026.png";
 import img_Logo from "../../img/Logo.png";
 
@@ -24,17 +25,29 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      // Aquí simularemos el envío de email de recuperación
-      // En producción, esto sería una llamada a tu API
-      setMessage(
-        "Se ha enviado un enlace de recuperación a tu email. Por favor revisa tu bandeja de entrada."
-      );
+      const response = await fetch(`${url}/recovery-password/requestCode`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "No se pudo enviar el código de recuperación.",
+        );
+      }
+
+      setMessage("Se ha enviado un código de recuperación a tu email.");
+
+      const sentEmail = email.trim();
       setEmail("");
-      
-      // Opcional: redirige al login después de 3 segundos
+
       setTimeout(() => {
-        navigate("/");
-      }, 3000);
+        navigate("/verification-code", { state: { email: sentEmail } });
+      }, 1500);
     } catch (error_) {
       setError(error_.message || "Error al procesar tu solicitud.");
     } finally {
@@ -68,7 +81,8 @@ const ForgotPassword = () => {
                 Email
               </label>
               <p className="text-sm text-slate-600 mb-3">
-                Ingresa el email asociado a tu cuenta. Te enviaremos un enlace para recuperar tu contraseña.
+                Ingresa el email asociado a tu cuenta. Te enviaremos un código
+                para recuperar tu contraseña.
               </p>
               <input
                 type="email"
@@ -102,16 +116,15 @@ const ForgotPassword = () => {
 
             <button
               type="submit"
-              onClick={()=> navigate("/verification-code")}
               disabled={loading}
               className="flex w-full items-center justify-center rounded-2xl bg-[#201D73] px-5 py-4 text-sm font-semibold text-white transition hover:bg-[#6AA5D9] disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {loading ? "Procesando..." : "Enviar Enlace de Recuperación"}
+              {loading ? "Procesando..." : "Enviar Código de Recuperación"}
             </button>
 
             <button
               type="button"
-              onClick={() => navigate("/verification-code")}
+              onClick={() => navigate("/login")}
               className="flex w-full justify-center text-sm font-semibold text-[#201D73] hover:text-gray-400"
             >
               Volver al Login

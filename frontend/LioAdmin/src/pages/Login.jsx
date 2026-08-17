@@ -65,7 +65,11 @@ const Login = () => {
             </p>
           </div>
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit(attemptLogin)} noValidate>
+          <form
+            className="mt-8 space-y-6"
+            onSubmit={handleSubmit(attemptLogin)}
+            noValidate
+          >
             <div className="space-y-4">
               <label className="block text-sm font-medium text-slate-700">
                 Email
@@ -142,6 +146,13 @@ const Login = () => {
             >
               {loading ? "Ingresando..." : "Iniciar sesión"}
             </button>
+            <p
+              className="text-center text-sm hover:text-blue-400 text-[#201D73] cursor-pointer"
+              onClick={() => navigate("/verify-account")}
+            >
+              Si necesita verificar su cuenta, puede dar click a este mensaje
+              para redirigirlo.
+            </p>
           </form>
         </div>
       </div>

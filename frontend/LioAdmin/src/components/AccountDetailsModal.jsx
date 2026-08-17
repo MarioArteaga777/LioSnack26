@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-const AccountDetailsModal = ({ id, account, onClose }) => {
+const AccountDetailsModal = ({ id, account, onClose, clientLabel = "Cliente" }) => {
   const dialogRef = useRef(null);
 
   // Abre/cierra el <dialog> nativo según haya o no una cuenta seleccionada
@@ -32,7 +32,7 @@ const AccountDetailsModal = ({ id, account, onClose }) => {
 
           <dl className="flex flex-col gap-3 text-sm">
             <div className="flex justify-between gap-4">
-              <dt className="text-white/60">Cliente</dt>
+              <dt className="text-white/60">{clientLabel}</dt>
               <dd className="font-medium text-right">{account.client}</dd>
             </div>
             <div className="flex justify-between gap-4">

@@ -29,11 +29,6 @@ export const links = [
     icon: FiBox,
   },
   {
-    to: "/inventory",
-    label: "Inventario",
-    icon: FiBox,
-  },
-  {
     to: "/customers",
     label: "Clientes",
     icon: FiUsers,
@@ -68,11 +63,6 @@ export const links = [
     ],
   },
   {
-    to: "/codes",
-    label: "Códigos",
-    icon: FiEdit2,
-  },
-  {
     to: "/perfil",
     label: "Perfil",
     icon: FiUser,
@@ -91,13 +81,9 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-60 h-screen bg-gray-300 text-black flex flex-col shrink-0">
+    <aside className="w-60 h-screen bg-gray-300 text-black flex flex-col shrink-0 rounded-r-lg shadow-lg">
       <div className="flex items-center justify-center py-6">
-        <img
-          src={img}
-          alt="Logo"
-          className="size-32 object-contain"
-        />
+        <img src={img} alt="Logo" className="size-32 object-contain" />
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -107,11 +93,7 @@ const Sidebar = () => {
             return (
               <div key={label}>
                 <button
-                  onClick={() =>
-                    setOpenMenu(
-                      openMenu === label ? null : label
-                    )
-                  }
+                  onClick={() => setOpenMenu(openMenu === label ? null : label)}
                   className="w-full flex items-center justify-between px-15 py-3.5 hover:bg-white/30"
                 >
                   <div className="flex items-center gap-3">
@@ -128,9 +110,7 @@ const Sidebar = () => {
 
                 <div
                   className={`overflow-hidden transition-all duration-300 ${
-                    openMenu === label
-                      ? "max-h-40"
-                      : "max-h-0"
+                    openMenu === label ? "max-h-40" : "max-h-0"
                   }`}
                 >
                   {children.map((child) => (
@@ -139,9 +119,7 @@ const Sidebar = () => {
                       to={child.to}
                       className={({ isActive }) =>
                         `block w-full rounded px-4 py-3.5 text-center transition ${
-                          isActive
-                            ? "bg-white font-bold"
-                            : "hover:bg-white/30"
+                          isActive ? "bg-white font-bold" : "hover:bg-white/30"
                         }`
                       }
                     >
@@ -160,9 +138,7 @@ const Sidebar = () => {
               to={to}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-15 py-3.5 transition ${
-                  isActive
-                    ? "bg-white font-bold"
-                    : "hover:bg-white/30"
+                  isActive ? "bg-white font-bold" : "hover:bg-white/30"
                 }`
               }
             >

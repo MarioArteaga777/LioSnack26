@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 const FinalizeProductionForm = ({ production, onCancel, onConfirm }) => {
   // Valor inicial del input.
   const [bolsasFinales, setBolsasFinales] = useState(
-    production.BolsasObtenidas || production.BolsasEsperadas || ""
+    production.BolsasObtenidas || production.BolsasEsperadas || "",
   );
 
   // Guarda el mensaje de error.
@@ -28,7 +28,6 @@ const FinalizeProductionForm = ({ production, onCancel, onConfirm }) => {
 
   return (
     <div className="w-[420px] rounded-2xl bg-[#1B022C] p-6">
-
       <h2 className="text-2xl font-semibold text-white mb-2">
         Finalizar Producción
       </h2>
@@ -39,11 +38,8 @@ const FinalizeProductionForm = ({ production, onCancel, onConfirm }) => {
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
         <div>
-          <label className="text-white text-sm">
-            Bolsas Finales
-          </label>
+          <label className="text-white text-sm">Bolsas Finales</label>
 
           <input
             type="number"
@@ -60,7 +56,6 @@ const FinalizeProductionForm = ({ production, onCancel, onConfirm }) => {
         </div>
 
         <div className="flex justify-end gap-3 mt-3">
-
           {/* Cierra el modal sin guardar */}
           <button
             type="button"
@@ -76,11 +71,8 @@ const FinalizeProductionForm = ({ production, onCancel, onConfirm }) => {
           >
             Finalizar Producción
           </button>
-
         </div>
-
       </form>
-
     </div>
   );
 };

@@ -62,6 +62,11 @@ registerUserController.register = async (req, res) => {
       password: passwordHash,
     });
 
+    if (req.file) {
+      newUser.image = req.file.path;
+      newUser.public_id = req.file.filename;
+    }
+
     await newUser.save();
 
     try {

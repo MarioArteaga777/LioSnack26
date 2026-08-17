@@ -22,13 +22,17 @@ const UserCard = ({
   onDetails,
   onDelete,
 }) => {
-  const { open: menuOpen, setOpen: setMenuOpen, containerRef } = useActionsMenu();
+  const {
+    open: menuOpen,
+    setOpen: setMenuOpen,
+    containerRef,
+  } = useActionsMenu();
   const hasActions = onUpdate || onDetails || onDelete;
 
   return (
     <div
       ref={containerRef}
-      className={`relative w-64 rounded-2xl p-4 shadow-xl ${
+      className={`group relative w-64 rounded-2xl p-4 shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 hover:ring-1 hover:ring-sky-400/40 ${
         isVerified ? "bg-[#2a1f5e]" : "bg-rose-800"
       }`}
     >
@@ -36,9 +40,13 @@ const UserCard = ({
         {/* Avatar */}
         <div className="mb-3 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white/10">
           {image ? (
-            <img src={image} alt={`${name} ${lastName}`} className="h-full w-full object-cover" />
+            <img
+              src={image}
+              alt={`${name} ${lastName}`}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            />
           ) : (
-            <UserRound className="h-12 w-12 text-white/70" />
+            <UserRound className="h-12 w-12 text-white/70 transition-transform duration-300 group-hover:scale-110" />
           )}
         </div>
 
@@ -58,7 +66,7 @@ const UserCard = ({
         </div>
       </div>
 
-      {/* Botón de menú (kebab) */}
+      {/* Botón de menú */}
       {hasActions && (
         <div className="relative mt-2 flex justify-end">
           <button

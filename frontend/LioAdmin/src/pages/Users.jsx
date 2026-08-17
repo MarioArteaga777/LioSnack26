@@ -41,16 +41,30 @@ const Users = () => {
     setEditingUser(null);
   };
 
-  // Decide si crea un usuario nuevo o actualiza el que se está editando
+  // Decide si crea un usuario nuevo o actualiza el que se está editando.
+  // Si el modal incluyó una foto, se envía todo junto como FormData.
   const handleSaveUser = async (data) => {
+    const { image, ...fields } = data;
+
+    let payload = fields;
+
+    if (image) {
+      const formData = new FormData();
+      Object.entries(fields).forEach(([key, value]) =>
+        formData.append(key, value),
+      );
+      formData.append("image", image);
+      payload = formData;
+    }
+
     if (editingUser) {
-      const result = await updateUsuario(editingUser._id, data);
+      const result = await updateUsuario(editingUser._id, payload);
       if (result.ok) {
         await getUsuarios();
         closeForm();
       }
     } else {
-      const result = await createUsuario(data);
+      const result = await createUsuario(payload);
       if (result.ok) {
         await getUsuarios();
         closeForm();
@@ -60,7 +74,7 @@ const Users = () => {
 
   const handleDelete = async (user) => {
     const confirmed = await confirmToast(
-      `¿Eliminar a "${user.name} ${user.lastName}"? Esta acción no se puede deshacer.`
+      `¿Eliminar a "${user.name} ${user.lastName}"? Esta acción no se puede deshacer.`,
     );
     if (!confirmed) return;
 
@@ -70,7 +84,10 @@ const Users = () => {
       // Ajusta la página actual por si la eliminación deja una página vacía
       setCurrentPage((prev) => {
         const remaining = usuarios.length - 1;
-        const newTotalPages = Math.max(1, Math.ceil(remaining / USERS_PER_PAGE));
+        const newTotalPages = Math.max(
+          1,
+          Math.ceil(remaining / USERS_PER_PAGE),
+        );
         return Math.min(prev, newTotalPages);
       });
     }
@@ -101,19 +118,14 @@ const Users = () => {
       />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="mb-2 mt-6 text-2xl md:text-3xl font-semibold text-white">
+      <div className="flex items-center justify-between mb-20">
+        <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">
           Usuarios
         </h1>
 
         <Button text="Nuevo Usuario" icon={Plus} onClick={openCreateForm} />
       </div>
-      <button
-        onClick={() => toast.info("Mostrando todos los usuarios")}
-        className="mb-4 block text-sm text-blue-400 hover:underline"
-      >
-        ver todo
-      </button>
+
 
       {/* Panel de usuarios */}
       <div className="rounded-3xl bg-[#3b2d7a]/60 p-6">
@@ -130,6 +142,7 @@ const Users = () => {
                   name={user.name}
                   lastName={user.lastName}
                   isVerified={user.isVerified}
+                  image={user.image}
                   onUpdate={() => openUpdateForm(user)}
                   onDetails={() => setDetailsUser(user)}
                   onDelete={() => handleDelete(user)}

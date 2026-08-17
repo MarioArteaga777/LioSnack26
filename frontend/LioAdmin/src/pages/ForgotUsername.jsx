@@ -27,10 +27,10 @@ const ForgotUsername = () => {
       // Aquí simularemos el envío de email de recuperación
       // En producción, esto sería una llamada a tu API
       setMessage(
-        "Se ha enviado un enlace de recuperación a tu email. Por favor revisa tu bandeja de entrada."
+        "Se ha enviado un enlace de recuperación a tu email. Por favor revisa tu bandeja de entrada.",
       );
       setEmail("");
-      
+
       // Opcional: redirige al login después de 3 segundos
       setTimeout(() => {
         navigate("/");
@@ -68,7 +68,8 @@ const ForgotUsername = () => {
                 Email
               </label>
               <p className="text-sm text-slate-600 mb-3">
-                Ingresa el email asociado a tu cuenta. Te enviaremos un enlace para recuperar tu contraseña.
+                Ingresa el email asociado a tu cuenta. Te enviaremos un enlace
+                para recuperar tu contraseña.
               </p>
               <input
                 type="email"
@@ -102,7 +103,7 @@ const ForgotUsername = () => {
 
             <button
               type="submit"
-              onClick={()=> navigate("/verification-code")}
+              onClick={() => navigate("/verification-code")}
               disabled={loading}
               className="flex w-full items-center justify-center rounded-2xl bg-[#201D73] px-5 py-4 text-sm font-semibold text-white transition hover:bg-[#6AA5D9] disabled:cursor-not-allowed disabled:bg-slate-400"
             >
