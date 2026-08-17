@@ -20,6 +20,7 @@ import Location from "./pages/Location";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Checkout from "./pages/Checkout";
+import NotFound from "./pages/NotFound";
 
 function AppShell() {
   // Producto seleccionado para el modal
@@ -40,7 +41,6 @@ function AppShell() {
   return (
     <>
       <ScrollToTop />
-
       <div
         className="min-h-screen bg-cover bg-center bg-fixed bg-no-repeat"
         style={{
@@ -48,7 +48,6 @@ function AppShell() {
         }}
       >
         <Navbar cartCount={cartCount} onCartClick={() => setCartOpen(true)} />
-
         <main>
           <Routes>
             <Route
@@ -61,7 +60,6 @@ function AppShell() {
                 />
               }
             />
-
             <Route
               path="/catalogo"
               element={
@@ -72,12 +70,14 @@ function AppShell() {
                 />
               }
             />
-
             <Route path="/historia" element={<History />} />
             <Route path="/ubicacion" element={<Location />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
             <Route path="/checkout" element={<Checkout />} />
+
+            {/* Ruta 404 - Cualquier otra ruta no encontrada */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
 

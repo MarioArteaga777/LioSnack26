@@ -17,6 +17,7 @@ import Production from "./pages/production.jsx";
 import AccountsPayable from "./pages/AccountsPayable.jsx";
 import AccountsReceivable from "./pages/AccountsReceivable.jsx";
 import Profile from "./pages/Profile.jsx";
+import NotFound from "./pages/NotFound.jsx";
 import PrivateRoute from "./hooks/PrivateRoute.jsx";
 
 function App() {
@@ -64,6 +65,9 @@ function App() {
               <Route path="/perfil" element={<Profile />} />
             </Route>
           </Route>
+
+          {/* Ruta 404 - Cualquier otra ruta no encontrada */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>
