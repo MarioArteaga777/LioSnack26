@@ -30,7 +30,7 @@ const VerificationCode = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email: email?.trim(), code: code.trim() }),
+        body: JSON.stringify({ code: code.trim() }),
       });
 
       const data = await response.json();
