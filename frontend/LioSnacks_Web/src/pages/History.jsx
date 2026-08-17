@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Sparkles, ShieldCheck, Rocket } from "lucide-react";
 import ProductVisual from "../components/ProductVisual";
-import Timeline from "../components/Timeline";
+import Timeline from "../components/TimeLine";
 import CtaBanner from "../components/CtaBanner";
 
 const milestones = [
