@@ -1,32 +1,14 @@
-import nodemailer from "nodemailer";
 import crypto from "crypto";
 import bcryptjs from "bcryptjs";
-
+import { sendEmail } from "../utils/sendMailMailjet.js";
+import HTMLRecoveryEmail from "../utils/sendMailRecovery.js";
 import userModel from "../models/user.js";
-import { config } from "../config.js";
 
 const registerUserController = {};
 
 const VERIFICATION_CODE_TTL_MS = 15 * 60 * 1000;
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: config.email.user_email,
-    pass: config.email.user_password,
-  },
-});
-
-const sendVerificationEmail = (toEmail, code) => {
-  return transporter.sendMail({
-    from: config.email.user_email,
-    to: toEmail,
-    subject: "Verificación de cuenta",
-    text: `Para verificar tu cuenta, utiliza este código: ${code} (expira en 15 minutos)`,
-  });
-};
-
-// Genera un código, lo guarda hasheado en el usuario y lo envía por correo.
+// Genera un código, lo guarda hasheado en el usuario y lo envía por correo vía Mailjet.
 const issueVerificationCode = async (user) => {
   const code = crypto.randomInt(100000, 1000000).toString();
 
@@ -34,7 +16,8 @@ const issueVerificationCode = async (user) => {
   user.verificationCodeExpires = new Date(Date.now() + VERIFICATION_CODE_TTL_MS);
   await user.save();
 
-  await sendVerificationEmail(user.email, code);
+  const htmlContent = HTMLRecoveryEmail(code);
+  await sendEmail(user.email, "Verificación de cuenta", htmlContent);
 };
 
 // Registra un nuevo usuario y dispara el envío del código de verificación
@@ -145,7 +128,6 @@ registerUserController.resendCode = async (req, res) => {
     const normalizedEmail = email.toLowerCase();
     const user = await userModel.findOne({ email: normalizedEmail });
 
-    // Respuesta genérica para no revelar si el correo existe o ya fue verificado.
     const genericResponse = {
       message: "Si el correo existe y no ha sido verificado, se envió un nuevo código",
     };
