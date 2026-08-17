@@ -1,3 +1,3 @@
-const url = "http://localhost:4000/api";
+const url = "https://liosnack26.onrender.com/api";
 
 export default url;
