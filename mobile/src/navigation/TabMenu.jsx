@@ -1,10 +1,35 @@
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CartScreen from '../screens/CartScreen';
+import CheckoutScreen from '../screens/CheckoutScreen';
 import ProductsScreen from '../screens/ProductsScreen';
 import HomeScreen from '../screens/HomeScreen';
 import { COLORS } from '../utils/theme';
 
 const Drawer = createDrawerNavigator();
+const Stack = createNativeStackNavigator();
+
+// Stack Navigator para el Carrito y Checkout
+function CartStackNavigator() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        animationEnabled: true,
+      }}
+    >
+      <Stack.Screen name="CartView" component={CartScreen} />
+      <Stack.Screen 
+        name="Checkout" 
+        component={CheckoutScreen}
+        options={{
+          animationEnabled: true,
+          gestureEnabled: true,
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
 
 export default function TabMenu() {
   return (
@@ -39,7 +64,7 @@ export default function TabMenu() {
       />
       <Drawer.Screen
         name="Cart"
-        component={CartScreen}
+        component={CartStackNavigator}
         options={{ drawerLabel: '🛒 Mi Carrito' }}
       />
     </Drawer.Navigator>

@@ -1,5 +1,3 @@
-import { Platform } from "react-native";
-
 // Tu IP local de la computadora en la red Wi-Fi: 192.168.1.17
 // Esta IP es accesible tanto para tu celular físico como para los emuladores.
 const LOCAL_HOST_IP = "192.168.1.17"; 
