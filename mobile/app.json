@@ -20,10 +20,14 @@
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#0A0918"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.benjyfishy.liosnackmobile"
     },
     "web": {
       "favicon": "./assets/logo.png"
-    }
+    },
+    "plugins": [
+      "expo-status-bar"
+    ]
   }
 }

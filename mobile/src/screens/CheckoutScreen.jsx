@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useState } from "react";
 import useCart from "../hooks/useCart";
-import useAuth from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import { processPaymentWithWompi, formatAmountToWompi } from "../services/paymentService";
 
 const formatPrice = (price) => `$${price.toFixed(2)}`;

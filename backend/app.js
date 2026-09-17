@@ -15,9 +15,28 @@ import pagosRoutes from "./src/routes/pagos.js";
 
 const app = express();
 
+// Configurar CORS dinámicamente según el entorno
+const getCorsOrigins = () => {
+  const allowedOrigins = [
+    "https://lio-snacks.vercel.app",
+    "https://lio-snacks-admin.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+  ];
+
+  // Agregar URL adicional si está definida en variables de entorno
+  if (process.env.CORS_ORIGIN) {
+    allowedOrigins.push(process.env.CORS_ORIGIN);
+  }
+
+  return allowedOrigins;
+};
+
 app.use(
   cors({
-    origin: ["https://lio-snacks.vercel.app", "https://lio-snacks-admin.vercel.app"],
+    origin: getCorsOrigins(),
     credentials: true,
   })
 );
