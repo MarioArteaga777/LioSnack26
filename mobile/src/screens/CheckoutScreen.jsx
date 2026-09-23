@@ -12,7 +12,10 @@ import {
 import { useState } from "react";
 import useCart from "../hooks/useCart";
 import { useAuth } from "../hooks/useAuth";
-import { processPaymentWithWompi, formatAmountToWompi } from "../services/paymentService";
+import {
+  processPaymentWithWompi,
+  formatAmountToWompi,
+} from "../services/paymentService";
 
 const formatPrice = (price) => `$${price.toFixed(2)}`;
 
@@ -36,7 +39,16 @@ export default function CheckoutScreen({ navigation }) {
   };
 
   const validateForm = () => {
-    const { fullName, email, phone, cardNumber, expiryMonth, expiryYear, cvv } = formData;
+    const {
+      fullName,
+      email,
+      phone,
+      address,
+      cardNumber,
+      expiryMonth,
+      expiryYear,
+      cvv,
+    } = formData;
 
     if (!fullName?.trim()) {
       Alert.alert("Error", "Por favor ingresa tu nombre completo");
@@ -48,6 +60,10 @@ export default function CheckoutScreen({ navigation }) {
     }
     if (!phone?.trim()) {
       Alert.alert("Error", "Por favor ingresa tu teléfono");
+      return false;
+    }
+    if (!address?.trim()) {
+      Alert.alert("Error", "Por favor ingresa tu dirección");
       return false;
     }
     if (!cardNumber?.trim() || cardNumber.length < 13) {
@@ -77,7 +93,7 @@ export default function CheckoutScreen({ navigation }) {
     try {
       // En un caso real, aquí enviarías los datos a tu backend para tokenizar la tarjeta con Wompi
       // Por ahora, simularemos un pago de prueba
-      
+
       const paymentData = {
         fullName: formData.fullName,
         email: formData.email,
@@ -99,19 +115,15 @@ export default function CheckoutScreen({ navigation }) {
       const response = await processPaymentWithWompi(paymentData);
 
       if (response.ok || response.success) {
-        Alert.alert(
-          "¡Éxito!",
-          "Tu pago ha sido procesado correctamente.",
-          [
-            {
-              text: "Continuar",
-              onPress: () => {
-                clearCart();
-                navigation.replace("Home");
-              },
+        Alert.alert("¡Éxito!", "Tu pago ha sido procesado correctamente.", [
+          {
+            text: "Continuar",
+            onPress: () => {
+              clearCart();
+              navigation.replace("Home");
             },
-          ],
-        );
+          },
+        ]);
       } else {
         Alert.alert(
           "Error",
@@ -144,7 +156,10 @@ export default function CheckoutScreen({ navigation }) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
           <Text style={styles.back}>‹ Volver</Text>
         </Pressable>
@@ -181,6 +196,7 @@ export default function CheckoutScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Nombre completo"
+            placeholderTextColor="#0a0a0a"
             value={formData.fullName}
             onChangeText={(value) => handleInputChange("fullName", value)}
             editable={!loading}
@@ -188,6 +204,7 @@ export default function CheckoutScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Email"
+            placeholderTextColor="#0a0a0a"
             keyboardType="email-address"
             value={formData.email}
             onChangeText={(value) => handleInputChange("email", value)}
@@ -196,9 +213,19 @@ export default function CheckoutScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Teléfono"
+            placeholderTextColor="#0a0a0a"
             keyboardType="phone-pad"
             value={formData.phone}
             onChangeText={(value) => handleInputChange("phone", value)}
+            editable={!loading}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Dirección de envío"
+            placeholderTextColor="#0a0a0a"
+            keyboardType="default"
+            value={formData.address}
+            onChangeText={(value) => handleInputChange("address", value)}
             editable={!loading}
           />
         </View>
@@ -212,15 +239,17 @@ export default function CheckoutScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Número de tarjeta"
+            placeholderTextColor="#0a0a0a"
             keyboardType="number-pad"
             maxLength={19}
             value={formData.cardNumber}
             onChangeText={(value) => {
               const cleaned = value.replace(/\s/g, "");
-              const formatted = cleaned
-                .match(/.{1,4}/g)
-                ?.join(" ")
-                .substring(0, 19) || cleaned;
+              const formatted =
+                cleaned
+                  .match(/.{1,4}/g)
+                  ?.join(" ")
+                  .substring(0, 19) || cleaned;
               handleInputChange("cardNumber", formatted);
             }}
             editable={!loading}
@@ -228,6 +257,7 @@ export default function CheckoutScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Nombre en la tarjeta"
+            placeholderTextColor="#0a0a0a"
             value={formData.cardName}
             onChangeText={(value) => handleInputChange("cardName", value)}
             editable={!loading}
@@ -236,6 +266,7 @@ export default function CheckoutScreen({ navigation }) {
             <TextInput
               style={[styles.input, styles.inputSmall]}
               placeholder="MM"
+              placeholderTextColor="#0a0a0a"
               keyboardType="number-pad"
               maxLength={2}
               value={formData.expiryMonth}
@@ -246,6 +277,7 @@ export default function CheckoutScreen({ navigation }) {
             <TextInput
               style={[styles.input, styles.inputSmall]}
               placeholder="YY"
+              placeholderTextColor="#0a0a0a"
               keyboardType="number-pad"
               maxLength={2}
               value={formData.expiryYear}
@@ -255,6 +287,7 @@ export default function CheckoutScreen({ navigation }) {
             <TextInput
               style={[styles.input, styles.inputSmall]}
               placeholder="CVV"
+              placeholderTextColor="#0a0a0a"
               keyboardType="number-pad"
               maxLength={4}
               value={formData.cvv}
@@ -272,7 +305,9 @@ export default function CheckoutScreen({ navigation }) {
           disabled={loading}
         >
           <Text style={styles.payButtonText}>
-            {loading ? "Procesando..." : `Pagar ${formatPrice(totals.subtotal)}`}
+            {loading
+              ? "Procesando..."
+              : `Pagar ${formatPrice(totals.subtotal)}`}
           </Text>
         </Pressable>
 
@@ -361,7 +396,7 @@ const styles = StyleSheet.create({
     color: "#D3543C",
   },
   input: {
-    backgroundColor: "#FFF",
+    backgroundColor: "#f8f5f5",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
