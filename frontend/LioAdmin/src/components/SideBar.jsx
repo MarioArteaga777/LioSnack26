@@ -34,6 +34,11 @@ export const links = [
     icon: FiUsers,
   },
   {
+    to: "/providers",
+    label: "Proveedores",
+    icon: FiTruck,
+  },
+  {
     to: "/production",
     label: "Producción",
     icon: FiFolder,

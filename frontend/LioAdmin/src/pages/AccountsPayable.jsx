@@ -9,6 +9,7 @@ import confirmToast from "../utils/confirmToast";
 import { formatFechaCuenta } from "../utils/cuentaFormat";
 import useFetchCuentasPP from "../hooks/Accounts/useFetchCuentasPP";
 import useCuentasPPActions from "../hooks/Accounts/useCuentasPPActions";
+import useFetchProveedores from "../hooks/Providers/useFetchProveedores";
 
 // Convierte una cuenta por pagar real (backend) al formato que ya
 // entienden AccountCard / AccountDetailsModal (client, amount, status...).
@@ -30,6 +31,7 @@ const AccountsPayable = () => {
   const { cuentasPP, getCuentasPP, loading } = useFetchCuentasPP();
   const { createCuentaPP, updateCuentaPP, deleteCuentaPP } =
     useCuentasPPActions();
+  const { proveedores } = useFetchProveedores();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState(null);
@@ -109,6 +111,7 @@ const AccountsPayable = () => {
         onClose={closeForm}
         onSubmit={handleSaveAccount}
         initialData={editingAccount}
+        proveedores={proveedores}
       />
 
       <AccountDetailsModal
