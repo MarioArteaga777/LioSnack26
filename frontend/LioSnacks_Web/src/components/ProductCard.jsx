@@ -5,7 +5,7 @@ import ProductVisual from "./ProductVisual";
 
 export default function ProductCard({ product, onAdd, justAdded, onDetailClick }) {
   return (
-    <article className="flex flex-col bg-transparent p-2 transition-colors w-full group">
+    <article className="animate-rise flex h-full flex-col gap-4 rounded-2xl border border-nebula-border bg-nebula/60 p-6 backdrop-blur-sm">
       
       {/* Visual del Producto directo */}
       <div className="w-full">

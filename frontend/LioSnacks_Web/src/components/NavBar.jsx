@@ -1,19 +1,41 @@
-import { useState } from "react";
-import { ShoppingCart, User, LogOut } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { ShoppingCart, User, LogOut, Menu, X } from "lucide-react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import CartDrawer from "./CartDrawer";
 
 const links = [
   { name: "Inicio", to: "/" },
-  { name: "Catálogo", to: "/catalogo" },
-  { name: "Historia", to: "/historia" },
-  { name: "Ubicación", to: "/ubicacion" },
+  { name: "Productos", to: "/catalogo" },
+  { name: "¿Quienes somos?", to: "/historia" },
+  { name: "Puntos de Venta", to: "/Puntos de Venta" },
+  { name: "Contáctanos", to: "/contactanos" },
 ];
 
-export default function Navbar({ cartCount, onCartClick }) {
+export default function Navbar({
+  cartCount,
+  cartOpen,
+  cartItems,
+  onCloseCart,
+  onIncrement,
+  onDecrement,
+  onRemove,
+}) {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileOpen(false);
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  function handleCartClick() {
+    onCloseCart();
+    navigate("/carrito");
+  }
 
   async function handleLogout() {
     await logout();
@@ -24,20 +46,17 @@ export default function Navbar({ cartCount, onCartClick }) {
   return (
     <header className="sticky top-0 z-40 border-b border-nebula-border/70 bg-void/70 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2 sm:px-8">
-
-        {/* Logo */}
         <NavLink
           to="/"
           className="flex items-center transition-transform hover:scale-105"
         >
           <img
-            src="/Logo.png"
+            src="/favicon_lio.png"
             alt="LioSnack Logo"
             className="h-14 w-auto object-contain"
           />
         </NavLink>
 
-        {/* Menú */}
         <nav className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
             <NavLink
@@ -63,36 +82,52 @@ export default function Navbar({ cartCount, onCartClick }) {
           ))}
         </nav>
 
-        {/* Iconos */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onCartClick}
-            aria-label={`Carrito, ${cartCount} artículos`}
-            className="relative rounded-full p-2 text-stardust transition-colors hover:bg-nebula-light"
-          >
-            <ShoppingCart className="h-5 w-5" strokeWidth={1.75} />
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={handleCartClick}
+              aria-label={`Ver carrito, ${cartCount} artículos`}
+              className="relative rounded-full p-2 text-stardust transition-colors hover:bg-nebula-light"
+            >
+              <ShoppingCart className="h-5 w-5" strokeWidth={1.75} />
 
-            {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-bloom text-[10px] font-semibold text-bloom-ink">
-                {cartCount}
-              </span>
-            )}
-          </button>
+              {cartCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-bloom text-[10px] font-semibold text-bloom-ink">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            <CartDrawer
+              open={cartOpen}
+              onClose={onCloseCart}
+              items={cartItems}
+              onIncrement={onIncrement}
+              onDecrement={onDecrement}
+              onRemove={onRemove}
+            />
+          </div>
 
           {isAuthenticated ? (
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setMenuOpen((prev) => !prev)}
                 aria-label="Cuenta"
+                aria-expanded={menuOpen}
                 className="flex items-center gap-2 rounded-full p-2 text-stardust transition-colors hover:bg-nebula-light"
               >
                 <User className="h-5 w-5" strokeWidth={1.75} />
-                <span className="hidden font-body text-sm sm:inline">{user.name}</span>
+                <span className="hidden font-body text-sm sm:inline">
+                  {user.name}
+                </span>
               </button>
 
               {menuOpen && (
                 <div className="absolute right-0 top-full mt-2 w-44 rounded-xl border border-nebula-border bg-void-soft/95 p-2 shadow-xl backdrop-blur-md">
                   <button
+                    type="button"
                     onClick={handleLogout}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left font-body text-sm text-mist hover:bg-nebula-light hover:text-stardust"
                   >
@@ -111,7 +146,45 @@ export default function Navbar({ cartCount, onCartClick }) {
               <User className="h-5 w-5" strokeWidth={1.75} />
             </NavLink>
           )}
+
+          <button
+            type="button"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={mobileOpen}
+            className="rounded-full p-2 text-stardust transition-colors hover:bg-nebula-light md:hidden"
+          >
+            {mobileOpen ? (
+              <X className="h-5 w-5" strokeWidth={1.75} />
+            ) : (
+              <Menu className="h-5 w-5" strokeWidth={1.75} />
+            )}
+          </button>
         </div>
+      </div>
+
+      <div
+        className={`overflow-hidden border-t border-nebula-border/70 bg-void-soft/95 backdrop-blur-md transition-[max-height] duration-300 ease-in-out md:hidden ${
+          mobileOpen ? "max-h-64" : "max-h-0 border-t-0"
+        }`}
+      >
+        <nav className="flex flex-col gap-1 px-5 py-3">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `rounded-lg px-3 py-2.5 font-body text-sm transition-colors ${
+                  isActive
+                    ? "bg-nebula-light text-stardust"
+                    : "text-mist hover:bg-nebula-light hover:text-stardust"
+                }`
+              }
+            >
+              {link.name}
+            </NavLink>
+          ))}
+        </nav>
       </div>
     </header>
   );

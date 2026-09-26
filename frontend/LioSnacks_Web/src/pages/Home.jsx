@@ -1,14 +1,11 @@
 import { Link } from "react-router-dom";
-import { Leaf, Feather, Sparkles, ArrowRight } from "lucide-react";
+import { Leaf, Feather, Sparkles, ArrowRight, LoaderCircle, TriangleAlert } from "lucide-react";
 
 import OrbitBadge from "../components/OrbitBadge";
 import FeatureCard from "../components/FeatureCard";
 import ProductCard from "../components/ProductCard";
 import TestimonialCard from "../components/TestimonialCard";
-
-import { products } from "../data/products";
-
-const featured = products.slice(0, 4);
+import useProducts from "../hooks/useProducts";
 
 const testimonials = [
   {
@@ -36,6 +33,9 @@ export default function Home({
   onProductDetail,
   recentlyAddedId,
 }) {
+  const { products, loading, error } = useProducts();
+  const featured = products.slice(0, 4);
+
   return (
     <>
       {/* HERO */}
@@ -114,17 +114,33 @@ export default function Home({
           </Link>
         </div>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAdd={onAdd}
-              justAdded={recentlyAddedId === product.id}
-              onDetailClick={onProductDetail}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="mt-10 flex flex-col items-center gap-3 py-16 text-center">
+            <LoaderCircle className="h-6 w-6 animate-spin text-teal" />
+            <p className="font-body text-sm text-mist">Cargando catálogo...</p>
+          </div>
+        ) : error ? (
+          <div className="mt-10 flex flex-col items-center gap-3 py-16 text-center">
+            <TriangleAlert className="h-6 w-6 text-coral" />
+            <p className="font-body text-sm text-mist">{error}</p>
+          </div>
+        ) : featured.length === 0 ? (
+          <p className="mt-10 py-16 text-center font-body text-sm text-mist">
+            Aún no hay productos publicados en el catálogo.
+          </p>
+        ) : (
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {featured.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAdd={onAdd}
+                justAdded={recentlyAddedId === product.id}
+                onDetailClick={onProductDetail}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* TESTIMONIOS */}

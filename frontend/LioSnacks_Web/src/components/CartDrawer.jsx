@@ -1,95 +1,116 @@
-import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export default function CartDrawer({ open, onClose, items, onIncrement, onDecrement, onRemove }) {
+export default function CartDrawer({
+  open,
+  onClose,
+  items,
+  onIncrement,
+  onDecrement,
+  onRemove,
+}) {
   const navigate = useNavigate();
-  const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  function handleCheckout() {
+  if (!open) return null;
+
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
+
+  const cantidad = items.reduce(
+    (sum, item) => sum + item.qty,
+    0
+  );
+
+  function irA(ruta) {
     onClose();
-    navigate("/checkout");
+    navigate(ruta);
   }
 
   return (
     <>
       <div
-        className={`fixed inset-0 z-50 bg-black/60 transition-opacity ${
-          open ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        onClick={onClose}
+        className="fixed inset-0 z-40"
         aria-hidden="true"
+        onClick={onClose}
       />
+
       <aside
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col border-l border-nebula-border bg-void-soft/95 backdrop-blur-md transition-transform duration-300 ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
         role="dialog"
         aria-label="Carrito de compras"
-        aria-hidden={!open}
+        className="animate-drop absolute right-0 top-full z-50 mt-2 flex max-h-[min(75vh,580px)] w-[min(92vw,390px)] flex-col overflow-hidden rounded-2xl border border-nebula-border bg-void-soft text-stardust shadow-2xl"
       >
-        <div className="flex items-center justify-between border-b border-nebula-border px-6 py-5">
-          <h2 className="font-display text-lg font-semibold text-stardust">
-            Tu carrito
-          </h2>
+        <div className="flex items-center justify-between border-b border-nebula-border px-4 py-3">
+          <h2 className="font-display font-semibold">Tu carrito</h2>
+
           <button
+            type="button"
             onClick={onClose}
             aria-label="Cerrar carrito"
-            className="rounded-full p-1.5 text-mist hover:bg-nebula-light hover:text-stardust"
+            className="rounded-full p-1 text-mist hover:text-white"
           >
-            <X className="h-5 w-5" />
+            <X size={19} />
           </button>
         </div>
 
-        <div className="scrollbar-thin flex-1 overflow-y-auto px-6 py-4">
+        <div className="overflow-y-auto p-4">
           {items.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-              <ShoppingBag className="h-9 w-9 text-mist-dim" strokeWidth={1.5} />
-              <p className="font-body text-sm text-mist">
-                Tu carrito está vacío. Añade snacks del catálogo para empezar tu misión.
-              </p>
-            </div>
+            <p className="flex items-center gap-2 py-8 text-sm text-mist">
+              <ShoppingBag size={20} />
+              Tu carrito está vacío.
+            </p>
           ) : (
-            <ul className="flex flex-col gap-4">
+            <ul className="space-y-3">
               {items.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-center gap-3 rounded-xl border border-nebula-border bg-nebula p-3"
+                  className="flex items-center gap-3 rounded-xl bg-nebula p-2"
                 >
-                  <div className="flex-1">
-                    <p className="font-body text-sm font-medium text-stardust">
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt=""
+                      className="h-12 w-12 rounded-lg object-cover"
+                    />
+                  )}
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
                       {item.name}
                     </p>
-                    <p className="font-body text-xs text-mist">
+                    <p className="text-xs text-mist">
                       ${item.price.toFixed(2)} c/u
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2 rounded-full border border-nebula-border px-1.5 py-1">
-                    <button
-                      onClick={() => onDecrement(item.id)}
-                      aria-label={`Quitar una unidad de ${item.name}`}
-                      className="rounded-full p-1 text-mist hover:text-stardust"
-                    >
-                      <Minus className="h-3.5 w-3.5" />
-                    </button>
-                    <span className="w-4 text-center font-body text-sm text-stardust">
-                      {item.qty}
-                    </span>
-                    <button
-                      onClick={() => onIncrement(item.id)}
-                      aria-label={`Añadir una unidad de ${item.name}`}
-                      className="rounded-full p-1 text-mist hover:text-stardust"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onDecrement(item.id)}
+                    aria-label={`Quitar una unidad de ${item.name}`}
+                    className="text-mist hover:text-white"
+                  >
+                    <Minus size={15} />
+                  </button>
+
+                  <span className="text-sm">{item.qty}</span>
 
                   <button
-                    onClick={() => onRemove(item.id)}
-                    aria-label={`Eliminar ${item.name} del carrito`}
-                    className="rounded-full p-1.5 text-mist-dim hover:text-coral"
+                    type="button"
+                    onClick={() => onIncrement(item.id)}
+                    aria-label={`Agregar una unidad de ${item.name}`}
+                    className="text-mist hover:text-white"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Plus size={15} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onRemove(item.id)}
+                    aria-label={`Eliminar ${item.name}`}
+                    className="text-coral"
+                  >
+                    <Trash2 size={15} />
                   </button>
                 </li>
               ))}
@@ -97,20 +118,30 @@ export default function CartDrawer({ open, onClose, items, onIncrement, onDecrem
           )}
         </div>
 
-        <div className="border-t border-nebula-border px-6 py-5">
-          <div className="mb-4 flex items-center justify-between">
-            <span className="font-body text-sm text-mist">Total</span>
-            <span className="font-display text-xl font-semibold text-stardust">
-              ${total.toFixed(2)}
-            </span>
+        <div className="border-t border-nebula-border p-4">
+          <p className="mb-3 flex justify-between">
+            <span>Subtotal</span>
+            <strong>${total.toFixed(2)}</strong>
+          </p>
+
+          <div className="grid gap-2">
+            <button
+              type="button"
+              onClick={() => irA("/carrito")}
+              className="w-full rounded-full border border-nebula-border py-3 text-sm font-semibold transition-colors hover:bg-nebula-light"
+            >
+              Ver carrito ({cantidad})
+            </button>
+
+            <button
+              type="button"
+              disabled={items.length === 0}
+              onClick={() => irA("/checkout")}
+              className="w-full rounded-full bg-bloom py-3 text-sm font-semibold text-bloom-ink transition-colors hover:bg-bloom-dark disabled:opacity-40"
+            >
+              Finalizar compra
+            </button>
           </div>
-          <button
-            onClick={handleCheckout}
-            disabled={items.length === 0}
-            className="w-full rounded-full bg-bloom py-3 font-body text-sm font-semibold text-bloom-ink transition-colors hover:bg-bloom-dark disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Finalizar misión de compra
-          </button>
         </div>
       </aside>
     </>
