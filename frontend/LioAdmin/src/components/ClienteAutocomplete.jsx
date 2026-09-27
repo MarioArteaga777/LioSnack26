@@ -58,9 +58,11 @@ const ClienteAutocomplete = ({
         setIsOpen(false);
         return;
       }
-      const lower = q.toLowerCase();
-      const filtered = clientes.filter((c) =>
-        c.name?.toLowerCase().includes(lower)
+      const lower = q.trim().toLowerCase();
+      const filtered = clientes.filter(
+        (c) =>
+          c.name?.toLowerCase().includes(lower) ||
+          c.email?.toLowerCase().includes(lower),
       );
       setResults(filtered);
       setIsOpen(true);
@@ -283,7 +285,41 @@ const ClienteAutocomplete = ({
                   >
                     {cliente.name?.slice(0, 2) ?? "??"}
                   </span>
-                  <HighlightMatch text={cliente.name ?? ""} query={query} />
+                  <div
+                    style={{
+                      display: "flex",
+                      minWidth: 0,
+                      flexDirection: "column",
+                      lineHeight: "1rem",
+                    }}
+                  >
+                    <span
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <HighlightMatch text={cliente.name ?? ""} query={query} />
+                    </span>
+                    {cliente.email && (
+                      <span
+                        style={{
+                          overflow: "hidden",
+                          color: "rgba(255,255,255,0.55)",
+                          fontSize: "0.7rem",
+                          lineHeight: "0.875rem",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <HighlightMatch
+                          text={cliente.email}
+                          query={query}
+                        />
+                      </span>
+                    )}
+                  </div>
                 </li>
               );
             })

@@ -9,8 +9,25 @@ import UserForm from "../forms/UserForm";
 import confirmToast from "../utils/confirmToast";
 import useFetchUsuarios from "../hooks/Users/useFetchUsuarios";
 import useUsuariosActions from "../hooks/Users/useUsuariosActions";
+import useBreakPoint from "../hooks/useBreakpoint";
 
-const USERS_PER_PAGE = 8;
+const ROWS_BY_BREAKPOINT = {
+  base: 4,
+  sm: 3,
+  md: 3,
+  lg: 3,
+  xl: 3,
+  "2xl": 2,
+};
+
+const COLUMNS_BY_BREAKPOINT = {
+  base: 1,
+  sm: 2,
+  md: 2,
+  lg: 3,
+  xl: 4,
+  "2xl": 5,
+};
 
 const Users = () => {
   const { usuarios, getUsuarios, loading } = useFetchUsuarios();
@@ -20,6 +37,10 @@ const Users = () => {
   const [detailsUser, setDetailsUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const breakpoint = useBreakPoint();
+  const columns = COLUMNS_BY_BREAKPOINT[breakpoint];
+  const rows = ROWS_BY_BREAKPOINT[breakpoint];
+  const USERS_PER_PAGE = columns * rows;
   const totalPages = Math.max(1, Math.ceil(usuarios.length / USERS_PER_PAGE));
   const paginatedUsers = useMemo(() => {
     const start = (currentPage - 1) * USERS_PER_PAGE;
@@ -126,7 +147,6 @@ const Users = () => {
         <Button text="Nuevo Usuario" icon={Plus} onClick={openCreateForm} />
       </div>
 
-
       {/* Panel de usuarios */}
       <div className="rounded-3xl bg-[#3b2d7a]/60 p-6">
         <h2 className="mb-4 border-b border-white/10 pb-3 text-xl font-semibold text-white">
@@ -134,7 +154,7 @@ const Users = () => {
         </h2>
 
         <div className="flex justify-center">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-6 gap-y-6">
+          <div className="grid grid-cols-1 justify-items-center gap-x-6 gap-y-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {paginatedUsers.length > 0 ? (
               paginatedUsers.map((user) => (
                 <UserCard
