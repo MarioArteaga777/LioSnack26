@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Sparkles, ShieldCheck, Rocket } from "lucide-react";
-import ProductVisual from "../components/ProductVisual";
 import Timeline from "../components/TimeLine";
 import CtaBanner from "../components/CtaBanner";
 
@@ -8,22 +7,26 @@ const milestones = [
   {
     year: "2018",
     title: "Nacimiento de la idea",
-    description: "Nace tras dejar un trabajo de oficina para perseguir algo propio, sin saber aún hacia dónde.",
+    description:
+      "Nace tras dejar un trabajo de oficina para perseguir algo propio, sin saber aún hacia dónde.",
   },
   {
     year: "2021",
     title: "Lanzamiento",
-    description: "Lanzamos nuestra primera línea de productos liofilizados en mercados locales.",
+    description:
+      "Lanzamos nuestra primera línea de productos liofilizados en mercados locales.",
   },
   {
     year: "2023",
     title: "Alianzas",
-    description: "Firmamos convenios con distribuidores y participamos en nuestra primera expo nacional.",
+    description:
+      "Firmamos convenios con distribuidores y participamos en nuestra primera expo nacional.",
   },
   {
     year: "Presente",
     title: "Expansión",
-    description: "Llegamos a nuevas ciudades y planeamos más de 50 puntos de venta este año.",
+    description:
+      "Llegamos a nuevas ciudades y planeamos más de 50 puntos de venta este año.",
   },
 ];
 
@@ -31,7 +34,10 @@ export default function History() {
   return (
     <>
       {/* Hero */}
-      <section id="top" className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-16">
+      <section
+        id="top"
+        className="mx-auto max-w-6xl px-5 pt-10 sm:px-8 sm:pt-16"
+      >
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_0.9fr]">
           <div className="animate-rise">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-ink px-3 py-1 font-body text-xs font-semibold text-teal">
@@ -62,7 +68,17 @@ export default function History() {
             <div className="border-b border-nebula-border px-4 py-2.5 font-body text-[11px] font-semibold uppercase tracking-wide text-teal">
               Fruta real · Crunch natural
             </div>
-            <ProductVisual planetHue="gold" moonHue="stardust" />
+
+            {/* Primera imagen: cambia únicamente esta ruta */}
+            <div className="flex items-center justify-center bg-void-soft">
+              <img
+                src="/fruta real.png"
+                alt="Frutas LioSnack"
+                className="block h-auto max-h-[460px] w-full object-contain"
+                loading="lazy"
+              />
+            </div>
+
             <p className="px-4 py-3 font-body text-xs italic text-mist">
               El sabor que el espacio no pudo cambiar.
             </p>
@@ -77,9 +93,11 @@ export default function History() {
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-nebula-light text-teal">
               <Rocket className="h-4 w-4" strokeWidth={1.75} />
             </div>
+
             <h2 className="mt-4 font-display text-xl font-semibold text-stardust">
               Nuestro futuro
             </h2>
+
             <p className="mt-2 max-w-md font-body text-sm leading-relaxed text-mist">
               Creemos que la nutrición de alto rendimiento no debe ser
               exclusiva de los astronautas. Queremos que la liofilización
@@ -87,6 +105,7 @@ export default function History() {
               este mundo.
             </p>
           </div>
+
           <div className="mt-6 flex gap-2">
             <span className="rounded-full bg-teal-ink px-3 py-1 font-body text-xs font-medium text-teal">
               Sustentable
@@ -102,13 +121,21 @@ export default function History() {
             <h2 className="font-display text-lg font-semibold text-stardust">
               Pureza Absoluta
             </h2>
+
             <p className="mt-2 font-body text-sm leading-relaxed text-mist">
               De frutas 100% liofilizadas al vacío, garantizando la máxima
               frescura y potencia de sabor en cada bocado, sin aditivos.
             </p>
           </div>
-          <div className="mt-4">
-            <ProductVisual planetHue="coral" moonHue="teal" compact />
+
+          {/* Segunda imagen: ruta independiente de la primera */}
+          <div className="mt-4 flex items-center justify-center bg-void-soft">
+            <img
+              src="ORBITA.png"
+              alt="LioSnack: pureza absoluta"
+              className="block h-auto max-h-[420px] w-full object-contain"
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
@@ -119,10 +146,12 @@ export default function History() {
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold/20 text-gold">
             <ShieldCheck className="h-5 w-5" strokeWidth={1.75} />
           </div>
+
           <div>
             <h3 className="font-display text-base font-semibold text-stardust">
               Certificación
             </h3>
+
             <p className="mt-1.5 font-body text-sm leading-relaxed text-mist">
               Nuestros productos son inspeccionados por expertos en seguridad
               alimentaria, garantizando un estándar de calidad para tu
@@ -135,16 +164,19 @@ export default function History() {
           <h3 className="font-display text-base font-semibold text-teal">
             Visión 2030
           </h3>
+
           <p className="mt-1.5 font-body text-sm leading-relaxed text-mist">
             Para el final de la década, LioSnack proyecta establecer la
             primera planta de bio-alimentos nutricionales del país, con cada
             persona sumándose al proceso.
           </p>
+
           <div className="mt-4">
             <div className="flex items-center justify-between font-body text-xs text-mist-dim">
               <span>Desarrollo actual</span>
               <span>40%</span>
             </div>
+
             <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-nebula-light">
               <div className="h-full w-[40%] rounded-full bg-teal" />
             </div>
@@ -158,10 +190,12 @@ export default function History() {
           <p className="font-body text-xs font-semibold uppercase tracking-[0.2em] text-teal">
             Trayectoria
           </p>
+
           <h2 className="mt-2 font-display text-2xl font-semibold text-stardust sm:text-3xl">
             Nuestra Trayectoria
           </h2>
         </div>
+
         <Timeline milestones={milestones} />
       </section>
 
