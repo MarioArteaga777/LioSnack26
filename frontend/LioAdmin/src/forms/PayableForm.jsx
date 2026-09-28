@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toDateInputValue, diasParaVencer } from "../utils/cuentaFormat";
+import ClienteAutocomplete from "../components/ClienteAutocomplete";
 
 const FORMAS_PAGO = ["Efectivo", "Transferencia", "Tarjeta", "Cheque"];
 const ESTADOS = ["Pendiente", "Pagado"];
@@ -18,9 +19,13 @@ const PayableForm = ({
   const dialogRef = useRef(null);
   const isEditing = Boolean(initialData);
 
+  // Estado local para el autocompletado de proveedor
+  const [proveedorId, setProveedorId] = useState("");
+  const [proveedorNombre, setProveedorNombre] = useState("");
+  const [proveedorError, setProveedorError] = useState("");
+
   const schema = yup.object().shape({
     fecha_factura: yup.string().required("La fecha de factura es requerida"),
-    proveedor: yup.string().required("El proveedor es requerido"),
     concepto_material: yup.string().notRequired(),
     monto_total: yup
       .number()
@@ -63,7 +68,6 @@ const PayableForm = ({
         fecha_factura:
           toDateInputValue(initialData?.fecha_factura) ||
           toDateInputValue(new Date()),
-        proveedor: initialData?.proveedor ?? "",
         concepto_material: initialData?.concepto_material ?? "",
         monto_total: initialData?.monto_total ?? "",
         pagos_realizados: initialData?.pagos_realizados ?? 0,
@@ -73,6 +77,10 @@ const PayableForm = ({
         estado: initialData?.estado ?? ESTADOS[0],
         notas: initialData?.notas ?? "",
       });
+      // Restaurar proveedor seleccionado al editar
+      setProveedorNombre(initialData?.proveedor ?? "");
+      setProveedorId(initialData?.proveedorId ?? "");
+      setProveedorError("");
       dialog.showModal();
     } else {
       dialog.close();
@@ -85,21 +93,34 @@ const PayableForm = ({
 
   const handleCancel = () => {
     reset();
+    setProveedorNombre("");
+    setProveedorId("");
+    setProveedorError("");
     onClose?.();
   };
 
   const submitForm = (data) => {
+    // Validar que se haya seleccionado un proveedor
+    if (!proveedorNombre.trim()) {
+      setProveedorError("El proveedor es requerido");
+      return;
+    }
     const monto_total = Number(data.monto_total);
     const pagos_realizados = Number(data.pagos_realizados || 0);
 
     onSubmit?.({
       ...data,
+      proveedor: proveedorNombre,
+      proveedorId,
       monto_total,
       pagos_realizados,
       saldo_pendiente: Math.max(monto_total - pagos_realizados, 0),
       dias_para_vencer: diasParaVencer(data.fecha_vencimiento),
     });
     reset();
+    setProveedorNombre("");
+    setProveedorId("");
+    setProveedorError("");
     onClose?.();
   };
 
@@ -152,38 +173,21 @@ const PayableForm = ({
           </div>
 
           <div>
-            <select
-              {...register("proveedor")}
-              className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none"
-            >
-              <option value="">Selecciona un proveedor</option>
-
-              {initialData?.proveedor &&
-                !proveedores.some(
-                  (proveedor) => proveedor.name === initialData.proveedor,
-                ) && (
-                  <option value={initialData.proveedor}>
-                    {initialData.proveedor}
-                  </option>
-                )}
-
-              {proveedores.map((proveedor) => (
-                <option key={proveedor._id} value={proveedor.name}>
-                  {proveedor.name}
-                </option>
-              ))}
-            </select>
-
+            <label className="mb-1 block text-sm text-white/70">Proveedor</label>
+            <ClienteAutocomplete
+              value={proveedorNombre}
+              clientes={proveedores}
+              placeholder="Buscar proveedor…"
+              error={proveedorError}
+              onSelect={(p) => {
+                setProveedorNombre(p.name ?? "");
+                setProveedorId(p._id ?? "");
+                if (p.name) setProveedorError("");
+              }}
+            />
             {proveedores.length === 0 && (
               <p className="mt-1 text-xs text-white/60">
-                No hay proveedores registrados. Créalos en la sección
-                Proveedores.
-              </p>
-            )}
-
-            {errors.proveedor && (
-              <p className="mt-1 text-sm text-red-400">
-                {errors.proveedor.message}
+                No hay proveedores registrados. Créalos en la sección Proveedores.
               </p>
             )}
           </div>

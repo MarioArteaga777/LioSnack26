@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import * as yup from "yup";
 import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import ClienteAutocomplete from "../components/ClienteAutocomplete";
 
 // Convierte una fecha (ISO de Mongo) al formato que espera
 // un input datetime-local: "YYYY-MM-DDTHH:mm" en hora local.
@@ -207,36 +208,23 @@ const OrderForm = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <select
-                {...register("cliente")}
-                className="w-full rounded-lg bg-gray-300 px-3 py-2"
-              >
-                <option value="">Selecciona un cliente</option>
-
-                {/* Preserva el valor guardado aunque ya no exista en la lista de clientes */}
-                {initialData?.cliente &&
-                  !clientes.some(
-                    (cliente) => cliente.name === initialData.cliente,
-                  ) && (
-                    <option value={initialData.cliente}>
-                      {initialData.cliente}
-                    </option>
-                  )}
-
-                {clientes.map((cliente) => (
-                  <option key={cliente._id} value={cliente.name}>
-                    {cliente.name}
-                  </option>
-                ))}
-              </select>
+              <ClienteAutocomplete
+                value={watch("cliente") ?? ""}
+                clientes={clientes}
+                placeholder="Buscar cliente…"
+                error={errors.cliente?.message}
+                onSelect={(cliente) =>
+                  setValue("cliente", cliente.name ?? "", {
+                    shouldValidate: true,
+                  })
+                }
+              />
 
               {clientes.length === 0 && (
                 <p className="mt-1 text-xs text-white/60">
                   No hay clientes registrados. Créalos en la sección Clientes.
                 </p>
               )}
-
-              <p className="text-red-400 text-sm">{errors.cliente?.message}</p>
             </div>
 
             <div>

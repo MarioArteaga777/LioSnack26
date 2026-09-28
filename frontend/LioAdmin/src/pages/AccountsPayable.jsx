@@ -9,33 +9,44 @@ import confirmToast from "../utils/confirmToast";
 import { formatFechaCuenta } from "../utils/cuentaFormat";
 import useFetchCuentasPP from "../hooks/Accounts/useFetchCuentasPP";
 import useCuentasPPActions from "../hooks/Accounts/useCuentasPPActions";
+import useFetchProveedores from "../hooks/Providers/useFetchProveedores";
 
 // Convierte una cuenta por pagar real (backend) al formato que ya
 // entienden AccountCard / AccountDetailsModal (client, amount, status...).
-const toDisplayAccount = (cuenta) => ({
-  _id: cuenta._id,
-  client: cuenta.proveedor || "Sin proveedor",
-  amount: Number(cuenta.monto_total || 0).toFixed(2),
-  pendingBalance: Number(
-    cuenta.saldo_pendiente ??
-      Math.max((cuenta.monto_total || 0) - (cuenta.pagos_realizados || 0), 0),
-  ).toFixed(2),
-  status: cuenta.estado || "Pendiente",
-  dueDate: formatFechaCuenta(cuenta.fecha_vencimiento),
-  daysLeft: cuenta.dias_para_vencer,
-  raw: cuenta,
-});
+const toDisplayAccount = (cuenta, proveedores) => {
+  const proveedorInfo = proveedores.find(
+    (proveedor) => proveedor.name === cuenta.proveedor,
+  );
+
+  return {
+    _id: cuenta._id,
+    client: cuenta.proveedor || "Sin proveedor",
+    image: proveedorInfo?.image,
+    amount: Number(cuenta.monto_total || 0).toFixed(2),
+    pendingBalance: Number(
+      cuenta.saldo_pendiente ??
+        Math.max((cuenta.monto_total || 0) - (cuenta.pagos_realizados || 0), 0),
+    ).toFixed(2),
+    status: cuenta.estado || "Pendiente",
+    dueDate: formatFechaCuenta(cuenta.fecha_vencimiento),
+    daysLeft: cuenta.dias_para_vencer,
+    raw: cuenta,
+  };
+};
 
 const AccountsPayable = () => {
   const { cuentasPP, getCuentasPP, loading } = useFetchCuentasPP();
   const { createCuentaPP, updateCuentaPP, deleteCuentaPP } =
     useCuentasPPActions();
+  const { proveedores } = useFetchProveedores();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState(null);
   const [detailsAccount, setDetailsAccount] = useState(null);
 
-  const displayAccounts = cuentasPP.map(toDisplayAccount);
+  const displayAccounts = cuentasPP.map((cuenta) =>
+    toDisplayAccount(cuenta, proveedores),
+  );
   const pagadas = displayAccounts.filter(
     (acc) => acc.status === "Pagado",
   ).length;
@@ -109,6 +120,7 @@ const AccountsPayable = () => {
         onClose={closeForm}
         onSubmit={handleSaveAccount}
         initialData={editingAccount}
+        proveedores={proveedores}
       />
 
       <AccountDetailsModal
@@ -137,6 +149,7 @@ const AccountsPayable = () => {
               key={acc._id}
               client={acc.client}
               clientLabel="Proveedor"
+              image={acc.image}
               amount={acc.amount}
               pendingBalance={acc.pendingBalance}
               status={acc.status}

@@ -11,12 +11,33 @@ import pedidosRoutes from "./src/routes/pedidos.js"
 import CuentasPCRoutes from "./src/routes/cuentasPC.js";
 import recoveryPasswordRoutes from "./src/routes/recoveryPassword.js";
 import clientsRoutes from "./src/routes/clients.js";
+import pagosRoutes from "./src/routes/pagos.js";
+import providersRoutes from "./src/routes/providers.js";
 
 const app = express();
 
+// Configurar CORS dinámicamente según el entorno
+const getCorsOrigins = () => {
+  const allowedOrigins = [
+    "https://lio-snacks.vercel.app",
+    "https://lio-snacks-admin.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+  ];
+
+  // Agregar URL adicional si está definida en variables de entorno
+  if (process.env.CORS_ORIGIN) {
+    allowedOrigins.push(process.env.CORS_ORIGIN);
+  }
+
+  return allowedOrigins;
+};
+
 app.use(
   cors({
-    origin: ["https://lio-snacks.vercel.app", "https://lio-snacks-admin.vercel.app"],
+    origin: getCorsOrigins(),
     credentials: true,
   })
 );
@@ -35,15 +56,9 @@ app.use("/api/register", registerUserRoutes)
 app.use("/api/pedidos", pedidosRoutes)
 app.use("/api/recovery-password", recoveryPasswordRoutes)
 app.use("/api/clientes", clientsRoutes)
+app.use("/api/pagos", pagosRoutes);
+app.use("/api/proveedores", providersRoutes);
 
-app.use("/api/cuentasPorCobrar", CuentasPCRoutes);
-app.use("/api/cuentasPorPagar", CuentasPPRoutes);
-
-app.use("/api/login", loginRoutes);
-app.use("/api/usuarios", userRoutes);
-app.use("/api/register", registerUserRoutes);
-
-// 404 handler (IMPORTANTE)
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });

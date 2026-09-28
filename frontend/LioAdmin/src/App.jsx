@@ -19,6 +19,7 @@ import AccountsReceivable from "./pages/AccountsReceivable.jsx";
 import Profile from "./pages/Profile.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import PrivateRoute from "./hooks/PrivateRoute.jsx";
+import Providers from "./pages/Providers.jsx";
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
               <Route path="/orders" element={<Orders />} />
               <Route path="/production" element={<Production />} />
               <Route path="/customers" element={<Customers />} />
+              <Route path="/providers" element={<Providers />} />
               <Route path="/users" element={<Users />} />
               <Route path="/sales/payable" element={<AccountsPayable />} />
               <Route

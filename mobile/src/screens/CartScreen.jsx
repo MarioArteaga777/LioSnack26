@@ -97,6 +97,12 @@ export default function CartScreen({ navigation }) {
                   {formatPrice(totals.subtotal)}
                 </Text>
               </View>
+              <Pressable 
+                onPress={() => navigation.navigate('Checkout')}
+                style={styles.checkoutButton}
+              >
+                <Text style={styles.checkoutButtonText}>Proceder al pago</Text>
+              </Pressable>
             </View>
           ) : null
         }
@@ -169,6 +175,15 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: "#F0E2D8", marginVertical: 10 },
   grandLabel: { fontSize: 18, fontWeight: "800", color: "#3E2520" },
   grandTotal: { fontSize: 20, fontWeight: "800", color: "#D3543C" },
+  checkoutButton: {
+    marginTop: 16,
+    minHeight: 48,
+    borderRadius: 10,
+    backgroundColor: "#D3543C",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkoutButtonText: { color: "#FFF", fontWeight: "800", fontSize: 16 },
   empty: { alignItems: "center", padding: 24 },
   emptyIcon: { fontSize: 42 },
   emptyTitle: {

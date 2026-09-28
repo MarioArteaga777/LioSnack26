@@ -38,4 +38,9 @@ export const pedidosApi = {
   create: (payload) => request("/pedidos/insert", { method: "POST", body: payload }),
 };
 
+export const productosApi = {
+  getAll: () => request("/productos"),
+  getById: (id) => request(`/productos/${id}`),
+};
+
 export default request;

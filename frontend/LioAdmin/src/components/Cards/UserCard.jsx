@@ -32,7 +32,7 @@ const UserCard = ({
   return (
     <div
       ref={containerRef}
-      className={`group relative w-64 rounded-2xl p-4 shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 hover:ring-1 hover:ring-sky-400/40 ${
+      className={`group relative w-62 rounded-2xl p-4 shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40 hover:ring-1 hover:ring-sky-400/40 ${
         isVerified ? "bg-[#2a1f5e]" : "bg-rose-800"
       }`}
     >

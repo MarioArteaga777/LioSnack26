@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     width: width * 0.8,
     height: width * 0.8,
     borderRadius: (width * 0.8) / 2,
-    backgroundColor: "rgba(245, 168, 202, 0.08)",
+    backgroundColor: "rgba(177, 216, 252, 0.08)",
   },
   glowCircleBottom: {
     position: "absolute",

@@ -96,7 +96,7 @@ const OrderDetailsModal = ({ id, pedido, onClose }) => {
           <p className="text-gray-400 text-sm mb-2">Productos</p>
 
           <div className="rounded-xl bg-[#2A1F5E] overflow-hidden">
-            <div className="grid grid-cols-4 gap-2 px-4 py-2 text-xs font-semibold text-white/70 border-b border-white/10">
+            <div className="grid grid-cols-4 gap-10 px-4 py-2 text-xs font-semibold text-white/70 border-b border-white/10">
               <span>SKU</span>
               <span>Producto</span>
               <span className="text-right">Cantidad</span>
@@ -107,7 +107,7 @@ const OrderDetailsModal = ({ id, pedido, onClose }) => {
               pedido.items.map((item, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-4 gap-2 px-4 py-2 text-sm text-white"
+                  className="grid grid-cols-4 gap-28  px-4 py-2 text-sm text-white"
                 >
                   <span>{item.sku || "-"}</span>
                   <span>{item.producto}</span>

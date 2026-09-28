@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toDateInputValue } from "../utils/cuentaFormat";
+import ClienteAutocomplete from "../components/ClienteAutocomplete";
 
 const FORMAS_COBRO = ["Efectivo", "Transferencia", "Tarjeta", "Cheque"];
 
@@ -17,9 +18,13 @@ const ReceivableForm = ({
   const dialogRef = useRef(null);
   const isEditing = Boolean(initialData);
 
+  // Estado local para el autocompletado de cliente
+  const [clienteId, setClienteId] = useState("");
+  const [clienteNombre, setClienteNombre] = useState("");
+  const [clienteError, setClienteError] = useState("");
+
   const schema = yup.object().shape({
     fecha_factura: yup.string().required("La fecha de factura es requerida"),
-    cliente: yup.string().required("El cliente es requerido"),
     sku_descripcion: yup.string().notRequired(),
     fecha_vencimiento: yup.string().required("La fecha de vencimiento es requerida"),
     monto_facturado: yup
@@ -54,7 +59,6 @@ const ReceivableForm = ({
     if (isOpen) {
       reset({
         fecha_factura: toDateInputValue(initialData?.fecha_factura) || toDateInputValue(new Date()),
-        cliente: initialData?.cliente ?? "",
         sku_descripcion: initialData?.sku_descripcion ?? "",
         fecha_vencimiento: toDateInputValue(initialData?.fecha_vencimiento) ?? "",
         monto_facturado: initialData?.monto_facturado ?? "",
@@ -62,6 +66,10 @@ const ReceivableForm = ({
         forma_cobro: initialData?.forma_cobro ?? FORMAS_COBRO[0],
         notas: initialData?.notas ?? "",
       });
+      // Restaurar cliente seleccionado al editar
+      setClienteNombre(initialData?.cliente ?? "");
+      setClienteId(initialData?.clienteId ?? "");
+      setClienteError("");
       dialog.showModal();
     } else {
       dialog.close();
@@ -74,16 +82,29 @@ const ReceivableForm = ({
 
   const handleCancel = () => {
     reset();
+    setClienteNombre("");
+    setClienteId("");
+    setClienteError("");
     onClose?.();
   };
 
   const submitForm = (data) => {
+    // Validar que se haya seleccionado un cliente
+    if (!clienteNombre.trim()) {
+      setClienteError("El cliente es requerido");
+      return;
+    }
     onSubmit?.({
       ...data,
+      cliente: clienteNombre,
+      clienteId,
       monto_facturado: Number(data.monto_facturado),
       abono: Number(data.abono || 0),
     });
     reset();
+    setClienteNombre("");
+    setClienteId("");
+    setClienteError("");
     onClose?.();
   };
 
@@ -127,32 +148,22 @@ const ReceivableForm = ({
           </div>
 
           <div>
-            <select
-              {...register("cliente")}
-              className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none"
-            >
-              <option value="">Selecciona un cliente</option>
-
-              {initialData?.cliente &&
-                !clientes.some((cliente) => cliente.name === initialData.cliente) && (
-                  <option value={initialData.cliente}>{initialData.cliente}</option>
-                )}
-
-              {clientes.map((cliente) => (
-                <option key={cliente._id} value={cliente.name}>
-                  {cliente.name}
-                </option>
-              ))}
-            </select>
-
+            <label className="mb-1 block text-sm text-white/70">Cliente</label>
+            <ClienteAutocomplete
+              value={clienteNombre}
+              clientes={clientes}
+              placeholder="Buscar cliente…"
+              error={clienteError}
+              onSelect={(c) => {
+                setClienteNombre(c.name ?? "");
+                setClienteId(c._id ?? "");
+                if (c.name) setClienteError("");
+              }}
+            />
             {clientes.length === 0 && (
               <p className="mt-1 text-xs text-white/60">
                 No hay clientes registrados. Créalos en la sección Clientes.
               </p>
-            )}
-
-            {errors.cliente && (
-              <p className="mt-1 text-sm text-red-400">{errors.cliente.message}</p>
             )}
           </div>
 

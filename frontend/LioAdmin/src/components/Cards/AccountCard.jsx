@@ -12,12 +12,12 @@ import EntityActionsMenu from "./EntityActionsMenu";
 const statusColors = {
   Cobrado: "bg-sky-200 text-sky-900",
   Pagado: "bg-sky-200 text-sky-900",
-  Pendiente: "bg-rose-600 text-white",
+  Pendiente: "bg-rose-950 text-white",
 };
 
 const cardColors = {
-  Cobrado: "bg-sky-100",
-  Pagado: "bg-sky-100",
+  Cobrado: "bg-blue-300",
+  Pagado: "bg-blue-300",
   Pendiente: "bg-rose-600",
 };
 
@@ -86,7 +86,7 @@ const AccountCard = ({
       {/* Nombre del cliente */}
       <div
         className={`mb-3 rounded-full px-4 py-1.5 text-center ${
-          isPending ? "bg-rose-950" : "bg-white"
+          isPending ? "bg-rose-950" : "bg-sky-200"
         }`}
       >
         <span
@@ -113,14 +113,14 @@ const AccountCard = ({
         )}
         <div className="flex flex-123 flex-col gap-2">
           <span
-            className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${pillClass}`}
+            className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${statusColors[status]}`}
           >
             <Banknote className="h-3 w-3" /> Monto: ${amount}
           </span>
 
           {pendingBalance !== undefined && (
             <span
-              className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${pillClass}`}
+              className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${statusColors[status]}`}
             >
               <Clock className="h-3 w-3" /> Saldo pendiente: ${pendingBalance}
             </span>
@@ -134,7 +134,7 @@ const AccountCard = ({
 
           {showProducts && (
             <span
-              className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${pillClass}`}
+              className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${statusColors[status]}`}
             >
               <Package className="h-3 w-3" /> {productsLabel}
             </span>
@@ -144,7 +144,7 @@ const AccountCard = ({
 
       {/* Fecha */}
       <div
-        className={`mb-2 flex items-center gap-1 rounded-full px-3 py-1.5 text-xs ${pillClass}`}
+        className={`mb-2 flex items-center gap-1 rounded-full px-3 py-1.5 text-xs ${statusColors[status]}`}
       >
         <Clock className="h-3 w-3" /> Fecha de vencimiento: {dueDateLabel}
       </div>
