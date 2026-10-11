@@ -32,6 +32,11 @@ export const authApi = {
   resendCode: (payload) => request("/register/resendCode", { method: "POST", body: payload }),
   login: (payload) => request("/login", { method: "POST", body: payload }),
   logout: () => request("/logout", { method: "POST" }),
+
+  // Recuperación de contraseña
+  requestRecoveryCode: (payload) => request("/recovery-password/requestCode", { method: "POST", body: payload }),
+  verifyRecoveryCode: (payload) => request("/recovery-password/verifyCode", { method: "POST", body: payload }),
+  setNewPassword: (payload) => request("/recovery-password/newPassword", { method: "POST", body: payload }),
 };
 
 export const pedidosApi = {

@@ -13,6 +13,7 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const justVerified = location.state?.justVerified;
+  const passwordReset = location.state?.passwordReset;
   const redirectTo = location.state?.from || "/";
 
   function handleChange(e) {
@@ -56,7 +57,13 @@ export default function Login() {
 
         {justVerified && (
           <p className="mt-3 rounded-lg border border-teal/30 bg-teal/10 px-3 py-2 font-body text-xs text-teal">
-            Cuenta verificada. Ahora puedes iniciar sesión.
+            ✓ Cuenta verificada. Ahora puedes iniciar sesión.
+          </p>
+        )}
+
+        {passwordReset && (
+          <p className="mt-3 rounded-lg border border-teal/30 bg-teal/10 px-3 py-2 font-body text-xs text-teal">
+            🔐 Contraseña actualizada. Inicia sesión con tu nueva contraseña.
           </p>
         )}
 
@@ -82,6 +89,16 @@ export default function Login() {
               className="w-full rounded-lg border border-nebula-border bg-nebula px-3 py-2.5 font-body text-sm text-stardust outline-none transition-colors focus:border-bloom"
             />
           </label>
+
+          {/* Link ¿Olvidaste tu contraseña? */}
+          <div className="flex justify-end">
+            <a
+              href="#/recuperar"
+              className="font-body text-xs text-mist-dim underline decoration-dotted transition-colors hover:text-mist"
+            >
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
 
           {error && <p className="font-body text-sm text-coral">{error}</p>}
 
