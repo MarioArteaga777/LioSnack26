@@ -16,6 +16,25 @@ const cookieOptions = {
   maxAge: 15 * 60 * 1000,
 };
 
+/**
+ * Extrae el token de recuperación desde la cookie (web) o desde el header
+ * Authorization: Bearer <token> (apps móviles, que no soportan cookies).
+ * @param {import("express").Request} req
+ * @returns {string|null}
+ */
+function extractRecoveryToken(req) {
+  // 1. Prioridad: cookie (flujo web normal)
+  if (req.cookies?.recoveryCookie) {
+    return req.cookies.recoveryCookie;
+  }
+  // 2. Fallback: Authorization header (flujo móvil)
+  const authHeader = req.headers["authorization"];
+  if (authHeader?.startsWith("Bearer ")) {
+    return authHeader.slice(7);
+  }
+  return null;
+}
+
 recoveryPasswordController.requestCode = async (req, res) => {
   try {
     const { email } = req.body;
@@ -40,6 +59,7 @@ recoveryPasswordController.requestCode = async (req, res) => {
       { expiresIn: "15m" },
     );
 
+    // Cookie para clientes web
     res.cookie("recoveryCookie", token, cookieOptions);
 
     try {
@@ -49,14 +69,15 @@ recoveryPasswordController.requestCode = async (req, res) => {
       return res.status(500).json({ message: "Error al enviar correo" });
     }
 
-    return res.status(200).json({ message: "email sent" });
+    // También devolvemos el token en el body para clientes móviles
+    // que no pueden acceder al header Set-Cookie
+    return res.status(200).json({ message: "email sent", recoveryToken: token });
   } catch (error) {
     console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-// verifyCode y newPassword quedan exactamente igual, no usan correo
 recoveryPasswordController.verifyCode = async (req, res) => {
   try {
     const { code } = req.body;
@@ -65,7 +86,7 @@ recoveryPasswordController.verifyCode = async (req, res) => {
       return res.status(400).json({ message: "El código es requerido" });
     }
 
-    const token = req.cookies.recoveryCookie;
+    const token = extractRecoveryToken(req);
     if (!token) {
       return res.status(400).json({ message: "Solicita un nuevo código de recuperación" });
     }
@@ -87,9 +108,11 @@ recoveryPasswordController.verifyCode = async (req, res) => {
       { expiresIn: "15m" },
     );
 
+    // Cookie para clientes web
     res.cookie("recoveryCookie", newToken, cookieOptions);
 
-    return res.status(200).json({ message: "Code verified successfully" });
+    // Token en body para clientes móviles
+    return res.status(200).json({ message: "Code verified successfully", recoveryToken: newToken });
   } catch (error) {
     console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });
@@ -104,7 +127,7 @@ recoveryPasswordController.newPassword = async (req, res) => {
       return res.status(400).json({ message: "Las contraseñas no coinciden" });
     }
 
-    const token = req.cookies.recoveryCookie;
+    const token = extractRecoveryToken(req);
     if (!token) {
       return res.status(400).json({ message: "Solicita un nuevo código de recuperación" });
     }

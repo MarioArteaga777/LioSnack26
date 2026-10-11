@@ -22,6 +22,7 @@ export default function LoginScreen({ navigation, route }) {
   const [error, setError] = useState("");
 
   const justVerified = route?.params?.justVerified;
+  const passwordReset = route?.params?.passwordReset;
 
   const handleSubmit = async () => {
     setError("");
@@ -68,6 +69,15 @@ export default function LoginScreen({ navigation, route }) {
             </View>
           )}
 
+          {/* Password reset banner */}
+          {passwordReset && (
+            <View style={styles.verifiedBanner}>
+              <Text style={styles.verifiedText}>
+                🔐 Contraseña actualizada. Inicia sesión con tu nueva contraseña.
+              </Text>
+            </View>
+          )}
+
           {/* Form */}
           <View style={styles.form}>
             <View style={styles.fieldGroup}>
@@ -105,6 +115,15 @@ export default function LoginScreen({ navigation, route }) {
                 </Pressable>
               </View>
             </View>
+
+            {/* Forgot password link */}
+            <Pressable
+              onPress={() => navigation.navigate("ForgotPassword")}
+              style={styles.forgotButton}
+              hitSlop={6}
+            >
+              <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
+            </Pressable>
 
             {/* Error message */}
             {!!error && (
@@ -312,5 +331,13 @@ const styles = StyleSheet.create({
     color: COLORS.bloom,
     fontSize: 14,
     fontWeight: "700",
+  },
+  forgotButton: {
+    alignSelf: "flex-end",
+  },
+  forgotText: {
+    color: COLORS.mistDim,
+    fontSize: 13,
+    fontWeight: "500",
   },
 });
