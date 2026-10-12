@@ -26,6 +26,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import VerifyRecovery from "./pages/VerifyRecovery";
 import NewPassword from "./pages/NewPassword";
 import Checkout from "./pages/Checkout";
+import MyOrders from "./pages/MyOrders";
 import PaymentStatus from "./pages/PaymentStatus";
 import CartPage from "./pages/cartPage";
 import NotFound from "./pages/NotFound";
@@ -114,6 +115,7 @@ function AppShell() {
 
             {/* Formulario de datos de compra */}
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/mis-pedidos" element={<MyOrders />} />
 
             <Route path="/pago/:id" element={<PaymentStatus />} />
             <Route path="*" element={<NotFound />} />

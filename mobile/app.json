@@ -27,7 +27,13 @@
       "favicon": "./assets/logo.png"
     },
     "plugins": [
-      "expo-status-bar"
-    ]
+      "expo-status-bar",
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "ef0a65a2-0b84-4998-830a-d6ecf60b29b2"
+      }
+    }
   }
 }

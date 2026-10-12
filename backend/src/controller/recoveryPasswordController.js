@@ -16,6 +16,13 @@ const cookieOptions = {
   maxAge: 15 * 60 * 1000,
 };
 
+const signRecoveryToken = (email, recoveryTokenId, verified = false) =>
+  jsonbwebtoken.sign(
+    { email, recoveryTokenId, userType: "User", verified },
+    config.JWT.secret,
+    { expiresIn: "15m" },
+  );
+
 /**
  * Extrae el token de recuperación desde la cookie (web) o desde el header
  * Authorization: Bearer <token> (apps móviles, que no soportan cookies).
@@ -23,14 +30,14 @@ const cookieOptions = {
  * @returns {string|null}
  */
 function extractRecoveryToken(req) {
-  // 1. Prioridad: cookie (flujo web normal)
-  if (req.cookies?.recoveryCookie) {
-    return req.cookies.recoveryCookie;
-  }
-  // 2. Fallback: Authorization header (flujo móvil)
+  // Prefer Bearer tokens so cross-site web requests don't depend on cookies.
   const authHeader = req.headers["authorization"];
   if (authHeader?.startsWith("Bearer ")) {
     return authHeader.slice(7);
+  }
+  // Cookie fallback for existing web clients.
+  if (req.cookies?.recoveryCookie) {
+    return req.cookies.recoveryCookie;
   }
   return null;
 }
@@ -43,7 +50,7 @@ recoveryPasswordController.requestCode = async (req, res) => {
       return res.status(400).json({ message: "El correo es requerido" });
     }
 
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
 
     const userFound = await userModel.findOne({ email: normalizedEmail });
 
@@ -52,15 +59,11 @@ recoveryPasswordController.requestCode = async (req, res) => {
     }
 
     const randomCode = crypto.randomInt(100000, 1000000).toString();
-
-    const token = jsonbwebtoken.sign(
-      { email: normalizedEmail, randomCode, userType: "User", verified: false },
-      config.JWT.secret,
-      { expiresIn: "15m" },
-    );
-
-    // Cookie para clientes web
-    res.cookie("recoveryCookie", token, cookieOptions);
+    const recoveryTokenId = crypto.randomBytes(32).toString("hex");
+    userFound.recoveryCodeHash = await bcrypt.hash(randomCode, 10);
+    userFound.recoveryCodeExpires = new Date(Date.now() + cookieOptions.maxAge);
+    userFound.recoveryTokenId = recoveryTokenId;
+    await userFound.save();
 
     try {
       await sendEmail(normalizedEmail, "Código de recuperación de contraseña", HTMLRecoveryEmail(randomCode));
@@ -68,6 +71,9 @@ recoveryPasswordController.requestCode = async (req, res) => {
       console.log("mail error:", mailError.message);
       return res.status(500).json({ message: "Error al enviar correo" });
     }
+
+    const token = signRecoveryToken(normalizedEmail, recoveryTokenId);
+    res.cookie("recoveryCookie", token, cookieOptions);
 
     // También devolvemos el token en el body para clientes móviles
     // que no pueden acceder al header Set-Cookie
@@ -98,15 +104,31 @@ recoveryPasswordController.verifyCode = async (req, res) => {
       return res.status(400).json({ message: "El código expiró, solicita uno nuevo" });
     }
 
-    if (String(code) !== decoded.randomCode) {
+    if (!decoded.recoveryTokenId || decoded.verified) {
+      return res.status(400).json({ message: "Solicita un nuevo código de recuperación" });
+    }
+
+    const userFound = await userModel.findOne({ email: decoded.email });
+    if (
+      !userFound
+      || userFound.recoveryTokenId !== decoded.recoveryTokenId
+      || !userFound.recoveryCodeHash
+      || !userFound.recoveryCodeExpires
+      || userFound.recoveryCodeExpires.getTime() < Date.now()
+    ) {
+      return res.status(400).json({ message: "El código expiró, solicita uno nuevo" });
+    }
+
+    const isMatch = await bcrypt.compare(String(code), userFound.recoveryCodeHash);
+    if (!isMatch) {
       return res.status(400).json({ message: "Código inválido" });
     }
 
-    const newToken = jsonbwebtoken.sign(
-      { email: decoded.email, userType: "User", verified: true },
-      config.JWT.secret,
-      { expiresIn: "15m" },
-    );
+    userFound.recoveryCodeHash = null;
+    userFound.recoveryCodeExpires = null;
+    await userFound.save();
+
+    const newToken = signRecoveryToken(decoded.email, decoded.recoveryTokenId, true);
 
     // Cookie para clientes web
     res.cookie("recoveryCookie", newToken, cookieOptions);
@@ -143,13 +165,17 @@ recoveryPasswordController.newPassword = async (req, res) => {
       return res.status(400).json({ message: "Debes verificar el código antes de continuar" });
     }
 
-    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const userFound = await userModel.findOne({ email: decoded.email });
+    if (!userFound || userFound.recoveryTokenId !== decoded.recoveryTokenId) {
+      return res.status(400).json({ message: "La sesión de recuperación expiró, solicita un nuevo código" });
+    }
 
-    await userModel.findOneAndUpdate(
-      { email: decoded.email },
-      { password: passwordHash },
-      { new: true },
-    );
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    userFound.password = passwordHash;
+    userFound.recoveryTokenId = null;
+    userFound.recoveryCodeHash = null;
+    userFound.recoveryCodeExpires = null;
+    await userFound.save();
 
     res.clearCookie("recoveryCookie");
 

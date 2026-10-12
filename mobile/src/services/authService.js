@@ -27,6 +27,16 @@ const recoveryTokenStore = {
   },
 };
 
+let accessToken = null;
+
+function setAccessToken(token) {
+  accessToken = token || null;
+}
+
+function getAccessTokenHeader() {
+  return accessToken ? `Bearer ${accessToken}` : null;
+}
+
 /**
  * Función auxiliar para hacer peticiones POST al servidor.
  * Maneja errores de red y parseo de JSON automáticamente.
@@ -91,8 +101,12 @@ export const authService = {
    * @throws {Error} Si las credenciales son inválidas
    */
   login: async ({ email, password }) => {
-    return authRequest("/login", { email: email.trim().toLowerCase(), password });
+    const data = await authRequest("/login", { email: email.trim().toLowerCase(), password });
+    setAccessToken(data?.accessToken);
+    return data;
   },
+  setAccessToken,
+  getAccessTokenHeader,
 
   /**
    * Registra un nuevo usuario

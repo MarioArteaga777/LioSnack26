@@ -52,7 +52,7 @@ export default function ForgotPassword() {
           restablecer tu contraseña.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+        <form noValidate onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
           <label className="block">
             <span className="mb-1 block font-body text-xs font-medium text-mist">
               Correo electrónico

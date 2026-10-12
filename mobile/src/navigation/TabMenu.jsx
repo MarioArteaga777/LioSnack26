@@ -4,6 +4,7 @@ import CartScreen from '../screens/CartScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import ProductsScreen from '../screens/ProductsScreen';
 import HomeScreen from '../screens/HomeScreen';
+import MyOrdersScreen from '../screens/MyOrdersScreen';
 import { COLORS } from '../utils/theme';
 
 const Drawer = createDrawerNavigator();
@@ -61,6 +62,11 @@ export default function TabMenu() {
         name="Products"
         component={ProductsScreen}
         options={{ drawerLabel: '🪐 Productos' }}
+      />
+      <Drawer.Screen
+        name="Orders"
+        component={MyOrdersScreen}
+        options={{ drawerLabel: '📦 Mis pedidos' }}
       />
       <Drawer.Screen
         name="Cart"

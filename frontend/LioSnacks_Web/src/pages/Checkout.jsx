@@ -62,12 +62,7 @@ export default function Checkout() {
 
     setSubmitting(true);
     try {
-      await pedidosApi.create({
-        fecha_pedido: new Date().toISOString(),
-        cliente: `${user.name} ${user.lastName}`,
-        cliente_email: user.email,
-        punto_de_venta: "Tienda en línea",
-        vendedor_asignado: "Web",
+      await pedidosApi.createMine({
         items: cart.map((item) => ({
           sku: item.id,
           producto: item.name,
@@ -75,7 +70,6 @@ export default function Checkout() {
           precio_unitario: item.price,
         })),
         total_pedido: cartTotal,
-        estado_pedido: "Pendiente",
         direccion_entrega: form.direccion,
         telefono: form.telefono,
         metodo_pago: form.metodoPago,

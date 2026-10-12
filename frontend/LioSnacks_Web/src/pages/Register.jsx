@@ -217,6 +217,19 @@ export default function Register() {
               >
                 Reenviar código
               </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setStep("form");
+                  setCode("");
+                  setError("");
+                  setInfo("");
+                }}
+                className="font-body text-xs text-mist underline decoration-dotted hover:text-stardust"
+              >
+                Modificar mis datos
+              </button>
             </form>
           </>
         )}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShoppingCart, User, LogOut, Menu, X } from "lucide-react";
+import { ShoppingCart, User, LogOut, Menu, X, Package } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CartDrawer from "./CartDrawer";
@@ -126,6 +126,14 @@ export default function Navbar({
 
               {menuOpen && (
                 <div className="absolute right-0 top-full mt-2 w-44 rounded-xl border border-nebula-border bg-void-soft/95 p-2 shadow-xl backdrop-blur-md">
+                  <NavLink
+                    to="/mis-pedidos"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 font-body text-sm text-mist hover:bg-nebula-light hover:text-stardust"
+                  >
+                    <Package className="h-4 w-4" />
+                    Mis pedidos
+                  </NavLink>
                   <button
                     type="button"
                     onClick={handleLogout}
