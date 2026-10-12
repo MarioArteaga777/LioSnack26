@@ -8,6 +8,8 @@ import useFetchUsuarios from "../hooks/Users/useFetchUsuarios";
 import useFetchProductos from "../hooks/Products/useFetchProductos";
 import useFetchProduction from "../hooks/Production/useFetchProduction";
 import useAuth from "../hooks/useAuth";
+import { useGlobalSearch } from "../context/SearchContext";
+import filterItems from "../utils/filterItems";
 
 // Cuántos pedidos recientes caben en el panel de inicio
 const RECENT_ORDERS_LIMIT = 6;
@@ -19,6 +21,7 @@ const Home = () => {
   const { productos } = useFetchProductos();
   const { productions } = useFetchProduction();
   const [detailsPedido, setDetailsPedido] = useState(null);
+  const { query } = useGlobalSearch();
 
   const verifiedUsers = usuarios.filter((usuario) => usuario.isVerified).length;
 
@@ -59,7 +62,16 @@ const Home = () => {
   ];
 
   // Pedidos ordenados del más reciente al más antiguo, solo los que caben en el panel
-  const recentOrders = [...pedidos]
+  const matchingOrders = filterItems([...pedidos], query, (pedido) => [
+    pedido.cliente,
+    pedido.estado_pedido,
+    pedido.punto_de_venta,
+    pedido.fecha_pedido,
+    pedido.total_pedido,
+    pedido.observaciones,
+    ...(pedido.items || []).flatMap((item) => [item.producto, item.sku]),
+  ]);
+  const recentOrders = matchingOrders
     .sort((a, b) => new Date(b.fecha_pedido) - new Date(a.fecha_pedido))
     .slice(0, RECENT_ORDERS_LIMIT);
 
@@ -101,7 +113,11 @@ const Home = () => {
             ))}
           </div>
         ) : (
-          <p className="text-white/70">Aún no hay pedidos registrados.</p>
+          <p className="text-white/70">
+            {query && pedidos.length > 0
+              ? "No hay pedidos recientes que coincidan con la búsqueda."
+              : "Aún no hay pedidos registrados."}
+          </p>
         )}
       </div>
     </div>

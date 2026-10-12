@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { PackageCheck, Plus } from "lucide-react";
 import { toast } from "sonner";
 import ProductCard from "../components/Cards/ProductCard";
 import Button from "../components/Button";
@@ -8,11 +8,23 @@ import confirmToast from "../utils/confirmToast";
 import useFetchProductos from "../hooks/Products/useFetchProductos";
 import useProductosActions from "../hooks/Products/useProductosActions";
 import ProductDetailsModal from "../components/ProductDetailsModal";
+import Pagination from "../components/Pagination";
+import usePagination from "../hooks/usePagination";
+import { useGlobalSearch } from "../context/SearchContext";
+import filterItems from "../utils/filterItems";
+import EmptyState from "../components/EmptyState";
 const Products = () => {
   const { productos, setProductos, getProductos, loading } =
     useFetchProductos();
   const { createProducto, updateProducto, deleteProducto } =
     useProductosActions();
+  const { query } = useGlobalSearch();
+  const filteredProducts = filterItems(productos, query, (product) => [
+    product.Nombre,
+    product.SKU,
+    product.Precio,
+  ]);
+  const { currentPage, setCurrentPage, totalPages, pageItems } = usePagination(filteredProducts, 10, query);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [detailsProduct, setDetailsProduct] = useState(null);
@@ -115,9 +127,9 @@ const Products = () => {
       </div>
 
       {/* Listado de productos en formato grilla */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-7 ">
-        {productos.length > 0 ? (
-          productos.map((product) => (
+      <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] justify-items-center gap-7">
+        {filteredProducts.length > 0 ? (
+          pageItems.map((product) => (
             <ProductCard
               key={product._id}
               id={product._id}
@@ -128,13 +140,27 @@ const Products = () => {
               onUpdate={() => openUpdateForm(product)}
               onDetails={() => setDetailsProduct(product)}
               onDelete={() => handleDelete(product)}
-              className="mx-2"
             />
           ))
+        ) : productos.length > 0 ? (
+          <p className="text-white">
+            No hay productos que coincidan con la búsqueda.
+          </p>
         ) : (
-          <p className="text-white">No hay productos disponibles</p>
+          <EmptyState
+            icon={PackageCheck}
+            title="Aún no hay productos registrados"
+            description="Agrega un producto para comenzar a administrar el catálogo desde aquí."
+            actionLabel="Registrar producto"
+            onAction={openCreateForm}
+          />
         )}
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };

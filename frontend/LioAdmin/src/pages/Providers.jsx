@@ -7,10 +7,25 @@ import ProviderForm from "../forms/ProviderForm";
 import confirmToast from "../utils/confirmToast";
 import useFetchProveedores from "../hooks/Providers/useFetchProveedores";
 import useProveedoresActions from "../hooks/Providers/useProveedoresActions";
+import Pagination from "../components/Pagination";
+import usePagination from "../hooks/usePagination";
+import { useGlobalSearch } from "../context/SearchContext";
+import filterItems from "../utils/filterItems";
+import EmptyState from "../components/EmptyState";
 
 const Providers = () => {
   const { proveedores, getProveedores, loading } = useFetchProveedores();
   const { createProveedor, updateProveedor, deleteProveedor } = useProveedoresActions();
+  const { query } = useGlobalSearch();
+  const filteredProviders = filterItems(proveedores, query, (provider) => [
+    provider.name,
+    provider.lastName,
+    provider.type,
+    provider.email,
+    provider.phone,
+    provider.address,
+  ]);
+  const { currentPage, setCurrentPage, totalPages, pageItems } = usePagination(filteredProviders, 12, query);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProvider, setEditingProvider] = useState(null);
   const [detailsProvider, setDetailsProvider] = useState(null);
@@ -98,9 +113,9 @@ const Providers = () => {
         <Button text="Nuevo Proveedor" icon={Plus} onClick={openCreateForm} />
       </div>
 
-      {proveedores.length > 0 ? (
+      {filteredProviders.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {proveedores.map((provider) => (
+          {pageItems.map((provider) => (
             <ProviderCard
               key={provider._id}
               name={provider.name}
@@ -115,30 +130,24 @@ const Providers = () => {
             />
           ))}
         </div>
+      ) : proveedores.length > 0 ? (
+        <p className="rounded-xl border border-white/10 bg-white/5 px-5 py-10 text-center text-white/70">
+          No se encontraron proveedores con esa búsqueda.
+        </p>
       ) : (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-white/15 bg-white/5 px-6 py-20 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/10">
-            <Truck className="h-10 w-10 text-white/60" />
-          </div>
-
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-white">
-              Aún no hay proveedores registrados
-            </h2>
-            <p className="max-w-sm text-sm text-white/60">
-              Cuando registres un proveedor, empresa o persona, aparecerá aquí
-              con sus datos de contacto.
-            </p>
-          </div>
-
-          <Button
-            text="Registrar Proveedor"
-            icon={Plus}
-            size="md"
-            onClick={openCreateForm}
-          />
-        </div>
+        <EmptyState
+          icon={Truck}
+          title="Aún no hay proveedores registrados"
+          description="Cuando registres un proveedor, empresa o persona, aparecerá aquí con sus datos de contacto."
+          actionLabel="Registrar proveedor"
+          onAction={openCreateForm}
+        />
       )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };

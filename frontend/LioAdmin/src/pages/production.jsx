@@ -12,11 +12,28 @@ import confirmToast from "../utils/confirmToast";
 import ProductionDetailsModal from "../components/ProductionDetailsModal";
 import useFetchProduction from "../hooks/Production/useFetchProduction";
 import useProductionActions from "../hooks/Production/useProductionActions";
+import Pagination from "../components/Pagination";
+import usePagination from "../hooks/usePagination";
+import { useGlobalSearch } from "../context/SearchContext";
+import filterItems from "../utils/filterItems";
+import EmptyState from "../components/EmptyState";
+import { Boxes } from "lucide-react";
 const Production = () => {
   const { productions, getProductions, loading } = useFetchProduction();
 
   const { createProduction, updateProduction, deleteProduction } =
     useProductionActions();
+  const { query } = useGlobalSearch();
+  const filteredProductions = filterItems(productions, query, (production) => [
+    production.SKU,
+    production.Estado,
+    production.HoraInicio,
+    production.HoraFinalizacion,
+    production.BolsasEsperadas,
+    production.BolsasObtenidas,
+    production.KG,
+  ]);
+  const { currentPage, setCurrentPage, totalPages, pageItems } = usePagination(filteredProductions, 12, query);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -134,11 +151,11 @@ const Production = () => {
         <Button text="Nueva Producción" icon={Plus} onClick={openCreateForm} />
       </div>
 
-      <div className="flex justify-center">
+      <div className="w-full">
         {/* Listado de registros de producción en formato grilla */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {productions.length > 0 ? (
-            productions.map((production) => (
+        <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+          {filteredProductions.length > 0 ? (
+            pageItems.map((production) => (
               <ProductionCard
                 key={production._id}
                 sku={production.SKU}
@@ -156,13 +173,28 @@ const Production = () => {
             ))
           ) : (
             <div className="col-span-full">
-              <p className="text-center text-white text-lg">
-                No existen registros de producción.
-              </p>
+              {productions.length > 0 ? (
+                <p className="text-center text-white text-lg">
+                  No hay producciones que coincidan con la búsqueda.
+                </p>
+              ) : (
+                <EmptyState
+                  icon={Boxes}
+                  title="Aún no hay registros de producción"
+                  description="Registra una producción para controlar sus lotes, cantidades y estado desde aquí."
+                  actionLabel="Registrar producción"
+                  onAction={openCreateForm}
+                />
+              )}
             </div>
           )}
         </div>
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };

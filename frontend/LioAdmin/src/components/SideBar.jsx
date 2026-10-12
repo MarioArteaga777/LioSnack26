@@ -74,19 +74,24 @@ export const links = [
   },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ mobileMenuOpen = false, onMobileNavigate }) => {
   const [openMenu, setOpenMenu] = useState(null);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
+    onMobileNavigate?.();
     await logout();
     navigate("/login");
   };
 
   return (
-    <aside className="w-60 h-screen bg-gray-300 text-black flex flex-col shrink-0 rounded-r-lg shadow-lg">
+    <aside
+      id="admin-sidebar"
+      style={{ left: mobileMenuOpen ? "0px" : "-15rem" }}
+      className="fixed inset-y-0 left-0 z-50 flex h-screen w-60 shrink-0 flex-col rounded-r-lg bg-gray-300 text-black shadow-lg lg:static lg:z-auto"
+    >
       <div className="flex items-center justify-center py-6">
         <img src={img} alt="Logo" className="size-32 object-contain" />
       </div>
@@ -102,11 +107,12 @@ const Sidebar = () => {
                   className="w-full flex items-center justify-between px-15 py-3.5 hover:bg-white/30"
                 >
                   <div className="flex items-center gap-3">
-                    <Icon size={16} />
+                    <Icon size={20} className="shrink-0" />
                     {label}
                   </div>
 
-                  <FiChevronDown
+                    <FiChevronDown
+                    size={18}
                     className={`transition-transform duration-300 ${
                       openMenu === label ? "rotate-180" : ""
                     }`}
@@ -122,6 +128,7 @@ const Sidebar = () => {
                     <NavLink
                       key={child.to}
                       to={child.to}
+                      onClick={onMobileNavigate}
                       className={({ isActive }) =>
                         `block w-full rounded px-4 py-3.5 text-center transition ${
                           isActive ? "bg-white font-bold" : "hover:bg-white/30"
@@ -141,13 +148,14 @@ const Sidebar = () => {
             <NavLink
               key={to}
               to={to}
+              onClick={onMobileNavigate}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-15 py-3.5 transition ${
                   isActive ? "bg-white font-bold" : "hover:bg-white/30"
                 }`
               }
             >
-              <Icon size={16} />
+              <Icon size={20} className="shrink-0" />
               {label}
             </NavLink>
           );
@@ -158,7 +166,7 @@ const Sidebar = () => {
         onClick={handleLogout}
         className="flex items-center gap-3 border-t border-black/10 px-15 py-3.5 transition hover:bg-white/30"
       >
-        <FiLogOut size={16} />
+        <FiLogOut size={20} />
         Cerrar sesión
       </button>
     </aside>

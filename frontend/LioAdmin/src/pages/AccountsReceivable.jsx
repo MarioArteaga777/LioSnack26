@@ -10,6 +10,11 @@ import { formatFechaCuenta, formatMonto } from "../utils/cuentaFormat";
 import useFetchCuentasPC from "../hooks/Accounts/useFetchCuentasPC";
 import useCuentasPCActions from "../hooks/Accounts/useCuentasPCActions";
 import useFetchClientes from "../hooks/Customers/useFetchClientes";
+import Pagination from "../components/Pagination";
+import usePagination from "../hooks/usePagination";
+import { useGlobalSearch } from "../context/SearchContext";
+import filterItems from "../utils/filterItems";
+import EmptyState from "../components/EmptyState";
 
 // Convierte una cuenta por cobrar real (backend) al formato que ya
 // entienden AccountCard / AccountDetailsModal (client, amount, status...).
@@ -44,6 +49,18 @@ const AccountsReceivable = () => {
   const displayAccounts = cuentasPC.map((cuenta) =>
     toDisplayAccount(cuenta, clientes),
   );
+  const { query } = useGlobalSearch();
+  const filteredAccounts = filterItems(displayAccounts, query, (account) => [
+    account.client,
+    account.amount,
+    account.pendingBalance,
+    account.status,
+    account.dueDate,
+    account.productsLabel,
+    account.raw.fecha_factura,
+    account.raw.sku_descripcion,
+  ]);
+  const { currentPage, setCurrentPage, totalPages, pageItems } = usePagination(filteredAccounts, 9, query);
   const cobradas = displayAccounts.filter(
     (acc) => acc.status === "Cobrado",
   ).length;
@@ -144,8 +161,8 @@ const AccountsReceivable = () => {
 
       {/* Cards de cuentas */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {displayAccounts.length > 0 ? (
-          displayAccounts.map((acc) => (
+        {filteredAccounts.length > 0 ? (
+          pageItems.map((acc) => (
             <AccountCard
               key={acc._id}
               client={acc.client}
@@ -161,31 +178,25 @@ const AccountsReceivable = () => {
               onDelete={() => handleDelete(acc.raw)}
             />
           ))
+        ) : displayAccounts.length > 0 ? (
+          <p className="col-span-full rounded-xl border border-white/10 bg-white/5 px-5 py-10 text-center text-white/70">
+            No se encontraron cuentas con esa búsqueda.
+          </p>
         ) : (
-          <div className="col-span-full flex flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-white/15 bg-white/5 px-6 py-20 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/10">
-              <Receipt className="h-10 w-10 text-white/60" />
-            </div>
-
-            <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-white">
-                Aún no hay cuentas por cobrar
-              </h2>
-              <p className="max-w-sm text-sm text-white/60">
-                Cuando registres una factura pendiente de cobro, aparecerá aquí
-                con su cliente, monto y estado.
-              </p>
-            </div>
-
-            <Button
-              text="Nueva Cuenta"
-              icon={Plus}
-              size="md"
-              onClick={openCreateForm}
-            />
-          </div>
+          <EmptyState
+            icon={Receipt}
+            title="Aún no hay cuentas por cobrar"
+            description="Registra una cuenta para consultar el saldo, vencimiento y cliente desde aquí."
+            actionLabel="Registrar cuenta"
+            onAction={openCreateForm}
+          />
         )}
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };

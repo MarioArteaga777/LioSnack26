@@ -10,7 +10,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pages = [...new Set([
+    1,
+    totalPages,
+    ...Array.from(
+      { length: Math.min(3, totalPages) },
+      (_, index) => Math.max(1, Math.min(currentPage - 1, totalPages - 2)) + index,
+    ),
+  ])].sort((a, b) => a - b);
 
   return (
     <div className="mt-6 flex items-center justify-center gap-2">
@@ -24,19 +31,24 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         <ChevronLeft className="h-4 w-4" />
       </button>
 
-      {pages.map((page) => (
-        <button
-          key={page}
-          type="button"
-          onClick={() => onPageChange(page)}
-          className={`h-8 w-8 rounded-full text-xs font-medium transition-colors ${
-            page === currentPage
-              ? "bg-sky-500 text-white"
-              : "text-white/70 hover:bg-white/10"
-          }`}
-        >
-          {page}
-        </button>
+      {pages.map((page, index) => (
+        <span key={page} className="flex items-center gap-2">
+          {index > 0 && page - pages[index - 1] > 1 && (
+            <span className="text-white/40" aria-hidden="true">…</span>
+          )}
+          <button
+            type="button"
+            onClick={() => onPageChange(page)}
+            aria-current={page === currentPage ? "page" : undefined}
+            className={`h-8 w-8 rounded-full text-xs font-medium transition-colors ${
+              page === currentPage
+                ? "bg-sky-500 text-white"
+                : "text-white/70 hover:bg-white/10"
+            }`}
+          >
+            {page}
+          </button>
+        </span>
       ))}
 
       <button
