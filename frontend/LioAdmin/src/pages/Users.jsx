@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import UserCard from "../components/Cards/UserCard";
@@ -10,6 +10,10 @@ import confirmToast from "../utils/confirmToast";
 import useFetchUsuarios from "../hooks/Users/useFetchUsuarios";
 import useUsuariosActions from "../hooks/Users/useUsuariosActions";
 import useBreakPoint from "../hooks/useBreakpoint";
+import { useGlobalSearch } from "../context/SearchContext";
+import filterItems from "../utils/filterItems";
+import EmptyState from "../components/EmptyState";
+import { Users as UsersIcon } from "lucide-react";
 
 const ROWS_BY_BREAKPOINT = {
   base: 4,
@@ -36,16 +40,28 @@ const Users = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [detailsUser, setDetailsUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const { query } = useGlobalSearch();
+  const filteredUsers = filterItems(usuarios, query, (user) => [
+    user.name,
+    user.lastName,
+    user.email,
+    user.username,
+    user.isVerified ? "verificado" : "pendiente",
+  ]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query]);
 
   const breakpoint = useBreakPoint();
   const columns = COLUMNS_BY_BREAKPOINT[breakpoint];
   const rows = ROWS_BY_BREAKPOINT[breakpoint];
   const USERS_PER_PAGE = columns * rows;
-  const totalPages = Math.max(1, Math.ceil(usuarios.length / USERS_PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / USERS_PER_PAGE));
   const paginatedUsers = useMemo(() => {
     const start = (currentPage - 1) * USERS_PER_PAGE;
-    return usuarios.slice(start, start + USERS_PER_PAGE);
-  }, [usuarios, currentPage]);
+    return filteredUsers.slice(start, start + USERS_PER_PAGE);
+  }, [filteredUsers, currentPage, USERS_PER_PAGE]);
 
   const openCreateForm = () => {
     setEditingUser(null);
@@ -148,14 +164,14 @@ const Users = () => {
       </div>
 
       {/* Panel de usuarios */}
-      <div className="rounded-3xl bg-[#3b2d7a]/60 p-6">
+      <div className={filteredUsers.length > 0 ? "rounded-3xl bg-[#3b2d7a]/60 p-6" : ""}>
         <h2 className="mb-4 border-b border-white/10 pb-3 text-xl font-semibold text-white">
           Usuarios
         </h2>
 
         <div className="flex justify-center">
           <div className="grid grid-cols-1 justify-items-center gap-x-6 gap-y-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-            {paginatedUsers.length > 0 ? (
+            {filteredUsers.length > 0 ? (
               paginatedUsers.map((user) => (
                 <UserCard
                   key={user._id}
@@ -169,7 +185,17 @@ const Users = () => {
                 />
               ))
             ) : (
-              <p className="text-white">No hay usuarios disponibles</p>
+              usuarios.length > 0 ? (
+                <p className="text-white">No se encontraron usuarios con esa búsqueda.</p>
+              ) : (
+                <EmptyState
+                  icon={UsersIcon}
+                  title="Aún no hay usuarios registrados"
+                  description="Agrega un usuario para administrar sus datos y acceso desde este apartado."
+                  actionLabel="Registrar usuario"
+                  onAction={openCreateForm}
+                />
+              )
             )}
           </div>
         </div>

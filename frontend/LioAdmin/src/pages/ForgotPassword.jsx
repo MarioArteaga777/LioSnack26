@@ -78,7 +78,7 @@ const ForgotPassword = () => {
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <label className="block text-sm font-medium text-slate-700">
-                Email
+                Correo electrónico
               </label>
               <p className="text-sm text-slate-600 mb-3">
                 Ingresa el email asociado a tu cuenta. Te enviaremos un código

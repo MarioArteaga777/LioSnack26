@@ -14,6 +14,12 @@ import usePedidosActions from "../hooks/Orders/usePedidosActions";
 import useFetchClientes from "../hooks/Customers/useFetchClientes";
 import useFetchProductos from "../hooks/Products/useFetchProductos";
 import useAuth from "../hooks/useAuth";
+import usePagination from "../hooks/usePagination";
+import Pagination from "../components/Pagination";
+import { useGlobalSearch } from "../context/SearchContext";
+import filterItems from "../utils/filterItems";
+import EmptyState from "../components/EmptyState";
+import { ClipboardList } from "lucide-react";
 
 const Orders = () => {
   const { pedidos, getPedidos, loading } = useFetchPedidos();
@@ -23,6 +29,7 @@ const Orders = () => {
   const { clientes } = useFetchClientes();
   const { productos } = useFetchProductos();
   const { user } = useAuth();
+  const { query } = useGlobalSearch();
 
   const vendedorAsignado = [user?.name, user?.lastName]
     .filter(Boolean)
@@ -36,8 +43,23 @@ const Orders = () => {
   const sortedPedidos = [...pedidos].sort(
     (a, b) => new Date(b.fecha_pedido) - new Date(a.fecha_pedido),
   );
+  const filteredPedidos = filterItems(sortedPedidos, query, (pedido) => [
+    pedido.cliente,
+    pedido.estado_pedido,
+    pedido.punto_de_venta,
+    pedido.vendedor_asignado,
+    pedido.fecha_pedido,
+    pedido.total_pedido,
+    pedido.observaciones,
+    ...(pedido.items || []).flatMap((item) => [
+      item.producto,
+      item.sku,
+      item.cantidad_solicitada,
+    ]),
+  ]);
+  const { currentPage, setCurrentPage, totalPages, pageItems } = usePagination(filteredPedidos, 9, query);
 
-  const ultimoPedido = sortedPedidos[0] ?? null;
+  const ultimoPedido = filteredPedidos[0] ?? null;
 
   const openCreateForm = () => {
     setEditingPedido(null);
@@ -167,18 +189,14 @@ const Orders = () => {
               </div>
             </div>
           </div>
-        ) : (
-          <div className="rounded-2xl bg-gradient-to-r from-[#1B022C] to-[#3D2F80] p-6 text-center text-white/70">
-            Aún no hay pedidos registrados.
-          </div>
-        )}
+        ) : null}
       </div>
 
       {/* Grid de pedidos */}
-      <div className="rounded-3xl bg-gradient-to-b from-[#2A1F5E]/60 to-[#3D2F80]/60 p-6">
+      <div className={filteredPedidos.length > 0 ? "rounded-3xl bg-gradient-to-b from-[#2A1F5E]/60 to-[#3D2F80]/60 p-6" : ""}>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {sortedPedidos.length > 0 ? (
-            sortedPedidos.map((pedido) => (
+          {filteredPedidos.length > 0 ? (
+            pageItems.map((pedido) => (
               <OrderCard
                 key={pedido._id}
                 pedido={pedido}
@@ -189,12 +207,27 @@ const Orders = () => {
             ))
           ) : (
             <div className="col-span-full">
-              <p className="text-center text-white text-lg">
-                No existen pedidos registrados.
-              </p>
+              {sortedPedidos.length > 0 ? (
+                <p className="text-center text-white text-lg">
+                  No hay pedidos que coincidan con la búsqueda.
+                </p>
+              ) : (
+                <EmptyState
+                  icon={ClipboardList}
+                  title="Aún no hay pedidos registrados"
+                  description="Registra un pedido para consultar aquí sus productos, cliente y estado."
+                  actionLabel="Registrar pedido"
+                  onAction={openCreateForm}
+                />
+              )}
             </div>
           )}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

@@ -37,7 +37,13 @@ const getCorsOrigins = () => {
 
 app.use(
   cors({
-    origin: getCorsOrigins(),
+    origin: (origin, callback) => {
+      const isLocalOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin || "");
+      if (!origin || isLocalOrigin || getCorsOrigins().includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Origin not allowed by CORS"));
+    },
     credentials: true,
   })
 );

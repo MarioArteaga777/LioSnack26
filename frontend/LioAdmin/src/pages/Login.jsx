@@ -72,7 +72,7 @@ const Login = () => {
           >
             <div className="space-y-4">
               <label className="block text-sm font-medium text-slate-700">
-                Email
+                Correo electrónico
               </label>
               <input
                 type="email"
@@ -91,13 +91,6 @@ const Login = () => {
                   {errors.email.message || "El email es requerido."}
                 </p>
               )}
-              <button
-                type="button"
-                onClick={() => navigate("/forgot-username")}
-                className="flex w-full justify-end text-sm font-semibold text-[#201D73] hover:text-gray-400"
-              >
-                ¿Olvidaste tu usuario?
-              </button>
             </div>
 
             <div className="space-y-4">

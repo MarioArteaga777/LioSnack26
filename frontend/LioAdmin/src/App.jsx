@@ -4,7 +4,6 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import Login from "./pages/Login.jsx";
 import Home from "./pages/Home.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
-import ForgotUsername from "./pages/ForgotUsername.jsx";
 import VerifyAccount from "./pages/VerifyAccount.jsx";
 import VerificationCode from "./pages/VerificationCode.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
@@ -44,7 +43,6 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/forgot-username" element={<ForgotUsername />} />
           <Route path="/verification-code" element={<VerificationCode />} />
           <Route path="/verify-account" element={<VerifyAccount />} />
           <Route path="/reset-password" element={<ResetPassword />} />
