@@ -81,6 +81,42 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const requestRecoveryCode = useCallback(async (email) => {
+    setLoading(true);
+    try {
+      const data = await authApi.requestRecoveryCode({ email });
+      return { ok: true, message: data.message };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const verifyRecoveryCode = useCallback(async (code) => {
+    setLoading(true);
+    try {
+      const data = await authApi.verifyRecoveryCode({ code });
+      return { ok: true, message: data.message };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const setNewPassword = useCallback(async ({ newPassword, confirmNewPassword }) => {
+    setLoading(true);
+    try {
+      const data = await authApi.setNewPassword({ newPassword, confirmNewPassword });
+      return { ok: true, message: data.message };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const value = {
     user,
     isAuthenticated: !!user,
@@ -90,6 +126,9 @@ export function AuthProvider({ children }) {
     resendCode,
     login,
     logout,
+    requestRecoveryCode,
+    verifyRecoveryCode,
+    setNewPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

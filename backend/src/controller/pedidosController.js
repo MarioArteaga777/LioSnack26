@@ -5,8 +5,62 @@ const pedidoController = {};
 // SELECT - Obtener todas las cuentas por cobrar
 pedidoController.getAllPedidos = async (req, res) => {
   try {
-    const pedidos = await pedidoModel.find();
+    const pedidos = await pedidoModel.find().select("-cliente_id -cliente_email");
     return res.status(200).json(pedidos);
+  } catch (error) {
+    console.log("error:", error.message);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+pedidoController.getMyOrders = async (req, res) => {
+  try {
+    const ownershipFilters = [{ cliente_id: String(req.customer._id) }];
+    if (req.customer.email) {
+      ownershipFilters.push({ cliente_email: req.customer.email.toLowerCase() });
+    }
+
+    const pedidos = await pedidoModel
+      .find({ $or: ownershipFilters })
+      .sort({ fecha_pedido: -1, createdAt: -1 });
+
+    return res.status(200).json(pedidos);
+  } catch (error) {
+    console.log("error:", error.message);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+pedidoController.createMyOrder = async (req, res) => {
+  try {
+    const { items, total_pedido, direccion_entrega, telefono, metodo_pago, observaciones } = req.body;
+
+    if (!Array.isArray(items) || items.length === 0 || !Number.isFinite(Number(total_pedido))) {
+      return res.status(400).json({ message: "El pedido no contiene productos o un total válido" });
+    }
+
+    const newPedido = new pedidoModel({
+      fecha_pedido: new Date(),
+      cliente: `${req.customer.name || ""} ${req.customer.lastName || ""}`.trim(),
+      cliente_id: String(req.customer._id),
+      cliente_email: req.customer.email.toLowerCase(),
+      punto_de_venta: "Tienda en línea",
+      vendedor_asignado: "Web",
+      items,
+      total_pedido: Number(total_pedido),
+      estado_pedido: "Pendiente",
+      direccion_entrega,
+      telefono,
+      metodo_pago,
+      observaciones,
+    });
+
+    await newPedido.save();
+
+    return res.status(201).json({
+      message: "Pedido guardado exitosamente",
+      orderId: newPedido._id,
+    });
   } catch (error) {
     console.log("error:", error.message);
     return res.status(500).json({ message: "Internal server error" });

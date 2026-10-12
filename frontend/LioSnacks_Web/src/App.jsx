@@ -22,7 +22,11 @@ import Location from "./pages/Location";
 import Contactanos from "./pages/Contactanos";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyRecovery from "./pages/VerifyRecovery";
+import NewPassword from "./pages/NewPassword";
 import Checkout from "./pages/Checkout";
+import MyOrders from "./pages/MyOrders";
 import PaymentStatus from "./pages/PaymentStatus";
 import CartPage from "./pages/cartPage";
 import NotFound from "./pages/NotFound";
@@ -102,12 +106,16 @@ function AppShell() {
             <Route path="/contactanos" element={<Contactanos />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
+            <Route path="/recuperar" element={<ForgotPassword />} />
+            <Route path="/recuperar/verificar" element={<VerifyRecovery />} />
+            <Route path="/recuperar/nueva-contrasena" element={<NewPassword />} />
 
             {/* Página completa del carrito con sugerencias */}
             <Route path="/carrito" element={<CartPage />} />
 
             {/* Formulario de datos de compra */}
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/mis-pedidos" element={<MyOrders />} />
 
             <Route path="/pago/:id" element={<PaymentStatus />} />
             <Route path="*" element={<NotFound />} />

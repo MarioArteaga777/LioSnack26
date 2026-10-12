@@ -1,5 +1,6 @@
 import { getApiUrl } from "../config/api";
 import { WOMPI_API, generateTransactionReference } from "../config/wompi";
+import { authService } from "./authService";
 
 /**
  * Procesa un pago a través del backend
@@ -17,12 +18,18 @@ import { WOMPI_API, generateTransactionReference } from "../config/wompi";
  */
 export async function processPaymentWithWompi(paymentData) {
   const url = `${getApiUrl()}/pagos/procesar`;
+  const authorization = authService.getAccessTokenHeader();
+
+  if (!authorization) {
+    throw new Error("Inicia sesión nuevamente para completar tu compra.");
+  }
   
   try {
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: authorization,
       },
       body: JSON.stringify({
         ...paymentData,

@@ -3,6 +3,8 @@ import { Schema, model } from "mongoose";
 const pedidoSchema = new Schema({
     fecha_pedido: { type: Date },
     cliente: { type: String },
+    cliente_id: { type: String, index: true },
+    cliente_email: { type: String, lowercase: true, index: true },
     punto_de_venta: { type: String },
     vendedor_asignado: { type: String },
     items: [

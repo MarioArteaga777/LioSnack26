@@ -68,6 +68,8 @@ paymentController.processPayment = async (req, res) => {
     const newPedido = new pedidoModel({
       fecha_pedido: new Date(),
       cliente: fullName,
+      cliente_id: String(req.customer._id),
+      cliente_email: req.customer.email.toLowerCase(),
       punto_de_venta: "Mobile App",
       vendedor_asignado: "Sistema Automático",
       items: items.map((item) => ({

@@ -11,6 +11,9 @@ const userSchema = new Schema({
     isVerified: {type: Boolean, default: false},
     verificationCode: {type: String, default: null},
     verificationCodeExpires: {type: Date, default: null},
+    recoveryCodeHash: {type: String, default: null},
+    recoveryCodeExpires: {type: Date, default: null},
+    recoveryTokenId: {type: String, default: null},
     loginAttempts: {type: Number, default: 0},
     timeOut: {type: Date, default: null}
 },{

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import paymentController from "../controller/paymentController.js";
+import customerAuth from "../middlewares/customerAuth.js";
 
 const router = Router();
 
@@ -10,7 +11,7 @@ const router = Router();
 // POST - Procesar pago
 // Endpoint: POST /api/pagos/procesar
 // Body: { email, phone, fullName, amount, description, items, reference, cardLast4 }
-router.post("/procesar", paymentController.processPayment);
+router.post("/procesar", customerAuth, paymentController.processPayment);
 
 // GET - Obtener estado de una transacción
 // Endpoint: GET /api/pagos/estado/:transactionId

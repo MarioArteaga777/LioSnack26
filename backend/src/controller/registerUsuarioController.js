@@ -1,69 +1,77 @@
 import crypto from "crypto";
 import bcryptjs from "bcryptjs";
 import { sendEmail } from "../utils/sendMailMailjet.js";
-import HTMLRecoveryEmail from "../utils/sendMailRecovery.js";
+import HTMLVerificationEmail from "../utils/sendMailVerification.js";
 import userModel from "../models/user.js";
+import pendingRegistrationModel from "../models/pendingRegistration.js";
 
 const registerUserController = {};
 
 const VERIFICATION_CODE_TTL_MS = 15 * 60 * 1000;
+const PENDING_REGISTRATION_TTL_MS = 24 * 60 * 60 * 1000;
 
-// Genera un código, lo guarda hasheado en el usuario y lo envía por correo vía Mailjet.
-const issueVerificationCode = async (user) => {
+// Mantiene los registros incompletos fuera de la colección de usuarios.
+const issueVerificationCode = async (registration, isPending = false) => {
   const code = crypto.randomInt(100000, 1000000).toString();
 
-  user.verificationCode = await bcryptjs.hash(code, 10);
-  user.verificationCodeExpires = new Date(Date.now() + VERIFICATION_CODE_TTL_MS);
-  await user.save();
+  registration.verificationCode = await bcryptjs.hash(code, 10);
+  registration.verificationCodeExpires = new Date(Date.now() + VERIFICATION_CODE_TTL_MS);
+  if (isPending) {
+    registration.expiresAt = new Date(Date.now() + PENDING_REGISTRATION_TTL_MS);
+  }
+  await registration.save();
 
-  const htmlContent = HTMLRecoveryEmail(code);
-  await sendEmail(user.email, "Verificación de cuenta", htmlContent);
+  await sendEmail(registration.email, "Verifica tu cuenta de LioSnacks", HTMLVerificationEmail(code));
 };
 
-// Registra un nuevo usuario y dispara el envío del código de verificación
+// Guarda la cuenta como pendiente y envía el código de verificación.
 registerUserController.register = async (req, res) => {
   try {
-    let { name, lastName, email, password } = req.body;
+    const { name, lastName, email, password } = req.body;
 
     if (!name || !lastName || !email || !password) {
       return res.status(400).json({ message: "Todos los campos son requeridos" });
     }
 
-    const normalizedEmail = email.toLowerCase();
+    if (typeof email !== "string") {
+      return res.status(400).json({ message: "El correo no es válido" });
+    }
 
-    const existUser = await userModel.findOne({ email: normalizedEmail });
-    if (existUser) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await userModel.findOne({ email: normalizedEmail });
+    if (existingUser?.isVerified) {
       return res.status(400).json({ message: "El correo ya está en uso" });
     }
 
     const passwordHash = await bcryptjs.hash(password, 10);
+    const pendingRegistration = await pendingRegistrationModel.findOne({ email: normalizedEmail })
+      || new pendingRegistrationModel({ email: normalizedEmail });
 
-    const newUser = new userModel({
-      name,
-      lastName,
-      email: normalizedEmail,
-      password: passwordHash,
-    });
-
-    if (req.file) {
-      newUser.image = req.file.path;
-      newUser.public_id = req.file.filename;
-    }
-
-    await newUser.save();
+    pendingRegistration.name = name;
+    pendingRegistration.lastName = lastName;
+    pendingRegistration.password = passwordHash;
+    pendingRegistration.image = req.file?.path || null;
+    pendingRegistration.public_id = req.file?.filename || null;
 
     try {
-      await issueVerificationCode(newUser);
+      if (existingUser) {
+        await issueVerificationCode(existingUser);
+        return res.status(200).json({
+          message: "Ya había un registro pendiente. Se envió un nuevo código de verificación.",
+        });
+      }
+
+      await issueVerificationCode(pendingRegistration, true);
     } catch (mailError) {
-      console.error("Error sending email: " + mailError);
-      return res.status(201).json({
-        message:
-          "Usuario creado, pero no se pudo enviar el correo de verificación. Puede reenviarse más tarde.",
+      console.error("Error sending verification email: " + mailError);
+      return res.status(500).json({
+        message: "No se pudo enviar el código. Intenta registrarte nuevamente.",
       });
     }
 
-    return res.status(201).json({
-      message: "Usuario creado. Se envió un código de verificación al correo.",
+    return res.status(202).json({
+      message: "Registro pendiente. Se envió un código de verificación al correo.",
     });
   } catch (error) {
     console.error("Registration error: " + error);
@@ -80,34 +88,79 @@ registerUserController.verifyCode = async (req, res) => {
       return res.status(400).json({ message: "Correo y código son requeridos" });
     }
 
-    const normalizedEmail = email.toLowerCase();
-    const user = await userModel.findOne({ email: normalizedEmail });
-
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
+    if (typeof email !== "string" || typeof code !== "string") {
+      return res.status(400).json({ message: "Correo y código no son válidos" });
     }
 
-    if (user.isVerified) {
-      return res.status(200).json({ message: "La cuenta ya estaba verificada" });
+    const normalizedEmail = email.trim().toLowerCase();
+    const pendingRegistration = await pendingRegistrationModel.findOne({ email: normalizedEmail });
+
+    if (!pendingRegistration) {
+      const existingUser = await userModel.findOne({ email: normalizedEmail });
+      if (!existingUser) {
+        return res.status(404).json({ message: "Registro pendiente no encontrado. Regístrate nuevamente." });
+      }
+
+      if (existingUser.isVerified) {
+        return res.status(200).json({ message: "La cuenta ya estaba verificada" });
+      }
+
+      if (!existingUser.verificationCode || !existingUser.verificationCodeExpires) {
+        return res.status(400).json({ message: "No hay un código pendiente, solicita uno nuevo" });
+      }
+
+      if (existingUser.verificationCodeExpires.getTime() < Date.now()) {
+        return res.status(400).json({ message: "El código ha expirado, solicita uno nuevo" });
+      }
+
+      const legacyCodeMatches = await bcryptjs.compare(String(code), existingUser.verificationCode);
+      if (!legacyCodeMatches) {
+        return res.status(400).json({ message: "Código inválido" });
+      }
+
+      existingUser.isVerified = true;
+      existingUser.verificationCode = null;
+      existingUser.verificationCodeExpires = null;
+      await existingUser.save();
+
+      return res.json({ message: "Cuenta verificada con éxito" });
     }
 
-    if (!user.verificationCode || !user.verificationCodeExpires) {
-      return res.status(400).json({ message: "No hay un código pendiente, solicita uno nuevo" });
+    if (pendingRegistration.expiresAt.getTime() < Date.now()) {
+      await pendingRegistration.deleteOne();
+      return res.status(400).json({ message: "El registro expiró. Regístrate nuevamente." });
     }
 
-    if (user.verificationCodeExpires.getTime() < Date.now()) {
+    if (!pendingRegistration.verificationCodeExpires
+      || pendingRegistration.verificationCodeExpires.getTime() < Date.now()) {
       return res.status(400).json({ message: "El código ha expirado, solicita uno nuevo" });
     }
 
-    const isMatch = await bcryptjs.compare(String(code), user.verificationCode);
+    const isMatch = await bcryptjs.compare(String(code), pendingRegistration.verificationCode);
     if (!isMatch) {
       return res.status(400).json({ message: "Código inválido" });
     }
 
-    user.isVerified = true;
-    user.verificationCode = null;
-    user.verificationCodeExpires = null;
-    await user.save();
+    const existingUser = await userModel.findOne({ email: normalizedEmail });
+    if (existingUser) {
+      if (existingUser.isVerified) {
+        await pendingRegistration.deleteOne();
+        return res.status(200).json({ message: "La cuenta ya estaba verificada" });
+      }
+      return res.status(400).json({ message: "Ya existe un registro pendiente para este correo" });
+    }
+
+    const newUser = new userModel({
+      name: pendingRegistration.name,
+      lastName: pendingRegistration.lastName,
+      email: pendingRegistration.email,
+      password: pendingRegistration.password,
+      image: pendingRegistration.image,
+      public_id: pendingRegistration.public_id,
+      isVerified: true,
+    });
+    await newUser.save();
+    await pendingRegistration.deleteOne();
 
     return res.json({ message: "Cuenta verificada con éxito" });
   } catch (error) {
@@ -116,27 +169,33 @@ registerUserController.verifyCode = async (req, res) => {
   }
 };
 
-// Reenvía un nuevo código de verificación si la cuenta aún no fue verificada
+// Reenvía el código tanto a registros temporales como a cuentas heredadas sin verificar.
 registerUserController.resendCode = async (req, res) => {
   try {
     const { email } = req.body;
 
-    if (!email) {
+    if (typeof email !== "string" || !email.trim()) {
       return res.status(400).json({ message: "El correo es requerido" });
     }
 
-    const normalizedEmail = email.toLowerCase();
-    const user = await userModel.findOne({ email: normalizedEmail });
+    const normalizedEmail = email.trim().toLowerCase();
+    const pendingRegistration = await pendingRegistrationModel.findOne({ email: normalizedEmail });
 
     const genericResponse = {
-      message: "Si el correo existe y no ha sido verificado, se envió un nuevo código",
+      message: "Si el correo tiene un registro pendiente, se envió un nuevo código",
     };
 
-    if (!user || user.isVerified) {
+    if (pendingRegistration) {
+      await issueVerificationCode(pendingRegistration, true);
       return res.status(200).json(genericResponse);
     }
 
-    await issueVerificationCode(user);
+    const existingUser = await userModel.findOne({ email: normalizedEmail });
+    if (!existingUser || existingUser.isVerified) {
+      return res.status(200).json(genericResponse);
+    }
+
+    await issueVerificationCode(existingUser);
 
     return res.status(200).json(genericResponse);
   } catch (error) {
