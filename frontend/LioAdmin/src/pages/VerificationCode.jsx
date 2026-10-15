@@ -12,6 +12,7 @@ const VerificationCode = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
+  const recoveryToken = location.state?.recoveryToken;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -28,7 +29,10 @@ const VerificationCode = () => {
     try {
       const response = await fetch(`${url}/recovery-password/verifyCode`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(recoveryToken && { Authorization: `Bearer ${recoveryToken}` }),
+        },
         credentials: "include",
         body: JSON.stringify({ code: code.trim() }),
       });
@@ -41,7 +45,9 @@ const VerificationCode = () => {
 
       setMessage("Código verificado con éxito.");
       setTimeout(() => {
-        navigate("/reset-password");
+        navigate("/reset-password", {
+          state: { recoveryToken: data.recoveryToken },
+        });
       }, 1000);
     } catch (error_) {
       setError(error_.message || "Error al procesar tu solicitud.");
