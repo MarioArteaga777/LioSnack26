@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import url from "../utils/apiUrl";
 import img_Background from "../../img/background_image_2026.png";
 import img_Logo from "../../img/Logo.png";
@@ -11,6 +11,8 @@ const ResetPassword = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const recoveryToken = location.state?.recoveryToken;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -32,7 +34,10 @@ const ResetPassword = () => {
     try {
       const response = await fetch(`${url}/recovery-password/newPassword`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(recoveryToken && { Authorization: `Bearer ${recoveryToken}` }),
+        },
         credentials: "include",
         body: JSON.stringify({ newPassword, confirmNewPassword }),
       });
