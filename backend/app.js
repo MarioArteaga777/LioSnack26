@@ -5,6 +5,7 @@ import CuentasPPRoutes from "./src/routes/cuentasPP.js"
 import productosRoutes from "./src/routes/productos.js";
 import produccionRoutes from "./src/routes/produccion.js";
 import loginRoutes from "./src/routes/loginUser.js"
+import logoutController from "./src/controller/logoutController.js"
 import userRoutes from "./src/routes/user.js"
 import registerUserRoutes from "./src/routes/registerUser.js"
 import pedidosRoutes from "./src/routes/pedidos.js"
@@ -57,6 +58,10 @@ app.use("/api/productos", productosRoutes);
 app.use("/api/CuentasPorCobrar", CuentasPCRoutes);
 app.use("/api/cuentasPorPagar", CuentasPPRoutes);
 app.use("/api/login", loginRoutes)
+app.use("/api/logout", (req, res, next) => {
+  if (req.method === "POST") return logoutController.logout(req, res);
+  return next();
+});
 app.use("/api/usuarios", userRoutes)
 app.use("/api/register", registerUserRoutes)
 app.use("/api/pedidos", pedidosRoutes)
