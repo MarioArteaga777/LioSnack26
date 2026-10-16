@@ -20,7 +20,6 @@ const Customers = () => {
   const filteredCustomers = filterItems(clientes, query, (client) => [
     client.name,
     client.lastName,
-    client.type,
     client.email,
     client.phone,
     client.address,
@@ -120,7 +119,7 @@ const Customers = () => {
             <CustomerCard
               key={client._id}
               name={client.name}
-              type={client.type}
+              lastName={client.lastName}
               address={client.address}
               phone={client.phone}
               email={client.email}
@@ -139,7 +138,7 @@ const Customers = () => {
         <EmptyState
           icon={Users}
           title="Aún no hay clientes registrados"
-          description="Cuando registres un cliente, empresa o persona, aparecerá aquí con sus datos de contacto."
+          description="Los clientes que se registren en LioSnacks_Web o en la app móvil aparecerán aquí; también puedes agregarlos manualmente."
           actionLabel="Registrar cliente"
           onAction={openCreateForm}
         />

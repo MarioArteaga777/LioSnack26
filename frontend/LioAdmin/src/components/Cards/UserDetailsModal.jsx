@@ -44,6 +44,12 @@ const UserDetailsModal = ({ id, user, onClose }) => {
               <dd className="font-medium text-right">{user.email}</dd>
             </div>
             <div className="flex justify-between gap-4">
+              <dt className="text-white/60">Rol</dt>
+              <dd className="font-medium text-right">
+                {user.role === "admin" ? "Administrador" : "Cliente"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
               <dt className="text-white/60">Estado</dt>
               <dd className="font-medium text-right">
                 {user.isVerified ? "Verificado" : "No verificado"}

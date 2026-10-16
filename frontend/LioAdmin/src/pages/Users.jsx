@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
-import { toast } from "sonner";
 import UserCard from "../components/Cards/UserCard";
 import UserDetailsModal from "../components/Cards/UserDetailsModal";
 import Pagination from "../components/Pagination";
@@ -33,6 +32,12 @@ const COLUMNS_BY_BREAKPOINT = {
   "2xl": 5,
 };
 
+const ROLE_FILTERS = [
+  { value: "todos", label: "Todos" },
+  { value: "admin", label: "Administradores" },
+  { value: "cliente", label: "Clientes" },
+];
+
 const Users = () => {
   const { usuarios, getUsuarios, loading } = useFetchUsuarios();
   const { createUsuario, updateUsuario, deleteUsuario } = useUsuariosActions();
@@ -40,8 +45,22 @@ const Users = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [detailsUser, setDetailsUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [roleFilter, setRoleFilter] = useState("todos");
   const { query } = useGlobalSearch();
-  const filteredUsers = filterItems(usuarios, query, (user) => [
+
+  // Filtra por el rol seleccionado. Las cuentas antiguas sin rol se muestran
+  // como clientes, igual que en la píldora "Rol" de cada tarjeta.
+  const usersByRole = useMemo(
+    () =>
+      usuarios.filter((user) => {
+        if (roleFilter === "admin") return user.role === "admin";
+        if (roleFilter === "cliente") return user.role !== "admin";
+        return true;
+      }),
+    [usuarios, roleFilter],
+  );
+
+  const filteredUsers = filterItems(usersByRole, query, (user) => [
     user.name,
     user.lastName,
     user.email,
@@ -49,9 +68,18 @@ const Users = () => {
     user.isVerified ? "verificado" : "pendiente",
   ]);
 
-  useEffect(() => {
+  const handleRoleFilter = (value) => {
+    setRoleFilter(value);
     setCurrentPage(1);
-  }, [query]);
+  };
+
+  // Reinicia la paginación cuando cambia la búsqueda (ajuste durante el
+  // render, en vez de un efecto que dispare un render en cascada).
+  const [lastQuery, setLastQuery] = useState(query);
+  if (query !== lastQuery) {
+    setLastQuery(query);
+    setCurrentPage(1);
+  }
 
   const breakpoint = useBreakPoint();
   const columns = COLUMNS_BY_BREAKPOINT[breakpoint];
@@ -155,7 +183,7 @@ const Users = () => {
       />
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-20">
+      <div className="flex items-center justify-between mb-10">
         <h1 className="mb-12 mt-6 text-2xl md:text-3xl font-semibold text-white">
           Usuarios
         </h1>
@@ -163,12 +191,26 @@ const Users = () => {
         <Button text="Nuevo Usuario" icon={Plus} onClick={openCreateForm} />
       </div>
 
+      {/* Filtro por rol */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        {ROLE_FILTERS.map((filter) => (
+          <button
+            key={filter.value}
+            type="button"
+            onClick={() => handleRoleFilter(filter.value)}
+            className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
+              roleFilter === filter.value
+                ? "bg-[#201D73] text-white"
+                : "bg-white/10 text-white/70 hover:bg-white/20"
+            }`}
+          >
+            {filter.label}
+          </button>
+        ))}
+      </div>
+
       {/* Panel de usuarios */}
       <div className={filteredUsers.length > 0 ? "rounded-3xl bg-[#3b2d7a]/60 p-6" : ""}>
-        <h2 className="mb-4 border-b border-white/10 pb-3 text-xl font-semibold text-white">
-          Usuarios
-        </h2>
-
         <div className="flex justify-center">
           <div className="grid grid-cols-1 justify-items-center gap-x-6 gap-y-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {filteredUsers.length > 0 ? (
@@ -177,6 +219,7 @@ const Users = () => {
                   key={user._id}
                   name={user.name}
                   lastName={user.lastName}
+                  role={user.role}
                   isVerified={user.isVerified}
                   image={user.image}
                   onUpdate={() => openUpdateForm(user)}
@@ -186,7 +229,9 @@ const Users = () => {
               ))
             ) : (
               usuarios.length > 0 ? (
-                <p className="text-white">No se encontraron usuarios con esa búsqueda.</p>
+                <p className="text-white">
+                  No se encontraron usuarios con esa búsqueda o ese filtro.
+                </p>
               ) : (
                 <EmptyState
                   icon={UsersIcon}

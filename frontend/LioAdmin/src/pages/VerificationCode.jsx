@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import url from "../utils/apiUrl";
+import {
+  readRecoveryToken,
+  recoveryHeaders,
+  saveRecoveryToken,
+} from "../utils/recoveryToken.js";
 import img_Background from "../../img/background_image_2026.png";
 import img_Logo from "../../img/Logo.png";
 
@@ -9,9 +14,19 @@ const VerificationCode = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
+
+  useEffect(() => {
+    // Guard: sin email o sin token de recuperación no tiene sentido pedir el
+    // código (acceso directo por URL o recarga en otra pestaña). Se redirige
+    // al inicio del flujo.
+    if (!email || !readRecoveryToken()) {
+      navigate("/forgot-password", { replace: true });
+    }
+  }, [email, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -28,7 +43,7 @@ const VerificationCode = () => {
     try {
       const response = await fetch(`${url}/recovery-password/verifyCode`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: recoveryHeaders({ "Content-Type": "application/json" }),
         credentials: "include",
         body: JSON.stringify({ code: code.trim() }),
       });
@@ -39,6 +54,10 @@ const VerificationCode = () => {
         throw new Error(data.message || "No se pudo verificar el código.");
       }
 
+      // El backend devuelve un token nuevo con verified: true; lo guardamos
+      // para el paso de nueva contraseña.
+      saveRecoveryToken(data.recoveryToken || readRecoveryToken());
+
       setMessage("Código verificado con éxito.");
       setTimeout(() => {
         navigate("/reset-password");
@@ -47,6 +66,43 @@ const VerificationCode = () => {
       setError(error_.message || "Error al procesar tu solicitud.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setError("");
+    setMessage("");
+
+    if (!email) {
+      setError("Solicita un nuevo código desde el inicio del flujo.");
+      return;
+    }
+
+    setResending(true);
+
+    try {
+      const response = await fetch(`${url}/recovery-password/requestCode`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "No se pudo reenviar el código.");
+      }
+
+      // requestCode genera un recoveryTokenId nuevo, por lo que el token
+      // anterior queda invalidado y debemos reemplazarlo.
+      saveRecoveryToken(data.recoveryToken);
+      setCode("");
+      setMessage("Se envió un código nuevo a tu correo.");
+    } catch (error_) {
+      setError(error_.message || "Error al reenviar el código.");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -90,6 +146,14 @@ const VerificationCode = () => {
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition duration-200 focus:border-indigo-500 focus:bg-white"
                 required
               />
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resending || loading}
+                className="flex w-full justify-end text-sm font-semibold text-[#201D73] hover:text-gray-400 disabled:cursor-not-allowed disabled:text-slate-400"
+              >
+                {resending ? "Reenviando..." : "Reenviar código"}
+              </button>
             </div>
 
             {error && (
@@ -122,7 +186,7 @@ const VerificationCode = () => {
 
             <button
               type="button"
-              onClick={() => navigate("/forgot-password")}
+              onClick={() => navigate("/forgot-password", { state: { email } })}
               className="flex w-full justify-center text-sm font-semibold text-[#201D73] hover:text-gray-400"
             >
               Volver

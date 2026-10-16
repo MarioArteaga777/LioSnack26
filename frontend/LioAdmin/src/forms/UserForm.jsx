@@ -26,6 +26,13 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
           .string()
           .required("La contraseña es requerida")
           .min(6, "Mínimo 6 caracteres"),
+    // El rol solo se elige al crear; al editar es inmutable
+    role: isEditing
+      ? yup.string().notRequired()
+      : yup
+          .string()
+          .oneOf(["cliente", "admin"], "Selecciona un rol válido")
+          .required("El rol es requerido"),
     // La foto de perfil es opcional tanto al crear como al editar
     image: yup.mixed().notRequired(),
   });
@@ -68,6 +75,7 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
         lastName: initialData?.lastName ?? "",
         email: initialData?.email ?? "",
         password: "",
+        role: initialData?.role ?? "admin",
       });
       dialog.showModal();
     } else {
@@ -89,6 +97,11 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
 
     if (data.password) {
       payload.password = data.password;
+    }
+
+    // El rol solo viaja al crear (al editar es inmutable en el backend)
+    if (!isEditing && data.role) {
+      payload.role = data.role;
     }
 
     const file = data.image?.[0];
@@ -162,6 +175,29 @@ const UserForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) => {
                 </p>
               )}
             </div>
+
+            {/* Rol: solo se elige al crear. Si es "cliente", la cuenta queda
+                disponible en la sección de Clientes de LioAdmin. */}
+            {!isEditing && (
+              <div>
+                <select
+                  {...register("role")}
+                  className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
+                >
+                  <option value="admin">
+                    Administrador (acceso a LioAdmin)
+                  </option>
+                  <option value="cliente">
+                    Cliente (cuenta de la tienda en línea)
+                  </option>
+                </select>
+                {errors.role && (
+                  <p className="mt-1 text-sm text-red-400">
+                    {errors.role.message}
+                  </p>
+                )}
+              </div>
+            )}
 
             <div>
               <input

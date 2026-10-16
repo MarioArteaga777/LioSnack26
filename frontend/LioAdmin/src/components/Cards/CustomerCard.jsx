@@ -1,10 +1,10 @@
-import { Building2, UserRound, MoreVertical } from "lucide-react";
+import { UserRound, MoreVertical } from "lucide-react";
 import useActionsMenu from "../../hooks/useActionsMenu";
 import EntityActionsMenu from "./EntityActionsMenu";
 
 const CustomerCard = ({
   name,
-  type,
+  lastName,
   address,
   phone,
   email,
@@ -19,7 +19,6 @@ const CustomerCard = ({
     containerRef,
   } = useActionsMenu();
   const hasActions = onUpdate || onDetails || onDelete;
-  const isEmpresa = type === "empresa";
 
   return (
     <div
@@ -37,30 +36,25 @@ const CustomerCard = ({
                 alt={name}
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
-            ) : isEmpresa ? (
-              <Building2 className="h-8 w-8 text-white/70" />
             ) : (
               <UserRound className="h-8 w-8 text-white/70" />
             )}
           </div>
         </div>
 
-        <h3 className="mb-3 text-center font-semibold text-white">{name}</h3>
+        <h3 className="mb-3 text-center font-semibold text-white">
+          {name} {lastName}
+        </h3>
 
         <div className="space-y-3 text-sm text-white">
-          <div className="flex justify-between">
-            <span className="text-white/70">Tipo</span>
-            <span className="capitalize">{type}</span>
+          <div className="flex justify-between gap-2">
+            <span className="shrink-0 text-white/70">Correo</span>
+            <span className="truncate">{email || "N/A"}</span>
           </div>
 
           <div className="flex justify-between gap-2">
             <span className="shrink-0 text-white/70">Teléfono</span>
             <span className="truncate">{phone || "N/A"}</span>
-          </div>
-
-          <div className="flex justify-between gap-2">
-            <span className="shrink-0 text-white/70">Correo</span>
-            <span className="truncate">{email || "N/A"}</span>
           </div>
 
           <div className="flex justify-between gap-2">

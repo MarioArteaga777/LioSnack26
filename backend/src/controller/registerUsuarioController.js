@@ -158,6 +158,9 @@ registerUserController.verifyCode = async (req, res) => {
       image: pendingRegistration.image,
       public_id: pendingRegistration.public_id,
       isVerified: true,
+      // Quien se registra desde LioSnacks_Web o la app móvil es un cliente,
+      // nunca un administrador (los admins se crean desde LioAdmin).
+      role: "cliente",
     });
     await newUser.save();
     await pendingRegistration.deleteOne();
