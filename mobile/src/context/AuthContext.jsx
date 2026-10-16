@@ -12,7 +12,10 @@ import { getApiUrl } from "../config/api";
 
 const AuthContext = createContext(null);
 const AUTH_STORAGE_KEY = "liosnack:auth-session";
-const AUTH_TOKEN_KEY = "liosnack:access-token";
+// SecureStore (iOS Keychain) solo acepta claves alfanuméricas + . - _
+// Los dos puntos ":" lanzan "Invalid key provided to SecureStore" y rompen el login.
+const AUTH_TOKEN_KEY = "liosnack_access_token";
+const LEGACY_TOKEN_KEYS = ["liosnack:access-token"];
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -22,6 +25,19 @@ export function AuthProvider({ children }) {
   // Inicializa la sesión guardada en el dispositivo
   const initializeSession = useCallback(async () => {
     try {
+      // Limpieza: si quedó una clave vieja inválida con ":", la borramos
+      // usando AsyncStorage (que sí la acepta) para no volver a crashear.
+      for (const legacyKey of LEGACY_TOKEN_KEYS) {
+        try {
+          const junk = await SecureStore.getItemAsync(legacyKey).catch(() => null);
+          if (junk !== null) {
+            await SecureStore.deleteItemAsync(legacyKey).catch(() => null);
+          }
+        } catch {
+          // La clave vieja es inválida por ":", la ignoramos
+        }
+      }
+
       const [raw, accessToken] = await Promise.all([
         AsyncStorage.getItem(AUTH_STORAGE_KEY),
         SecureStore.getItemAsync(AUTH_TOKEN_KEY),
@@ -33,7 +49,7 @@ export function AuthProvider({ children }) {
       } else {
         setUser(null);
         await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
-        await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+        await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY).catch(() => null);
       }
     } catch (error) {
       console.log("Error al cargar sesión de LioSnack:", error);
@@ -128,7 +144,7 @@ export function AuthProvider({ children }) {
     try {
       await Promise.all([
         AsyncStorage.removeItem(AUTH_STORAGE_KEY),
-        SecureStore.deleteItemAsync(AUTH_TOKEN_KEY),
+        SecureStore.deleteItemAsync(AUTH_TOKEN_KEY).catch(() => null),
       ]);
     } catch (error) {
       console.log("Error al eliminar sesión:", error);
