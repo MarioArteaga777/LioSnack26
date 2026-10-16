@@ -52,7 +52,9 @@ const ForgotPassword = () => {
       setEmail("");
 
       setTimeout(() => {
-        navigate("/verification-code", { state: { email: sentEmail } });
+        navigate("/verification-code", {
+          state: { email: sentEmail, recoveryToken: data.recoveryToken },
+        });
       }, 1500);
     } catch (error_) {
       setError(error_.message || "Error al procesar tu solicitud.");

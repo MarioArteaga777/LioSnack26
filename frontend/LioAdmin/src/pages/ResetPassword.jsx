@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+=======
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router";
+>>>>>>> 221915977aa7d944b7cd900903496bcbb0f30861
 import url from "../utils/apiUrl";
 import {
   clearRecoveryToken,
@@ -17,6 +22,8 @@ const ResetPassword = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const recoveryToken = location.state?.recoveryToken;
 
   useEffect(() => {
     // Guard: sin token de recuperación verificado no se puede cambiar la
@@ -52,7 +59,14 @@ const ResetPassword = () => {
     try {
       const response = await fetch(`${url}/recovery-password/newPassword`, {
         method: "POST",
+<<<<<<< HEAD
         headers: recoveryHeaders({ "Content-Type": "application/json" }),
+=======
+        headers: {
+          "Content-Type": "application/json",
+          ...(recoveryToken && { Authorization: `Bearer ${recoveryToken}` }),
+        },
+>>>>>>> 221915977aa7d944b7cd900903496bcbb0f30861
         credentials: "include",
         body: JSON.stringify({ newPassword, confirmNewPassword }),
       });
