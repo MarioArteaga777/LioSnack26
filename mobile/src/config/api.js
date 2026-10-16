@@ -1,7 +1,7 @@
 // Tu IP local de la computadora en la red Wi-Fi: 192.168.1.17
 // Esta IP es accesible tanto para tu celular físico como para los emuladores.
 // Si cambias de red, actualiza esta IP o usa EXPO_PUBLIC_API_URL
-const LOCAL_HOST_IP = process.env.EXPO_PUBLIC_LOCAL_IP || "192.168.1.17";
+const LOCAL_HOST_IP = process.env.EXPO_PUBLIC_LOCAL_IP || "172.16.0.2";
 
 const rawUrl = process.env.EXPO_PUBLIC_API_URL || `https://liosnack-backend.onrender.com/api`;
 
