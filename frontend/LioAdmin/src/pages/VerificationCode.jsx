@@ -18,7 +18,6 @@ const VerificationCode = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
-  const recoveryToken = location.state?.recoveryToken;
 
   useEffect(() => {
     // Guard: sin email o sin token de recuperación no tiene sentido pedir el
@@ -44,14 +43,7 @@ const VerificationCode = () => {
     try {
       const response = await fetch(`${url}/recovery-password/verifyCode`, {
         method: "POST",
-<<<<<<< HEAD
         headers: recoveryHeaders({ "Content-Type": "application/json" }),
-=======
-        headers: {
-          "Content-Type": "application/json",
-          ...(recoveryToken && { Authorization: `Bearer ${recoveryToken}` }),
-        },
->>>>>>> 221915977aa7d944b7cd900903496bcbb0f30861
         credentials: "include",
         body: JSON.stringify({ code: code.trim() }),
       });
