@@ -69,7 +69,7 @@ recoveryPasswordController.requestCode = async (req, res) => {
       await sendEmail(normalizedEmail, "Código de recuperación de contraseña", HTMLRecoveryEmail(randomCode));
     } catch (mailError) {
       console.log("mail error:", mailError.message);
-      return res.status(500).json({ message: "Error al enviar correo" });
+      return res.status(500).json({ message: `Error al enviar correo: ${mailError.message}` });
     }
 
     const token = signRecoveryToken(normalizedEmail, recoveryTokenId);
