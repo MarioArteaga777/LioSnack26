@@ -17,6 +17,10 @@ import providersRoutes from "./src/routes/providers.js";
 
 const app = express();
 
+// Render (y cualquier proxy/load balancer) manda X-Forwarded-For.
+// Sin esto express-rate-limit lanza ERR_ERL_UNEXPECTED_X_FORWARDED_FOR.
+app.set("trust proxy", 1);
+
 // Configurar CORS dinámicamente según el entorno
 const getCorsOrigins = () => {
   const allowedOrigins = [
