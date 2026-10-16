@@ -37,6 +37,11 @@ const sendViaGmail = async (to, subject, html) => {
   return { provider: "gmail", messageId: info.messageId };
 };
 
+// Utilidad de envío: elige el proveedor según el remitente.
+// - Si From es @gmail.com / @yahoo / @outlook (dominio gratuito),
+//   Mailjet devuelve "success" pero Gmail lo descarta por DMARC p=reject.
+//   Por eso se usa Gmail (nodemailer) directo: ese SÍ entrega.
+// - Si From es dominio propio validado en Mailjet, se usa Mailjet primero.
 const sendViaMailjet = async (to, subject, html, fromEmail, fromName) => {
   const result = await mailjet.post("send", { version: "v3.1" }).request({
     Messages: [
@@ -53,31 +58,59 @@ const sendViaMailjet = async (to, subject, html, fromEmail, fromName) => {
   const msg = result.body?.Messages?.[0];
   const status = msg?.Status;
   const messageId = msg?.To?.[0]?.MessageID;
-  console.log(`[Email][Mailjet] to=${to} status=${status} messageId=${messageId}`);
+  console.log(`[Email][Mailjet] to=${to} status=${status} messageId=${messageId} from=${fromEmail}`);
   return { provider: "mailjet", status, messageId, body: result.body };
 };
 
 export const sendEmail = async (to, subject, html) => {
   const fromEmail = (config.mailjet.fromEmail || "").trim();
   const fromName = (config.mailjet.fromName || "LioSnacks").trim();
+  const fromDomain = (fromEmail.split("@")[1] || "").toLowerCase();
 
-  // 1) Mailjet primero (tu flujo original)
-  if (fromEmail) {
+  // Dominios gratuitos que Mailjet NO puede entregar por DMARC p=reject.
+  // Con estos, Mailjet responde "success"/"sent" pero Gmail lo tira en silencio
+  // (ni a spam). Por eso hay que mandar por Gmail directo.
+  const FREE_DOMAINS = [
+    "gmail.com", "googlemail.com",
+    "yahoo.com", "yahoo.es", "yahoo.com.mx",
+    "outlook.com", "hotmail.com", "live.com", "hotmail.es",
+    "icloud.com", "aol.com",
+  ];
+  const isFreeDomain = FREE_DOMAINS.includes(fromDomain);
+
+  // CASO 1: remitente gratuito (@gmail.com) -> Gmail primero, SIEMPRE.
+  // Es tu caso actual: MAILJET_FROM_EMAIL=alvarengabenjamin42@gmail.com
+  if (!fromEmail || isFreeDomain) {
+    if (isFreeDomain) {
+      console.log(`[Email] From ${fromEmail} es dominio gratuito -> usando Gmail directo (Mailjet no entrega estos).`);
+    }
     try {
-      return await sendViaMailjet(to, subject, html, fromEmail, fromName);
-    } catch (mjErr) {
-      console.error("[Email][Mailjet] fallo:", mjErr.response?.body || mjErr.message);
-      // 2) Respaldo Gmail para no dejar al usuario sin código
+      return await sendViaGmail(to, subject, html);
+    } catch (gmailErr) {
+      console.error("[Email][Gmail] fallo:", gmailErr.message);
+      if (!fromEmail) throw gmailErr;
+      // Último intento por Mailjet aunque casi seguro no entregue
       try {
-        console.warn("[Email] Mailjet fallo, probando Gmail como respaldo...");
-        return await sendViaGmail(to, subject, html);
-      } catch (gmailErr) {
-        console.error("[Email][Gmail] respaldo tambien fallo:", gmailErr.message);
-        throw mjErr; // devolvemos el error original de Mailjet
+        console.warn("[Email] Gmail fallo, probando Mailjet como respaldo...");
+        return await sendViaMailjet(to, subject, html, fromEmail, fromName);
+      } catch (mjErr) {
+        console.error("[Email][Mailjet] respaldo tambien fallo:", mjErr.response?.body || mjErr.message);
+        throw gmailErr;
       }
     }
   }
 
-  // Sin remitente Mailjet configurado, directo a Gmail
-  return await sendViaGmail(to, subject, html);
+  // CASO 2: dominio propio validado en Mailjet -> Mailjet primero (tu flujo original)
+  try {
+    return await sendViaMailjet(to, subject, html, fromEmail, fromName);
+  } catch (mjErr) {
+    console.error("[Email][Mailjet] fallo:", mjErr.response?.body || mjErr.message);
+    try {
+      console.warn("[Email] Mailjet fallo, probando Gmail como respaldo...");
+      return await sendViaGmail(to, subject, html);
+    } catch (gmailErr) {
+      console.error("[Email][Gmail] respaldo tambien fallo:", gmailErr.message);
+      throw mjErr;
+    }
+  }
 };
