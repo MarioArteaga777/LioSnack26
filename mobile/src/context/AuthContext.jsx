@@ -8,6 +8,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { authService } from "../services/authService";
+import { getApiUrl } from "../config/api";
 
 const AuthContext = createContext(null);
 const AUTH_STORAGE_KEY = "liosnack:auth-session";
@@ -48,9 +49,31 @@ export function AuthProvider({ children }) {
   const register = useCallback(async ({ name, lastName, email, password }) => {
     setLoading(true);
     try {
-      const data = await authService.register({ name, lastName, email, password });
+      // El backend usa upload.single("image") (multipart). Si mandamos JSON puro,
+      // multer no lo procesa y req.body llega vacío -> 400 "Todos los campos son requeridos".
+      // Por eso mandamos FormData, que funciona con y sin foto.
+      const formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("lastName", lastName.trim());
+      formData.append("email", email.trim().toLowerCase());
+      formData.append("password", password);
+
+      const url = `${getApiUrl()}/register`;
+      const response = await fetch(url, { method: "POST", body: formData });
+      let data = null;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
+      if (!response.ok) {
+        throw new Error(data?.message || "Ocurrió un error al conectar con el servidor.");
+      }
       return { ok: true, message: data?.message || "Código enviado a tu correo." };
     } catch (error) {
+      if (error.message === "Network request failed") {
+        return { ok: false, message: "No se pudo conectar con el servidor. Verifica tu conexión." };
+      }
       return { ok: false, message: error.message };
     } finally {
       setLoading(false);
