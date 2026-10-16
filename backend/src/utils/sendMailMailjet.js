@@ -57,10 +57,6 @@ const sendViaMailjet = async (to, subject, html, fromEmail, fromName) => {
   return { provider: "mailjet", status, messageId, body: result.body };
 };
 
-/**
- * Envía correo con Mailjet como principal (como estaba antes).
- * Si Mailjet falla, usa Gmail como respaldo automático.
- */
 export const sendEmail = async (to, subject, html) => {
   const fromEmail = (config.mailjet.fromEmail || "").trim();
   const fromName = (config.mailjet.fromName || "LioSnacks").trim();
