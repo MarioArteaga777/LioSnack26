@@ -73,20 +73,23 @@ const sendViaMailjet = async (to, subject, html) => {
 
 /**
  * Función reutilizable para enviar correos (registro, recuperación, etc).
- * Gmail primero, Mailjet como respaldo si Gmail falla o se cuelga.
+ * Mailjet primero (HTTPS, funciona en Render), Gmail como respaldo.
+ * Mailjet con remitente @gmail puede marcar Sent sin entregar (DMARC),
+ * pero al menos no se cuelga 120s como el SMTP de Gmail en Render.
  */
 export const sendEmail = async (to, subject, html) => {
   try {
-    return await sendViaGmail(to, subject, html);
-  } catch (gmailErr) {
-    console.error("[Email][Gmail] fallo:", gmailErr.message);
+    return await sendViaMailjet(to, subject, html);
+  } catch (mjErr) {
+    const mjMsg = mjErr.response?.body?.ErrorMessage || mjErr.message;
+    console.error("[Email][Mailjet] fallo:", mjErr.response?.body || mjMsg);
     try {
-      console.warn("[Email] Gmail fallo, probando Mailjet como respaldo...");
-      return await sendViaMailjet(to, subject, html);
-    } catch (mjErr) {
-      console.error("[Email][Mailjet] respaldo tambien fallo:", mjErr.response?.body || mjErr.message);
+      console.warn("[Email] Mailjet fallo, probando Gmail como respaldo...");
+      return await sendViaGmail(to, subject, html);
+    } catch (gmailErr) {
+      console.error("[Email][Gmail] respaldo tambien fallo:", gmailErr.message);
       // Devolvemos el error real para que el controlador lo muestre
-      throw new Error(`Gmail: ${gmailErr.message} | Mailjet: ${mjErr.response?.body?.ErrorMessage || mjErr.message}`);
+      throw new Error(`Mailjet: ${mjMsg} | Gmail: ${gmailErr.message}`);
     }
   }
 };
