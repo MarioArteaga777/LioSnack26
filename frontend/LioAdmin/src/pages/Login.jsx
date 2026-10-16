@@ -2,8 +2,9 @@
 // La lógica de autenticación (mock/API real) vive en AuthContext;
 // aquí solo se consume a través de useAuth().
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
+import { Eye, EyeOff } from "lucide-react";
 import img_Background from "../../img/background_image_2026.png";
 import img_Logo from "../../img/Logo.png";
 import useAuth from "../hooks/useAuth";
@@ -18,7 +19,10 @@ const Login = () => {
   const { login, isAuthenticated, loading: authLoading } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const justResetPassword = location.state?.passwordReset;
 
   const emailRegister = register("email");
   const passwordRegister = register("password");
@@ -65,6 +69,16 @@ const Login = () => {
             </p>
           </div>
 
+          {justResetPassword && (
+            <div
+              className="mt-4 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+              role="status"
+              aria-live="polite"
+            >
+              🔐 Contraseña actualizada. Inicia sesión con tu nueva contraseña.
+            </div>
+          )}
+
           <form
             className="mt-8 space-y-6"
             onSubmit={handleSubmit(attemptLogin)}
@@ -97,14 +111,30 @@ const Login = () => {
               <label className="block text-sm font-medium text-slate-700">
                 Contraseña
               </label>
-              <input
-                type="password"
-                placeholder="********"
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition duration-200 focus:border-indigo-500 focus:bg-white"
-                required
-                {...passwordRegister}
-                aria-invalid={!!errors.password}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="********"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 pr-12 text-slate-900 outline-none transition duration-200 focus:border-indigo-500 focus:bg-white"
+                  required
+                  {...passwordRegister}
+                  aria-invalid={!!errors.password}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  aria-label={
+                    showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                  }
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 transition-colors hover:text-slate-700"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
               {errors.password && (
                 <p
                   className="mt-1 text-xs text-red-600"

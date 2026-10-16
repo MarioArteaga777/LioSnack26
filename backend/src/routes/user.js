@@ -5,7 +5,8 @@ import upload from "../utils/cloudinaryConfig.js";
 const router = express.Router();
 
 router.route("/")
-    .get(userController.getUsers);
+    .get(userController.getUsers)
+    .post(upload.single("image"), userController.createUser);
 
 router.route("/:id")
     .put(upload.single("image"), userController.updateUser)

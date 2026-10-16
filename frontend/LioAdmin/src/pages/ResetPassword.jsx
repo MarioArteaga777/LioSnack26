@@ -1,6 +1,12 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import url from "../utils/apiUrl";
+import {
+  clearRecoveryToken,
+  isRecoveryTokenVerified,
+  readRecoveryToken,
+  recoveryHeaders,
+} from "../utils/recoveryToken.js";
 import img_Background from "../../img/background_image_2026.png";
 import img_Logo from "../../img/Logo.png";
 
@@ -11,8 +17,15 @@ const ResetPassword = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const recoveryToken = location.state?.recoveryToken;
+
+  useEffect(() => {
+    // Guard: sin token de recuperación verificado no se puede cambiar la
+    // contraseña (acceso directo por URL o sesión expirada). Se regresa al
+    // inicio del flujo.
+    if (!readRecoveryToken() || !isRecoveryTokenVerified()) {
+      navigate("/forgot-password", { replace: true });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -29,15 +42,17 @@ const ResetPassword = () => {
       return;
     }
 
+    if (newPassword.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await fetch(`${url}/recovery-password/newPassword`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(recoveryToken && { Authorization: `Bearer ${recoveryToken}` }),
-        },
+        headers: recoveryHeaders({ "Content-Type": "application/json" }),
         credentials: "include",
         body: JSON.stringify({ newPassword, confirmNewPassword }),
       });
@@ -51,9 +66,10 @@ const ResetPassword = () => {
       setMessage("Contraseña actualizada con éxito. Redirigiendo al login...");
       setNewPassword("");
       setConfirmNewPassword("");
+      clearRecoveryToken();
 
       setTimeout(() => {
-        navigate("/login");
+        navigate("/login", { state: { passwordReset: true } });
       }, 2000);
     } catch (error_) {
       setError(error_.message || "Error al procesar tu solicitud.");

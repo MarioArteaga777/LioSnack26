@@ -14,9 +14,17 @@ const CustomerForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) =>
       .string()
       .oneOf(["empresa", "persona"], "Selecciona un tipo válido")
       .required("El tipo de cliente es requerido"),
+    lastName: yup.string().when("type", {
+      is: "persona",
+      then: (schema) => schema.required("El apellido es requerido"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    email: yup
+      .string()
+      .email("Correo inválido")
+      .required("El correo es requerido"),
     address: yup.string().notRequired(),
     phone: yup.string().notRequired(),
-    email: yup.string().email("Correo inválido").notRequired(),
     // La foto es opcional tanto al crear como al editar
     image: yup.mixed().notRequired(),
   });
@@ -58,6 +66,7 @@ const CustomerForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) =>
       reset({
         name: initialData?.name ?? "",
         type: initialData?.type ?? "persona",
+        lastName: initialData?.lastName ?? "",
         address: initialData?.address ?? "",
         phone: initialData?.phone ?? "",
         email: initialData?.email ?? "",
@@ -76,6 +85,9 @@ const CustomerForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) =>
     const payload = {
       name: data.name,
       type: data.type,
+      // Las empresas solo tienen nombre; se limpia el apellido por si
+      // quedó un valor en el formulario al cambiar de tipo.
+      lastName: data.type === "empresa" ? "" : data.lastName,
       address: data.address,
       phone: data.phone,
       email: data.email,
@@ -135,6 +147,21 @@ const CustomerForm = ({ id, isOpen, onClose, onSubmit: onSave, initialData }) =>
                 <p className="mt-1 text-sm text-red-400">{errors.type.message}</p>
               )}
             </div>
+
+            {/* El apellido solo aplica a clientes de tipo persona */}
+            {selectedType === "persona" && (
+              <div>
+                <input
+                  type="text"
+                  {...register("lastName")}
+                  placeholder="Apellido del cliente"
+                  className="w-full rounded-lg bg-gray-300 px-3 py-2 outline-none placeholder:text-gray-500"
+                />
+                {errors.lastName && (
+                  <p className="mt-1 text-sm text-red-400">{errors.lastName.message}</p>
+                )}
+              </div>
+            )}
 
             <div>
               <input

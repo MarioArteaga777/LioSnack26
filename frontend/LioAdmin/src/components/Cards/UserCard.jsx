@@ -7,6 +7,7 @@ import EntityActionsMenu from "./EntityActionsMenu";
  *
  * @param {string} name
  * @param {string} lastName
+ * @param {string} [role] - "admin" | "cliente" (cuentas antiguas sin rol se muestran como cliente)
  * @param {boolean} isVerified
  * @param {string} [image]
  * @param {() => void} onUpdate
@@ -16,6 +17,7 @@ import EntityActionsMenu from "./EntityActionsMenu";
 const UserCard = ({
   name,
   lastName,
+  role,
   isVerified,
   image,
   onUpdate,
@@ -58,6 +60,10 @@ const UserCard = ({
 
           <span className="truncate rounded-full bg-white/10 px-3 py-1.5 text-center text-xs font-medium text-white">
             Apellido: {lastName}
+          </span>
+
+          <span className="rounded-full bg-white/10 px-3 py-1.5 text-center text-xs font-medium text-white">
+            Rol: {role === "admin" ? "Administrador" : "Cliente"}
           </span>
 
           <span className="rounded-full bg-white/10 px-3 py-1.5 text-center text-xs font-medium text-white">

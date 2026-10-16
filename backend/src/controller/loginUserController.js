@@ -52,8 +52,10 @@ loginUserController.login = async (req, res) => {
     userFound.timeOut = null;
     await userFound.save();
 
+    const isAdmin = userFound.role === "admin";
+
     const token = jsonwebtoken.sign(
-      { id: userFound._id, Type: "Admin", userType: "User" },
+      { id: userFound._id, Type: isAdmin ? "Admin" : "Client", userType: "User" },
       config.JWT.secret,
       { expiresIn: "30d" }
     );
@@ -72,6 +74,7 @@ loginUserController.login = async (req, res) => {
         name: userFound.name,
         lastName: userFound.lastName,
         email: userFound.email,
+        role: userFound.role || "cliente",
         isVerified: userFound.isVerified,
         image: userFound.image
       }

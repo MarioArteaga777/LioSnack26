@@ -6,6 +6,14 @@ const userSchema = new Schema({
     lastName: {type: String},
     email: {type: String, unique: true},
     password: {type: String},
+    // "cliente": cuenta creada desde LioSnacks_Web o la app móvil.
+    // "admin": cuenta administrativa gestionada desde LioAdmin.
+    // Los documentos antiguos sin este campo se tratan como clientes.
+    role: {type: String, enum: ["cliente", "admin"], default: "cliente"},
+    // Tipo de cliente (solo relevante para cuentas con rol "cliente")
+    type: {type: String, enum: ["empresa", "persona"], default: "persona"},
+    phone: {type: String, default: null},
+    address: {type: String, default: null},
     image: {type: String, default: null},
     public_id: {type: String, default: null},
     isVerified: {type: Boolean, default: false},

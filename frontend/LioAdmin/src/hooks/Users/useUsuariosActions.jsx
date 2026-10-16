@@ -2,13 +2,13 @@ import url from "../../utils/apiUrl";
 import { toast } from "sonner";
 
 const useUsuariosActions = () => {
-    // Registra un nuevo usuario (usa el endpoint de registro).
+    // Registra un nuevo usuario desde el panel (administrador o cliente).
     // Acepta un objeto plano (JSON) o un FormData (cuando incluye la foto de perfil).
     const createUsuario = async (data) => {
         try {
             const isFormData = data instanceof FormData;
 
-            const response = await fetch(`${url}/register`, {
+            const response = await fetch(`${url}/usuarios`, {
                 method: "POST",
                 headers: isFormData ? undefined : { "Content-Type": "application/json" },
                 body: isFormData ? data : JSON.stringify(data),

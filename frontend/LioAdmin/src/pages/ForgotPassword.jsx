@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import url from "../utils/apiUrl";
+import { saveRecoveryToken } from "../utils/recoveryToken.js";
 import img_Background from "../../img/background_image_2026.png";
 import img_Logo from "../../img/Logo.png";
 
@@ -41,6 +42,11 @@ const ForgotPassword = () => {
       }
 
       setMessage("Se ha enviado un código de recuperación a tu email.");
+
+      // Guardamos el token devuelto por el backend para enviarlo como
+      // Authorization: Bearer en los pasos siguientes (verifyCode y
+      // newPassword). La cookie httpOnly no viaja en producción.
+      saveRecoveryToken(data.recoveryToken);
 
       const sentEmail = email.trim();
       setEmail("");

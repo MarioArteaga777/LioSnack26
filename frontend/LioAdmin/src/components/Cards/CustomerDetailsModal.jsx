@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Building2, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 
 const CustomerDetailsModal = ({ id, client, onClose }) => {
   const dialogRef = useRef(null);
@@ -38,8 +38,6 @@ const CustomerDetailsModal = ({ id, client, onClose }) => {
                   alt={client.name}
                   className="h-full w-full object-cover"
                 />
-              ) : client.type === "empresa" ? (
-                <Building2 className="h-10 w-10 text-white/70" />
               ) : (
                 <UserRound className="h-10 w-10 text-white/70" />
               )}
@@ -52,20 +50,26 @@ const CustomerDetailsModal = ({ id, client, onClose }) => {
               <dd className="text-right font-medium">{client.name}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-white/60">Tipo</dt>
-              <dd className="text-right font-medium capitalize">{client.type}</dd>
+              <dt className="text-white/60">Apellido</dt>
+              <dd className="text-right font-medium">{client.lastName || "N/A"}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-white/60">Dirección</dt>
-              <dd className="text-right font-medium">{client.address || "N/A"}</dd>
+              <dt className="text-white/60">Correo</dt>
+              <dd className="text-right font-medium">{client.email || "N/A"}</dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-white/60">Teléfono</dt>
               <dd className="text-right font-medium">{client.phone || "N/A"}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-white/60">Correo</dt>
-              <dd className="text-right font-medium">{client.email || "N/A"}</dd>
+              <dt className="text-white/60">Dirección</dt>
+              <dd className="text-right font-medium">{client.address || "N/A"}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-white/60">Estado</dt>
+              <dd className="text-right font-medium">
+                {client.isVerified ? "Verificado" : "No verificado"}
+              </dd>
             </div>
             {client.createdAt && (
               <div className="flex justify-between gap-4">
